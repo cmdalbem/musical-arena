@@ -16,7 +16,7 @@ void double_to_timespec(double diff_time, timespec *timer)
 	//printf("double: %f\n", diff_time);
 }
 
-int main ()
+int main(int argc, char *argv[])
 {
 	smf_t *smf;
 	smf_event_t *event, *event2;
@@ -27,7 +27,7 @@ int main ()
 	
 	int terminou = 0;
 
-	smf = smf_load("roadtobabylon.mid");
+	smf = smf_load(argv[1]);
 	if (smf == NULL) {
 		puts("Whoops, something went wrong.");
 		exit(1);
