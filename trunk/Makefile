@@ -8,7 +8,7 @@ LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf
 
 all: musa
  
-musa: main.c
+musa: main.cpp
 	$(CC) $(CFLAGS) $^ -o $@ $(FLAGS) $(LIBS) 
 
 #Utils.o: utils.cpp utils.h
