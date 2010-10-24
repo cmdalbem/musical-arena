@@ -4,7 +4,7 @@ CFLAGS = -Wall `pkg-config glib-2.0 --cflags`
 
 OBJS = Decoder.o
 
-LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf
+LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf -lpthread
 
 all: musa
  

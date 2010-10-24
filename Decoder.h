@@ -6,7 +6,7 @@ using namespace std;
 
 enum buttonsType
 {
-	B1, B2, B3, B4, B5
+	B1, B2, B3, B4, B5, NIL
 };
 
 enum difficultyType
@@ -18,7 +18,7 @@ enum difficultyType
 class Decoder
 {
 		private:
-				map<string,buttonsType> notes;
+				map< string,pair<buttonsType,difficultyType> > notes;
 				
 				void initHash();
 				
@@ -28,6 +28,7 @@ class Decoder
 		
 				string note_from_int(int note_number);
 				buttonsType whatButton( string note );	
+				buttonsType whatButton( string note, difficultyType difficulty);	
 		
 		
 };
