@@ -1,0 +1,24 @@
+ # *armazenagem de música em memória*
+   Ler o mid e carregar a música numa estrutura específica em memória. por enquanto definimos ela roughly:
+{{{
+typedef struct
+{
+ buttonType correspondentButton;
+ timeSignatureType time
+} event;
+
+vector<event> aMusic;
+}}}
+
+ # *sistema de fretting*
+   Sistema responsável por captar os botões pressionados pelo usuário e determinar se acertou as notas ou não.
+ # *joystick*
+   Não precisa estar funcional, mas temos que ter algum aval sobre o uso dele.
+ # *sistem de som com suporte a ogg*
+   Só pra mostrar se as coisas estão funcionando, sincronizadinhas e tudo mais. algumas engines tem sistem de som próprio. mas a maioria não tem
+ # *estudar Engines pra decidirmos uma pra nós!*
+   Sem pressa aqui. mas não preciso dizer que isso é muito importante né :)
+   Sugestões de nomes conhecidos:
+    * Panda
+    * Irrlicht
+    * Ogre
