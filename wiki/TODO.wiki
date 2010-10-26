@@ -14,8 +14,6 @@ vector<event> aMusic;
    Sistema responsável por captar os botões pressionados pelo usuário e determinar se acertou as notas ou não.
  # *joystick*
    Não precisa estar funcional, mas temos que ter algum aval sobre o uso dele.
- # *sistem de som com suporte a ogg*
-   Só pra mostrar se as coisas estão funcionando, sincronizadinhas e tudo mais. algumas engines tem sistem de som próprio. mas a maioria não tem
  # *estudar Engines pra decidirmos uma pra nós!*
    Sem pressa aqui. mas não preciso dizer que isso é muito importante né :)
    Sugestões de nomes conhecidos:
