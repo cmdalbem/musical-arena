@@ -30,7 +30,8 @@ enum eventType
 
 typedef struct 
 {
-	eventType buttons[5];
+	buttonType button;
+	eventType type;
 	double time; //seconds
 } musicEvent;
 
@@ -52,44 +53,27 @@ void double_to_timespec(double diff_time, timespec *timer)
 }
 
 void decodeMidiEvent( smf_event_t *event )
-/* decodes what button is updates it in keys[] vector */
 {
-	//getchar();
-	
 	buttonType button = decoder.whatButton( decoder.note_from_int(event->midi_buffer[1]), EXPERT );
 	//cout << smf_event_decode(event) << endl;
 	
 	if(button != NIL)  { // decoded the event successfully
+		
 		musicEvent newEvent;
 		
 		newEvent.time = event->time_seconds;
-		//cout << newEvent.time << ": " << button << endl;
+		newEvent.button = button;
+		switch( event->midi_buffer[0] & 0xF0 ) {
+			case 0x80: newEvent.type = OFF; break;
+			case 0x90: newEvent.type = ON; break;
+		}			
 		
-		if( aMusic.size()>0 && aMusic.back().time == newEvent.time ) { // this event is concorrent to the last, so we merge them
-			//cout<<"MERGE!"<<endl;
-			switch( event->midi_buffer[0] & 0xF0 ) {
-				case 0x80: aMusic.back().buttons[button] = OFF; break;
-				case 0x90: aMusic.back().buttons[button] = ON; break;
-			}
-		}
-		else {
-			// initializes buttons states
-			for(int i=0; i<5; i++)
-				newEvent.buttons[i] = STAY;	
-				
-			switch( event->midi_buffer[0] & 0xF0 ) {
-				case 0x80: newEvent.buttons[button] = OFF; break;
-				case 0x90: newEvent.buttons[button] = ON; break;
-			}			
-		
-			// put this new event to the music events list
-			aMusic.push_back(newEvent);	
-		}
+		aMusic.push_back(newEvent); // put this new event to the music events list
 	}
 }
 
 int readMidi()
-/* reads the mid file synchronously and calls decodeMidiEvent() for every event */
+/* reads the mid file calling decodeMidiEvent() for every event */
 {
 	smf_t *smf;
 	smf_event_t *event;
@@ -111,8 +95,6 @@ int readMidi()
 		}
 		else
 			decodeMidiEvent(event);
-		
-		//printf("%s\t %d\t %d\t %f\n", smf_event_decode(event), event->time_pulses, event->delta_time_pulses, event->time_seconds);		
 	}
 	
 	cout << endl << "End of file." << endl;
@@ -133,21 +115,20 @@ static void *updater(void *argument)
 		//cout<<"actualTime - baseTime = "<<actualTime<<"-"<<baseTime<<" = "<<actualTime - baseTime<<endl;
 		//cout<<musicTime<<endl;
 		//cout<<aMusic[0].time<<endl;
-		if( musicTime > aMusic[0].time ) {
+		while( musicTime > aMusic[0].time ) {
 			//cout << "EVENT LAUNCHED" << endl;
 			// updates the first line of the matrix with the actual configuration		
-			for(int i=0; i<5; i++)
-				switch(aMusic[0].buttons[i]) {
-					case ON:
-						screen[0][i] = STRIKE;
-						break;
-					case OFF:
-						screen[0][i] = NOTHING;
-						break;
-					case STAY:
-						screen[0][i] = screen[1][i];
-						break;
-				}
+			switch(aMusic[0].type) {
+				case ON:
+					screen[0][aMusic[0].button] = STRIKE;
+					break;
+				case OFF:
+					screen[0][aMusic[0].button] = NOTHING;
+					break;
+				case STAY:
+					screen[0][aMusic[0].button] = screen[1][aMusic[0].button];
+					break;
+			}
 				
 			aMusic.erase(aMusic.begin());
 		}		
@@ -165,34 +146,33 @@ static void *drawer(void *argument)
 		for(int col=0; col<5; col++)
 			screen[lin][col] = NOTHING;
 	
+	clock_t actualTime, baseTime = clock();
+	float musicTime;
+	
 	while( 1 )
 	{
 		usleep(10000);
 		system("clear"); 
-		
-		clock_t actualTime, baseTime = clock();
-		float musicTime;
 	
 		actualTime = clock();
-		musicTime = (float) (actualTime - baseTime) / CLOCKS_PER_SEC;
+		musicTime = (((float)actualTime - baseTime)) / (float)CLOCKS_PER_SEC;
 		//cout<<"actualTime - baseTime = "<<actualTime<<"-"<<baseTime<<" = "<<actualTime - baseTime<<endl;
-		cout<<musicTime<<endl;
-		cout<<aMusic[0].time<<endl;
-		if( musicTime > aMusic[0].time ) {
+		cout<<"music time: "<<(float)musicTime<<endl;
+		cout<<"upcoming event: "<<aMusic[0].time<<endl;
+		while( musicTime > aMusic[0].time ) {
 			//cout << "EVENT LAUNCHED" << endl;
 			// updates the first line of the matrix with the actual configuration		
-			for(int i=0; i<5; i++)
-				switch(aMusic[0].buttons[i]) {
-					case ON:
-						screen[0][i] = STRIKE;
-						break;
-					case OFF:
-						screen[0][i] = NOTHING;
-						break;
-					case STAY:
-						screen[0][i] = screen[1][i];
-						break;
-				}
+			switch(aMusic[0].type) {
+				case ON:
+					screen[0][aMusic[0].button] = STRIKE;
+					break;
+				case OFF:
+					screen[0][aMusic[0].button] = NOTHING;
+					break;
+				case STAY:
+					screen[0][aMusic[0].button] = screen[1][aMusic[0].button];
+					break;
+			}
 				
 			aMusic.erase(aMusic.begin());
 		}				
@@ -233,18 +213,15 @@ int main(int argc, char *argv[])
 	 
 	readMidi();
 	 
-	cout<<"YAY"<<endl;
-	 
-	cout<<"size: " <<aMusic.size()<<endl;
-	for(int i=0; i<aMusic.size(); i++) {
-		cout<<aMusic[i].time<<": ";
-		for(int k=0; k<5; k++)
-			switch(aMusic[i].buttons[k])
-			{
-				case ON: cout << "ON\t"; break;
-				case OFF: cout << "OFF\t"; break;
-				case STAY: cout << "STAY\t"; break;
-			}
+	cout<<"MIDI parsed. This is your music:"<<endl;
+	for(unsigned int i=0; i<aMusic.size(); i++) {
+		cout<<aMusic[i].time<<" - "<<aMusic[i].button << ": ";
+		switch(aMusic[i].type)
+		{
+			case ON: cout << "ON"; break;
+			case OFF: cout << "OFF"; break;
+			case STAY: cout << "STAY"; break;
+		}
 		cout<<endl;
 	}
 	
