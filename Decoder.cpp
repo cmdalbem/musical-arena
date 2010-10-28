@@ -1,3 +1,5 @@
+// Decoder.cpp
+
 #include <map>
 #include <string>
 using namespace std;
@@ -24,21 +26,21 @@ void Decoder::initHash()
 	notes["D#7"] = pair<buttonType,difficultyType>(B4,EXPERT);
 	notes["E7"] = pair<buttonType,difficultyType>(B5,EXPERT);
 	
-	// MEDIUM
+	// HARD
 	notes["C6"] = pair<buttonType,difficultyType>(B1,MEDIUM);
 	notes["C#6"] = pair<buttonType,difficultyType>(B2,MEDIUM);
 	notes["D6"] = pair<buttonType,difficultyType>(B3,MEDIUM);
 	notes["D#6"] = pair<buttonType,difficultyType>(B4,MEDIUM);
 	notes["E6"] = pair<buttonType,difficultyType>(B5,MEDIUM);
 	
-	// EASY
+	// MEDIUM
 	notes["C5"] = pair<buttonType,difficultyType>(B1,EASY);
 	notes["C#5"] = pair<buttonType,difficultyType>(B2,EASY);
 	notes["D5"] = pair<buttonType,difficultyType>(B3,EASY);
 	notes["D#5"] = pair<buttonType,difficultyType>(B4,EASY);
 	notes["E5"] = pair<buttonType,difficultyType>(B5,EASY);
 	
-	// SUPER EASY
+	// EASY
 	notes["C4"] = pair<buttonType,difficultyType>(B1,SUPEREASY);
 	notes["C#4"] = pair<buttonType,difficultyType>(B2,SUPEREASY);
 	notes["D4"] = pair<buttonType,difficultyType>(B3,SUPEREASY);
@@ -63,10 +65,7 @@ string Decoder::note_from_int(int note_number)
 
 
 buttonType Decoder::whatButton( string note )
-{
-	
-	return notes[note].first;	
-}
+{	return notes[note].first;	}
 
 buttonType Decoder::whatButton( string note, difficultyType difficulty )
 {
