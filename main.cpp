@@ -14,7 +14,7 @@
 #include <pthread.h>
 
 // Addicional Libraries
-//#include <irrKlang.h>
+#include <irrKlang.h>
 #include "smf.h"
 
 // used headers
@@ -24,7 +24,7 @@ using namespace std;
 
 #define ONE_BILLION 1000000000
 #define ONE_MILLION 1000000
-#define SCREEN_Y 20
+#define SCREEN_Y 50
 #define DEBUG 0
 
 /*
@@ -46,10 +46,9 @@ using namespace std;
 	timer->tv_nsec	= diff_time * ONE_MILLION; \
 }
 
-#define TIMEVAL_TO_DOUBLE(timevalue, var) \
-{ \
-	var = timevalue.tv_sec; \
-	var = (double)(var + ((timevalue.tv_usec) / ONE_MILLION)); \
+double timeval_to_double(struct timeval t) 
+{ 
+	return (double)(t.tv_sec + ((double)t.tv_usec / ONE_MILLION)); 
 }
 
 /*
@@ -84,7 +83,7 @@ Decoder decoder;
 // stores an entire MIDI file, so we don't need to keep it opened during too much time
 vector<musicEvent> aMusic;
 
-string defaultFile = "example.mid";
+string defaultFile = "example.mid", songFile = "example.ogg";
 int mspqn; //ms per quarter note
 note screen[SCREEN_Y][5] = {{NOTHING}};
 
@@ -100,8 +99,14 @@ void decodeMidiEvent( smf_event_t *event )
 		newEvent.time = event->time_seconds;
 		newEvent.button = button;
 		switch( event->midi_buffer[0] & 0xF0 ) {
-			case 0x80: newEvent.type = OFF; break;
-			case 0x90: newEvent.type = ON; break;
+			case 0x80:
+				newEvent.type = OFF;
+				break;
+			case 0x90: 
+				if(event->midi_buffer[2]!=0)
+					newEvent.type = ON;
+				else
+					newEvent.type = OFF;
 		}			
 		
 		aMusic.push_back(newEvent); // put this new event to the music events list
@@ -175,23 +180,6 @@ static void *updater(void *argument)
 static void *drawer(void *argument) 
 {
 
-/*
-    struct timeval start, end;
-
-    long mtime, seconds, useconds;    
-
-    gettimeofday(&start, NULL);
-    usleep(2000);
-    gettimeofday(&end, NULL);
-
-    seconds  = end.tv_sec  - start.tv_sec;
-    useconds = end.tv_usec - start.tv_usec;
-
-    mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
-
-    printf("Elapsed time: %ld milliseconds\n", mtime);
-
-*/		
 	//prints the matrix		
 	for(int lin=0; lin<SCREEN_Y; lin++)
 		for(int col=0; col<5; col++)
@@ -203,7 +191,7 @@ static void *drawer(void *argument)
 	gettimeofday(&start, NULL);
 	while( 1 )
 	{
-		usleep(10000);
+		usleep(80000);
 		system("clear"); 
 
 		gettimeofday(&end, NULL);
@@ -211,11 +199,16 @@ static void *drawer(void *argument)
 		end.tv_sec  = end.tv_sec  - start.tv_sec;
 		end.tv_usec = end.tv_usec - start.tv_usec;
 		
-		//musicTime = (double)((end.tv_usec)/ONE_MILLION);
-		TIMEVAL_TO_DOUBLE(end, musicTime);
+		musicTime = timeval_to_double(end);
 		
 		cout << "music time: " << (double)musicTime << endl;
 		cout << "upcoming event: " << aMusic[0].time << endl;
+	
+		// propagates the lines of the matrix	
+		for(int lin=SCREEN_Y-1; lin>0; lin--)
+			for(int col=0; col<5; col++)
+				screen[lin][col] = screen[lin-1][col];
+
 		while( musicTime > aMusic[0].time ) {
 			//cout << "EVENT LAUNCHED" << endl;
 			// updates the first line of the matrix with the actual configuration		
@@ -227,14 +220,9 @@ static void *drawer(void *argument)
 					screen[0][aMusic[0].button] = NOTHING;
 					break;
 			}
-				
+
 			aMusic.erase(aMusic.begin());
 		}				
-		
-		// propagates the lines of the matrix	
-		for(int lin=SCREEN_Y-1; lin>0; lin--)
-			for(int col=0; col<5; col++)
-				screen[lin][col] = screen[lin-1][col];
 				
 		//prints the matrix		
 		for(int lin=0; lin<SCREEN_Y; lin++)
@@ -259,6 +247,8 @@ static void *drawer(void *argument)
 
 int main(int argc, char *argv[])
 {
+	irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
+	irrklang::ISoundSource* oggMusic = soundEngine->addSoundSourceFromFile(songFile.c_str());
 	pthread_t thread[2];
 	int arg = 1;
 	 
@@ -277,11 +267,14 @@ int main(int argc, char *argv[])
 	
 	cout<<"Press enter to start the music!"<<endl; getchar();
 	
-	drawer((void*)arg);
-	//pthread_create(&thread[0], NULL, drawer, (void *) arg);
+	soundEngine->play2D(oggMusic, true);
+	pthread_create(&thread[0], NULL, drawer, (void *) arg);
 	//pthread_create(&thread[1], NULL, updater, (void *) arg);
 	
 	// wait for all threads to complete
-	//pthread_join(thread[0], NULL);
+	pthread_join(thread[0], NULL);
 	//pthread_join(thread[1], NULL);
+
+	soundEngine->drop();
+
 }
