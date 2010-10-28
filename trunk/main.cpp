@@ -5,6 +5,7 @@
 #include <vector>
 using namespace std;
 #include <time.h>
+#include <sys/time.h>
 #include <pthread.h>
 
 #include <irrKlang.h>
@@ -14,7 +15,7 @@ using namespace std;
 
 
 #define ONE_BILLION 1000000000
-#define SCREEN_Y 50
+#define SCREEN_Y 20
 #define DEBUG 0
 
 
@@ -25,7 +26,7 @@ enum note//types of notes of the screen
 
 enum eventType
 {
-	ON, OFF, STAY
+	ON, OFF 
 };
 
 typedef struct 
@@ -125,9 +126,6 @@ static void *updater(void *argument)
 				case OFF:
 					screen[0][aMusic[0].button] = NOTHING;
 					break;
-				case STAY:
-					screen[0][aMusic[0].button] = screen[1][aMusic[0].button];
-					break;
 			}
 				
 			aMusic.erase(aMusic.begin());
@@ -145,17 +143,25 @@ static void *drawer(void *argument)
 	for(int lin=0; lin<SCREEN_Y; lin++)
 		for(int col=0; col<5; col++)
 			screen[lin][col] = NOTHING;
+
+	/*struct timeval tv;
+	int actualTime, baseTime, musicTime;
+
+	gettimeofday(&tv, NULL); 
+	baseTime = tv.tv_sec;*/
 	
 	clock_t actualTime, baseTime = clock();
-	float musicTime;
-	
+	double musicTime;
+
 	while( 1 )
 	{
 		usleep(10000);
 		system("clear"); 
-	
+
+		/*gettimeofday(&tv, NULL); 
+		actualTime = tv.tv_sec;*/
 		actualTime = clock();
-		musicTime = (((float)actualTime - baseTime)) / (float)CLOCKS_PER_SEC;
+		musicTime = (double)(actualTime - baseTime) / CLOCKS_PER_SEC;
 		//cout<<"actualTime - baseTime = "<<actualTime<<"-"<<baseTime<<" = "<<actualTime - baseTime<<endl;
 		cout<<"music time: "<<(float)musicTime<<endl;
 		cout<<"upcoming event: "<<aMusic[0].time<<endl;
@@ -168,9 +174,6 @@ static void *drawer(void *argument)
 					break;
 				case OFF:
 					screen[0][aMusic[0].button] = NOTHING;
-					break;
-				case STAY:
-					screen[0][aMusic[0].button] = screen[1][aMusic[0].button];
 					break;
 			}
 				
@@ -220,7 +223,6 @@ int main(int argc, char *argv[])
 		{
 			case ON: cout << "ON"; break;
 			case OFF: cout << "OFF"; break;
-			case STAY: cout << "STAY"; break;
 		}
 		cout<<endl;
 	}
@@ -228,11 +230,12 @@ int main(int argc, char *argv[])
 	cout<<"Press enter to start the music!"<<endl; getchar();
 	
 	soundEngine->play2D(oggMusic, true);
-	pthread_create(&thread[0], NULL, drawer, (void *) arg);
+	drawer((void*)arg);
+	//pthread_create(&thread[0], NULL, drawer, (void *) arg);
 	//pthread_create(&thread[1], NULL, updater, (void *) arg);
 	
 	// wait for all threads to complete
-	pthread_join(thread[0], NULL);
+	//pthread_join(thread[0], NULL);
 	//pthread_join(thread[1], NULL);
 	
 	soundEngine->drop();
