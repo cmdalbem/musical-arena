@@ -58,7 +58,7 @@ typedef struct musicEvent_t
 
 /*
  * MACROS
- */
+ */ 
 #define DOUBLE_TO_TIMESPEC(diff_time, timer) \
 { \
 	timer.tv_sec	= (long int)diff_time; \
@@ -77,6 +77,7 @@ typedef struct musicEvent_t
 
 double timeval_to_double(struct timeval t);
 double time_diff (timeval base_time);
+int buttonType_to_int (buttonType button);
 
 #endif
 

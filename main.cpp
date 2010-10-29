@@ -20,14 +20,14 @@ Decoder decoder;
 vector<musicEvent> theMusic;
 
 // stores the stones present on the screen
-stone	stonesOnScreen[5][MAX_STONE_PER_TRACK];
+stone	*stonesOnScreen[5][MAX_STONE_PER_TRACK];
 
 // indicates the end of the music for the keyboard polling function
 bool endOfMusic;
 
-// with these variables, I can take the elapsed time of each note
-eventType	frets[5];
-int			index_pointers[5];
+// with these variables, I can take the elapsed time of each created note
+int			index_create_pointers[5];
+int			index_delete_pointers[5];
 
 string defaultFile = "example.mid", songFile = "example.ogg";
 int mspqn; //ms per quarter note
@@ -127,15 +127,28 @@ static void* drawer(void *argument)
 		while( (musicTime + STONE_DELAY) > theMusic[0].time ) {
 			// updates the first line of the matrix with the actual configuration
 			switch(theMusic[0].type) {
-				case ON:	{
+				case ON:	{	// definitely, the last event on this track was an OFF
 					theScreen[0][theMusic[0].button] = STRIKE;
 					// creates a new stone
+					int track = buttonType_to_int(theMusic[0].button);
+					stone newStone(theMusic[0], -1);
+					
+					// put newStone on the stones matrix
+					// TEM QUE VER SE, AO TERMINO DO SWITCH, O COMPILADOR NÃO VAI DESALOCAR
+					// A VARIÁVEL newStone E, COM ISSO, O PONTEIRO A ELA PASSE A SER UMA Á-
+					// REA DE MEMÓRIA INVÁLIDA!!!
+					stonesOnScreen[track][index_create_pointers[track]] = &newStone;
 					
 					break;
 				}
-				case OFF:	{
+				case OFF:	{	// definitely, the last event on this track was an ON
 					theScreen[0][theMusic[0].button] = NOTHING;
-					// tell a stone it has to be destroyed in this time
+					
+					int track = buttonType_to_int(theMusic[0].button);
+					stone *stone_p = stonesOnScreen[track][index_create_pointers[track]];
+					
+					stone_p->destroy_time = theMusic[0].time;
+					index_create_pointers[track]++;
 					
 					break;
 				}
@@ -147,8 +160,23 @@ static void* drawer(void *argument)
 				endOfMusic = true;
 		}
 		
+		// desalocate the stones for which the time has already gone
+		int has_more = 1;
+		for (int i = 0; i < 5; i++, has_more = 1)
+			while (has_more == 1)
+				if( musicTime > stonesOnScreen[i][index_delete_pointers[i]]->destroy_time )
+				{
+					free(stonesOnScreen[i][index_delete_pointers[i]]);
+					index_delete_pointers[i]++;
+				}
+				else
+					has_more = 0;
+		
+		
 		matrix_print();
 	}
+	
+
 		
 	return NULL;	
 }
@@ -178,12 +206,8 @@ void musa_init()
 		for(int col=0; col<5; col++)
 			theScreen[lin][col] = NOTHING;
 	
-	// initializes the frets
 	for (int i = 0; i < 5; i++)
-		frets[i] = ERROR;
-	
-	for (int i = 0; i < 5; i++)
-		index_pointers[i] = i;
+		index_create_pointers[i] = i;
 }
 
 int main(int argc, char *argv[])
@@ -208,7 +232,6 @@ int main(int argc, char *argv[])
 		}
 		cout<<endl;
 	}
-	
 	cout<<"Press enter to start the music!"<<endl; getchar();
 
 #ifdef HAVE_IRRKLANG

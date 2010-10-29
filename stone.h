@@ -8,9 +8,13 @@
 
 class stone
 {
-	musicEvent	event;
-	double		destroy_time;
-	//double	x, y;		// coordinates
+	public:
+		stone(musicEvent event, double endTime);
+		~stone();
+
+		musicEvent	event;
+		double		destroy_time;
+		//double	x, y;		// coordinates
 	
 	//void draw();
 	//void update();	
