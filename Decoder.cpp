@@ -2,7 +2,6 @@
 
 #include <map>
 #include <string>
-using namespace std;
 
 #include "Decoder.h"
 
@@ -27,25 +26,25 @@ void Decoder::initHash()
 	notes["E7"] = pair<buttonType,difficultyType>(B5,EXPERT);
 	
 	// HARD
-	notes["C6"] = pair<buttonType,difficultyType>(B1,MEDIUM);
-	notes["C#6"] = pair<buttonType,difficultyType>(B2,MEDIUM);
-	notes["D6"] = pair<buttonType,difficultyType>(B3,MEDIUM);
-	notes["D#6"] = pair<buttonType,difficultyType>(B4,MEDIUM);
-	notes["E6"] = pair<buttonType,difficultyType>(B5,MEDIUM);
+	notes["C6"] = pair<buttonType,difficultyType>(B1,HARD);
+	notes["C#6"] = pair<buttonType,difficultyType>(B2,HARD);
+	notes["D6"] = pair<buttonType,difficultyType>(B3,HARD);
+	notes["D#6"] = pair<buttonType,difficultyType>(B4,HARD);
+	notes["E6"] = pair<buttonType,difficultyType>(B5,HARD);
 	
 	// MEDIUM
-	notes["C5"] = pair<buttonType,difficultyType>(B1,EASY);
-	notes["C#5"] = pair<buttonType,difficultyType>(B2,EASY);
-	notes["D5"] = pair<buttonType,difficultyType>(B3,EASY);
-	notes["D#5"] = pair<buttonType,difficultyType>(B4,EASY);
-	notes["E5"] = pair<buttonType,difficultyType>(B5,EASY);
+	notes["C5"] = pair<buttonType,difficultyType>(B1,MEDIUM);
+	notes["C#5"] = pair<buttonType,difficultyType>(B2,MEDIUM);
+	notes["D5"] = pair<buttonType,difficultyType>(B3,MEDIUM);
+	notes["D#5"] = pair<buttonType,difficultyType>(B4,MEDIUM);
+	notes["E5"] = pair<buttonType,difficultyType>(B5,MEDIUM);
 	
 	// EASY
-	notes["C4"] = pair<buttonType,difficultyType>(B1,SUPEREASY);
-	notes["C#4"] = pair<buttonType,difficultyType>(B2,SUPEREASY);
-	notes["D4"] = pair<buttonType,difficultyType>(B3,SUPEREASY);
-	notes["D#4"] = pair<buttonType,difficultyType>(B4,SUPEREASY);
-	notes["E4"] = pair<buttonType,difficultyType>(B5,SUPEREASY);
+	notes["C4"] = pair<buttonType,difficultyType>(B1,EASY);
+	notes["C#4"] = pair<buttonType,difficultyType>(B2,EASY);
+	notes["D4"] = pair<buttonType,difficultyType>(B3,EASY);
+	notes["D#4"] = pair<buttonType,difficultyType>(B4,EASY);
+	notes["E4"] = pair<buttonType,difficultyType>(B5,EASY);
 }	
 
 
@@ -74,3 +73,18 @@ buttonType Decoder::whatButton( string note, difficultyType difficulty )
 	else
 		return NIL;
 }
+
+eventType Decoder::whatEventType(u_char arg, u_char arg2)
+{
+	switch( arg & 0xF0 )
+	{
+		case 0x80: return OFF;
+		case 0x90: 
+			if ( arg2 != 0)
+				return ON;
+			else
+				return OFF;
+	}
+	return ERROR;
+}
+

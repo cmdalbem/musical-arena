@@ -7,17 +7,7 @@
 #include <map>
 #include <iostream>
 
-using namespace std;
-
-enum buttonType
-{
-	B1, B2, B3, B4, B5, NIL
-};
-
-enum difficultyType
-{
-	EXPERT, MEDIUM, EASY, SUPEREASY
-};
+#include "utils.h"
 
 class Decoder
 {
@@ -33,6 +23,7 @@ class Decoder
 		string note_from_int(int note_number);
 		buttonType whatButton( string note );	
 		buttonType whatButton( string note, difficultyType difficulty);
+		eventType  whatEventType(u_char arg0, u_char arg2);
 };
 	
 #endif
