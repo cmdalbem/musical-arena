@@ -14,10 +14,10 @@ class stone
 
 		musicEvent	event;
 		double		destroy_time;
-		//double	x, y;		// coordinates
+		double	x, y;		// coordinates
 	
-	//void draw();
-	//void update();	
+	void draw();
+	void update();	
 };
 
 #endif
