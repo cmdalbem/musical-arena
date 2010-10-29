@@ -20,3 +20,16 @@ double time_diff (timeval base_time)
 	return timeval_to_double(end);
 }
 
+int buttonType_to_int (buttonType button)
+{
+	switch (button)
+	{
+		case B1: return 0;
+		case B2: return 1;
+		case B3: return 2;
+		case B4: return 3;
+		case B5: return 4;
+		case NIL: return 5;
+	}
+}
+
