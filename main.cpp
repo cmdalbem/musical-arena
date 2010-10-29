@@ -107,7 +107,7 @@ int readMidi()
 	return 0;	
 }
 
-static void* drawer(void *argument) 
+/*static void* drawer(void *argument) 
 {
 	struct	timeval start;
 	double	musicTime;
@@ -133,13 +133,13 @@ static void* drawer(void *argument)
 					theScreen[0][theMusic[0].button] = STRIKE;
 					// creates a new stone
 					int track = buttonType_to_int(theMusic[0].button);
-					stone newStone(theMusic[0], -1);
+					stone *newStone = new stone(theMusic[0], -1);
 					
 					// put newStone on the stones matrix
 					// TEM QUE VER SE, AO TERMINO DO SWITCH, O COMPILADOR NÃO VAI DESALOCAR
 					// A VARIÁVEL newStone E, COM ISSO, O PONTEIRO A ELA PASSE A SER UMA Á-
 					// REA DE MEMÓRIA INVÁLIDA!!!
-					stonesOnScreen[track][index_create_pointers[track]] = &newStone;
+					stonesOnScreen[track][index_create_pointers[track]] = newStone;
 					
 					break;
 				}
@@ -181,7 +181,56 @@ static void* drawer(void *argument)
 
 		
 	return NULL;	
+}*/
+
+
+static void* drawer(void *argument) 
+{
+        struct  timeval start;
+        double  musicTime;
+
+        // get the time before starting the music (so we can know how much time passed in each note)
+        gettimeofday(&start, NULL);
+        
+        while( !endOfMusic )
+        {
+                usleep(80000);
+                musicTime = time_diff(start);
+                
+                cout << "music time: "     << musicTime          << endl
+                         << "upcoming event: " << theMusic[0].time << endl;
+
+                matrix_update();
+                
+                while( (musicTime + STONE_DELAY) > theMusic[0].time ) {
+                        // updates the first line of the matrix with the actual configuration
+                        switch(theMusic[0].type) {
+                                case ON:        {
+                                        theScreen[0][theMusic[0].button] = STRIKE;
+                                        // creates a new stone
+                                        
+                                        break;
+                                }
+                                case OFF:       {
+                                        theScreen[0][theMusic[0].button] = NOTHING;
+                                        // tell a stone it has to be destroyed in this time
+                                        
+                                        break;
+                                }
+                        }
+                        // avoiding segmentation faults =D
+                        if(theMusic.size() > 0)
+                                theMusic.erase(theMusic.begin());
+                        else
+                                endOfMusic = true;
+                }
+                
+                matrix_print();
+        }
+                
+        return NULL;    
 }
+
 
 void* fretting (void *arg)
 {
@@ -241,7 +290,7 @@ int main(int argc, char *argv[])
 #endif
 	endOfMusic = false;
 	pthread_create(&thread[0], NULL, drawer, (void *) arg);
-	pthread_create(&thread[2], NULL, fretting, (void *) arg);
+	pthread_create(&thread[1], NULL, fretting, (void *) arg);
 	
 	// wait for all threads to complete
 	pthread_join(thread[0], NULL);
