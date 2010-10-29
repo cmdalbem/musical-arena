@@ -16,9 +16,9 @@
 
 #define ONE_BILLION 1000000000
 #define ONE_MILLION 1000000
-#define SCREEN_Y 30
+#define SCREEN_Y 50
 #define DEBUG 0
-#define STONE_DELAY 3
+#define STONE_DELAY -2
 #define MAX_STONE_PER_TRACK 30
 
 using namespace std;

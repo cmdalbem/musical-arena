@@ -7,6 +7,7 @@
 #include "stone.h"
 #include "utils.h"
 
+#define HAVE_IRRKLANG 0
 // Addicional Libraries
 #ifdef HAVE_IRRKLANG
   #include <irrKlang.h>
@@ -116,7 +117,8 @@ static void* drawer(void *argument)
 	
 	while( !endOfMusic )
 	{
-		usleep(80000);
+		usleep(40000);
+		system("clear");
 		musicTime = time_diff(start);
 		
 		cout << "music time: "	   << musicTime		 << endl
