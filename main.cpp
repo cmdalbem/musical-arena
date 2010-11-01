@@ -20,20 +20,20 @@ Decoder decoder;
 vector<musicEvent> theMusic;
 
 // stores the stones present on the screen
-vector<stone*>	stonesOnScreen[5];
+vector<stone*>	stonesOnScreen[NUMBER_OF_FRETS];
 
 // indicates the end of the music for the keyboard polling function
 bool endOfMusic;
 
 string defaultFile = "example.mid", songFile = "example.ogg";
 int mspqn; //ms per quarter note
-note theScreen[SCREEN_Y][5];
+note theScreen[SCREEN_Y][NUMBER_OF_FRETS];
 
 void matrix_update()
 {
 	// propagates the lines of the matrix	
 	for(int lin=SCREEN_Y-1; lin>0; lin--)
-		for(int col=0; col<5; col++)
+		for(int col=0; col<NUMBER_OF_FRETS; col++)
 			theScreen[lin][col] = theScreen[lin-1][col];
 }
 
@@ -42,7 +42,7 @@ void matrix_print()
 	//prints the matrix	
 	for(int lin=0; lin<SCREEN_Y; lin++)
 	{
-		for(int col=0; col<5; col++)
+		for(int col=0; col<NUMBER_OF_FRETS; col++)
 		{
 			switch(theScreen[lin][col])
 			{
@@ -120,14 +120,15 @@ static void* drawer(void *argument)
 
 		matrix_update();
 
-		while( (musicTime + STONE_DELAY) > theMusic[0].time ) {
+		while( (musicTime /*+ STONE_DELAY*/) > theMusic[0].time ) {
 			// updates the first line of the matrix with the actual configuration
 			switch(theMusic[0].type) {
 				case ON:	{	// definitely, the last event on this track was an OFF
-					puts("entrou no ON");
+					// shows the note on the matrix
 					theScreen[0][theMusic[0].button] = STRIKE;
+					
 					// creates a new stone
-					int track = buttonType_to_int(theMusic[0].button);
+					int track = buttonType_to_int(theMusic[0].button) - 1;
 					stone *newStone = new stone(theMusic[0], -1);
 
 					// puts the stone on the end of the queue, i.e., it is, now, the
@@ -137,15 +138,15 @@ static void* drawer(void *argument)
 					break;
 				}
 				case OFF:	{	// definitely, the last event on this track was an ON
-					puts("entrou no OFF");
+					// erases the note on the matrix
 					theScreen[0][theMusic[0].button] = NOTHING;
 					
-					int track = buttonType_to_int(theMusic[0].button);
+					int track = buttonType_to_int(theMusic[0].button) - 1;
 					int vector_size = stonesOnScreen[track].size();
 					
 					// sets the destroy_time of the last element of the vector of
 					// stones of the referred track.
-					cout << "size: " << vector_size << endl;
+					cout << "size: " << vector_size << "\ttrack: " << track << endl;
 					if(vector_size > 0)
 						stonesOnScreen[track][vector_size-1]->destroy_time = theMusic[0].time;
 					else	{
@@ -163,16 +164,17 @@ static void* drawer(void *argument)
 				endOfMusic = true;
 		}
 		
-		/*
 		// desalocate the stones for which the time has already gone
-		int has_more = 1;
-		for (int i = 0; i < 5; i++, has_more = 1)
-			while (has_more == 1)
-				if( musicTime > stonesOnScreen[i][0]->destroy_time )
+		// for each track
+		for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			// if we have stones to be destroyed (avoiding seg faults =D)
+			if (stonesOnScreen[i].size () > 0)
+				// while we have stones AND it is time to destroy them
+				while ( (stonesOnScreen[i].size() > 0) &&
+						(musicTime > stonesOnScreen[i][0]->destroy_time) )
+					// destroy =D
 					stonesOnScreen[i].erase(stonesOnScreen[i].begin());
-				else
-					has_more = 0;
-		*/
+		
 		matrix_print();
 	}
 	
@@ -229,6 +231,9 @@ int main(int argc, char *argv[])
 		}
 		cout<<endl;
 	}
+	for (int i = 0; i <  NUMBER_OF_FRETS; i++)
+		cout << "size of fret " << i << ": " << stonesOnScreen[i].size() << endl;
+		
 	cout<<"Press enter to start the music!"<<endl; getchar();
 
 #ifdef HAVE_IRRKLANG
