@@ -128,7 +128,7 @@ static void* drawer(void *argument)
 					theScreen[0][theMusic[0].button] = STRIKE;
 					
 					// creates a new stone
-					int track = buttonType_to_int(theMusic[0].button) - 1;
+					int track = buttonType_to_int(theMusic[0].button);
 					stone *newStone = new stone(theMusic[0], -1);
 
 					// puts the stone on the end of the queue, i.e., it is, now, the
@@ -141,7 +141,7 @@ static void* drawer(void *argument)
 					// erases the note on the matrix
 					theScreen[0][theMusic[0].button] = NOTHING;
 					
-					int track = buttonType_to_int(theMusic[0].button) - 1;
+					int track = buttonType_to_int(theMusic[0].button);
 					int vector_size = stonesOnScreen[track].size();
 					
 					// sets the destroy_time of the last element of the vector of
