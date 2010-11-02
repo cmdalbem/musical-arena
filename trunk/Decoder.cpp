@@ -8,11 +8,6 @@
 
 Decoder::Decoder()
 {
-	initHash();	
-}
-
-void Decoder::initHash()
-{
 /* http://fretsonfire.wikidot.com/creating-songs-with-midi-files */
 /*static string notes[][] = { {"C8","C#8","D8","D#8","E8"},
 							{"C7","C#7","D7","D#7","E7"},
@@ -45,10 +40,63 @@ void Decoder::initHash()
 	notes["D4"] = pair<buttonType,difficultyType>(B3,EASY);
 	notes["D#4"] = pair<buttonType,difficultyType>(B4,EASY);
 	notes["E4"] = pair<buttonType,difficultyType>(B5,EASY);
-}	
+}
 
 
 Decoder::~Decoder() {}
+
+
+music Decoder::decodeMidi( string file )
+/* reads the mid file calling decodeMidiEvent() for every event */
+{
+	music *theMusic = new music;
+	
+	smf_t *smf;
+	smf_event_t *event;
+	bool eof = false;
+	
+	// load the file
+	smf = smf_load( file.c_str() );
+	if (smf == NULL) 
+		return *theMusic;
+	
+	// handles all events
+	while (!eof) {
+		event = smf_get_next_event(smf);
+		
+		if( !event ) 
+			eof = true;
+		else if( smf_event_is_metadata(event) )	// ignores these events
+			;
+		else
+			decodeMidiEvent(event,theMusic);
+	}
+	
+	//cout << endl << "End of file." << endl;
+	smf_delete(smf);
+		
+	return *theMusic;
+	
+}
+
+void Decoder::decodeMidiEvent( smf_event_t *event, music* theMusic )
+{
+	buttonType button = whatButton( note_from_int(event->midi_buffer[1]), EXPERT );
+	//cout << smf_event_decode(event) << endl;
+	
+	if(button != NIL)  {	// decoded the event successfully
+		musicEvent newEvent;
+		
+		eventType type = whatEventType( event->midi_buffer[0], event->midi_buffer[2] );
+		
+		// inicializes newEvent fields and put newEvent on the event vector.
+		newEvent.time = event->time_seconds;
+		newEvent.button = button;
+		newEvent.type  = type;	
+		theMusic->push_back(newEvent); // put this new event to the music events list
+	}
+}
+
 
 string Decoder::note_from_int(int note_number)
 /* extracted from smf_decode.c */
