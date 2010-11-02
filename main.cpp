@@ -113,14 +113,14 @@ static void* drawer(void *argument)
 	while( !endOfMusic )
 	{
 		usleep(80000);
-		musicTime = time_diff(start);
+		musicTime = time_diff(start) + 78;
 		
 		cout << "music time: "	   << musicTime		 << endl
 			 << "upcoming event: " << theMusic[0].time << endl;
 
 		matrix_update();
 
-		while( (musicTime /*+ STONE_DELAY*/) > theMusic[0].time ) {
+		while( ((musicTime /*+ STONE_DELAY*/) > theMusic[0].time) && !endOfMusic) {
 			// updates the first line of the matrix with the actual configuration
 			switch(theMusic[0].type) {
 				case ON:	{	// definitely, the last event on this track was an OFF
@@ -146,7 +146,6 @@ static void* drawer(void *argument)
 					
 					// sets the destroy_time of the last element of the vector of
 					// stones of the referred track.
-					cout << "size: " << vector_size << "\ttrack: " << track << endl;
 					if(vector_size > 0)
 						stonesOnScreen[track][vector_size-1]->destroy_time = theMusic[0].time;
 					else	{
@@ -164,6 +163,8 @@ static void* drawer(void *argument)
 				endOfMusic = true;
 		}
 		
+		
+		
 		// desalocate the stones for which the time has already gone
 		// for each track
 		for (int i = 0; i < NUMBER_OF_FRETS; i++)
@@ -171,15 +172,13 @@ static void* drawer(void *argument)
 			if (stonesOnScreen[i].size () > 0)
 				// while we have stones AND it is time to destroy them
 				while ( (stonesOnScreen[i].size() > 0) &&
+						(stonesOnScreen[i][0]->destroy_time != -1) &&
 						(musicTime > stonesOnScreen[i][0]->destroy_time) )
-					// destroy =D
 					stonesOnScreen[i].erase(stonesOnScreen[i].begin());
 		
 		matrix_print();
 	}
 	
-
-		
 	return NULL;	
 }
 
