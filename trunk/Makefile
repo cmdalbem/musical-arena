@@ -4,8 +4,7 @@ CFLAGS = -Wall `pkg-config glib-2.0 --cflags`
 
 OBJS = Decoder.o utils.o stone.o
 
-LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf -lpthread
-#-I"irrKlang-1.3.0/include" irrKlang-1.3.0/bin/linux-gcc/libIrrKlang.so
+LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf -lpthread -I"irrKlang-1.3.0/include" irrKlang-1.3.0/bin/linux-gcc/libIrrKlang.so -I"irrlicht-1.7.1/include" irrlicht-1.7.1/lib/Linux/libIrrlicht.a -lXxf86vm -lXext -lX11
 
 all: musa
 
