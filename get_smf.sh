@@ -17,7 +17,7 @@ sudo make install
 sudo ldconfig /usr/local/lib
 
 cd ..
-rm $FILE -I
-rm -r $FOLDER -I
+rm -f $FILE
+rm -r -f $FOLDER
 
 echo "Done."
