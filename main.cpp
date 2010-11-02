@@ -5,18 +5,17 @@
 #include <iostream>
 using namespace std;
 
-#define HAVE_IRRKLANG 1 //comment me to disable irrklang!
+//#define HAVE_IRRKLANG 1 //comment me to disable irrklang!
 
 #ifdef HAVE_IRRKLANG
   #include <irrKlang.h>
 #endif
-#include "smf.h"
 
-#include <irrlicht.h>
+#include "irrlicht.h"
 using namespace irr;
 
 #include "Decoder.h"
-#include "stone.h"
+#include "Stone.h"
 #include "utils.h"
 #include "eventReceiver.h"
 
@@ -30,7 +29,7 @@ Decoder decoder;
 vector<musicEvent> theMusic;
 
 // stores the stones present on the screen
-vector<stone*>	stonesOnScreen[NUMBER_OF_FRETS];
+vector<Stone*>	stonesOnScreen[NUMBER_OF_FRETS];
 
 // indicates the end of the music for the keyboard polling function
 bool endOfMusic;
@@ -43,8 +42,6 @@ MyEventReceiver receiver;
 IrrlichtDevice *device;
 video::IVideoDriver* driver;
 scene::ISceneManager* smgr;
-// stores the stones present on the screen
-vector<scene::ISceneNode*> nodes[NUMBER_OF_FRETS];
 
 
 void matrix_update()
@@ -74,52 +71,6 @@ void matrix_print()
 	}
 }
 
-void decodeMidiEvent( smf_event_t *event )
-{
-	buttonType button = decoder.whatButton( decoder.note_from_int(event->midi_buffer[1]), EXPERT );
-	//cout << smf_event_decode(event) << endl;
-	
-	if(button != NIL)  {	// decoded the event successfully
-		musicEvent newEvent;
-		
-		eventType type = decoder.whatEventType( event->midi_buffer[0], event->midi_buffer[2] );
-		
-		// inicializes newEvent fields and put newEvent on the event vector.
-		newEvent.time = event->time_seconds;
-		newEvent.button = button;
-		newEvent.type  = type;	
-		theMusic.push_back(newEvent); // put this new event to the music events list
-	}
-}
-
-int readMidi()
-/* reads the mid file calling decodeMidiEvent() for every event */
-{
-	smf_t *smf;
-	smf_event_t *event;
-	bool eof = false;
-	
-	// load the file
-	smf = smf_load( defaultFile.c_str() );
-	if (smf == NULL) 
-		return 1;
-	
-	while (!eof) {
-		event = smf_get_next_event(smf);
-		if( !event ) 
-			eof = true;
-		else if( smf_event_is_metadata(event) )	// ignores these events
-			;
-		else
-			decodeMidiEvent(event);
-	}
-	
-	cout << endl << "End of file." << endl;
-	smf_delete(smf);
-		
-	return 0;	
-}
-
 static void *updater(void *argument) 
 {
 	struct	timeval start;
@@ -136,44 +87,30 @@ static void *updater(void *argument)
 		const f32 frameDeltaTime = (f32)(now - then) / 1000.f; // Time in seconds
 		then = now;
 
-		musicTime = time_diff(start);// + 10;
-		
-//		cout << "music time: "	   << musicTime		 << endl
-	//		 << "upcoming event: " << theMusic[0].time << endl;
+		musicTime = time_diff(start) + 10;
+		/*
+		cout << "music time: "	   << musicTime		 << endl
+			 << "upcoming event: " << theMusic[0].time << endl;*/
 
 		while( ((musicTime + STONE_DELAY) > theMusic[0].time) && !endOfMusic) {
 			int track = buttonType_to_int(theMusic[0].button); //0~4
 			
 			switch(theMusic[0].type) { 
 				case ON:
-				{	
-					// creates a new stone
-					stone *newStone = new stone(theMusic[0], -1);
-					
-					// creates a new scene node
-					scene::ISceneNode *newNode = smgr->addSphereSceneNode();
-					newNode->setPosition( core::vector3df(track*10 - 25, //initial x
-														  70,			 //initial y
-														  0) );          //initial z
-					newNode->setScale( core::vector3df(0.1,0.1,0.1) );
-					nodes[track].push_back(newNode);
-
-					// puts the stone on the end of the queue, i.e., it is, now, the
-					// last stone to be destroyed
-					stonesOnScreen[track].push_back(newStone);
-					
+				{	 
+					Stone *newStone = new Stone(theMusic[0], smgr,
+												track*10 - 25, 70, 0); //x,y,z
+					stonesOnScreen[track].push_back(newStone); // puts the stone on the end of the queue, i.e., it is, now, the last stone to be destroyed
 					break;
 				}
 				case OFF:
 				{
-					int vector_size = stonesOnScreen[track].size();
-					
 					// sets the destroy_time of the last element of the vector of
 					// stones of the referred track.
-					if(vector_size > 0)
-						stonesOnScreen[track][vector_size-1]->destroy_time = theMusic[0].time;
+					if(stonesOnScreen[track].size() > 0)
+						stonesOnScreen[track].back()->destroy_time = theMusic[0].time;
 					else
-						puts ("received an OFF without an ON O.o"); //lol 8D
+						cout << "received an OFF without an ON O.o" << endl; //lol 8D
 					
 					break;
 				}
@@ -188,26 +125,21 @@ static void *updater(void *argument)
 		}
 		
 		// updates nodes positions
-		for (int ti = 0; ti < NUMBER_OF_FRETS; ti++)
-			for(unsigned int ni=0; ni<nodes[ti].size(); ni++) {
-				core::vector3df pos = nodes[ti][ni]->getPosition();
-				//pos.Y -= 300*frameDeltaTime;
-				pos.Y -= 0.00001;
-				nodes[ti][ni]->setPosition(pos);
-			}
-		
-		// desalocate the stones for which the time has already gone
-		// for each track
 		for (int i = 0; i < NUMBER_OF_FRETS; i++)
-			// if we have stones to be destroyed (avoiding seg faults =D)
-			if (stonesOnScreen[i].size () > 0)
+			for(unsigned int j=0; j<stonesOnScreen[i].size(); j++) 
+				stonesOnScreen[i][j]->update();
+
+		/*
+		// desalocate the stones for which the time has already gone for each track
+		for (int i = 0; i < NUMBER_OF_FRETS; i++)
 				// while we have stones AND it is time to destroy them
 				while ( (stonesOnScreen[i].size() > 0) &&
-						(stonesOnScreen[i][0]->destroy_time != -1) &&
-						(musicTime > 10*stonesOnScreen[i][0]->destroy_time) )
-				
-						stonesOnScreen[i].erase(stonesOnScreen[i].begin());
-						//this is where we delete the node too (method drop())
+						(musicTime > stonesOnScreen[i][0]->destroy_time) )  {
+						
+						//delete stonesOnScreen[i].front(); //call class desconstructor
+						stonesOnScreen[i].front()->node->setScale( core::vector3df(0.,0.,0.) );
+						stonesOnScreen[i].erase(stonesOnScreen[i].begin()); //remove reference from matrix
+				}*/
 
 	}
 	
@@ -293,7 +225,7 @@ void* fretting (void *arg)
 
 void musa_init()
 {
-	readMidi();
+	theMusic = decoder.decodeMidi(defaultFile);
 	
 	cout<<"MIDI parsed. This is your music:"<<endl;
 	for(unsigned int i=0; i<theMusic.size(); i++) {
@@ -381,7 +313,7 @@ int main(int argc, char *argv[])
 			driver->beginScene(true, true, video::SColor(255,113,113,133));
 
 			smgr->drawAll(); // draw the 3d scene
-			device->getGUIEnvironment()->drawAll(); // draw the gui environment (the logo)
+			device->getGUIEnvironment()->drawAll(); // draw the gui environment
 
 			driver->endScene();
 

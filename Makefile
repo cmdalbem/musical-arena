@@ -1,10 +1,10 @@
 CC = g++
 
-CFLAGS = -Wall `pkg-config glib-2.0 --cflags`
+CFLAGS = -Wall
 
-OBJS = Decoder.o utils.o stone.o
+OBJS = Decoder.o utils.o Stone.o
 
-LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf -lpthread -I"irrKlang-1.3.0/include" irrKlang-1.3.0/bin/linux-gcc/libIrrKlang.so -I"irrlicht-1.7.1/include" irrlicht-1.7.1/lib/Linux/libIrrlicht.a -lXxf86vm -lXext -lX11
+LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf -lpthread -I"irrKlang-1.3.0/include" irrKlang-1.3.0/bin/linux-gcc/libIrrKlang.so -I"irrlicht-1.7.1/include" irrlicht-1.7.1/lib/Linux/libIrrlicht.a -lXxf86vm -lXext -lX11 -I"/usr/include" `pkg-config glib-2.0 --cflags`
 
 all: musa
 
@@ -14,7 +14,7 @@ musa: main.cpp $(OBJS)
 Decoder.o: Decoder.cpp Decoder.h
 	$(CC) $(FLAGS) $< -c $(FLAGS) $(LIBS)
 
-stone.o: stone.cpp stone.h
+Stone.o: Stone.cpp Stone.h
 	$(CC) $(FLAGS) $< -c $(FLAGS) $(LIBS)
 
 utils.o: utils.cpp utils.h
