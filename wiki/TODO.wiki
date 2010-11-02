@@ -10,13 +10,13 @@ typedef struct
 vector<event> aMusic;
 }}}
 
- * <font color="red">*sistema de fretting*</font> _(0%)_
+ * <font color="orange">*sistema de fretting*</font> _(20%)_
    Sistema responsável por captar os botões pressionados pelo usuário e determinar se acertou as notas ou não.
- * <font color="orange">*joystick*</font> _(80%)_
+ * <font color="orange">*joystick*</font> _(90%)_
    Não precisa estar funcional, mas temos que ter algum aval sobre o uso dele.
- * <font color="red">*estudar Engines pra decidirmos uma pra nós!*</font> _(0%)_
+ * <font color="green">*estudar Engines pra decidirmos uma pra nós!*</font> _(100%)_
    Sem pressa aqui. mas não preciso dizer que isso é muito importante né :)
    Sugestões de nomes conhecidos:
-    * Panda
+    * <font color="gray">Panda</font>
     * Irrlicht
-    * Ogre
+    * <font color="gray">Ogre</font>
