@@ -4,34 +4,34 @@
 #include "Stone.h"
 #include "limits.h"
 
-Stone::Stone(musicEvent event, irr::scene::ISceneManager* sceneManager, float x, float y, float z)
+Stone::Stone(irr::scene::ISceneManager* sceneManager, musicEvent event, struct timeval _creationTime, float x, float y, float z)
 {
 	this->event = event;
-	this->destroy_time = INT_MAX;
-	
-	// creates a new scene node
+	this->destroyTime = INT_MAX;
+	this->creationTime = _creationTime;
+	this->initPos = irr::core::vector3df(x,y,z);
+
 	node = sceneManager->addSphereSceneNode();
-	node->setPosition( irr::core::vector3df(x,y,z) );
+	node->setPosition( initPos );
 	node->setScale( irr::core::vector3df(0.1,0.1,0.1) );
 } 
 
 Stone::~Stone()
 {
-	node->drop();
-	node = NULL;
+	node->remove();
 	cout << "destroyed." << endl;
 }
 
-void Stone::draw()
+double Stone::howLongActive()
 {
-	
-	
+	return time_diff(creationTime);
 }
 
-void Stone::update()
+void Stone::update( double acc /*default value=DEFAULT_ACC*/ )
 {
+	// utilizes MRU equation to determine position of the stone
+	
 	irr::core::vector3df pos = node->getPosition();
-	//pos.Y -= 300*frameDeltaTime;
-	pos.Y -= 0.00001;
+	pos.Y = initPos.Y - time_diff(creationTime)*acc;
 	node->setPosition(pos);	
 }

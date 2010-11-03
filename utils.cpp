@@ -33,3 +33,13 @@ int buttonType_to_int (buttonType button)
 	}
 }
 
+struct timeval double_to_timeval( double diff_time )
+{
+	struct timeval t;
+	t.tv_sec = (long int)diff_time;
+	diff_time -= t.tv_sec;
+	
+	t.tv_usec = diff_time * ONE_MILLION;
+	
+	return t;
+}

@@ -1,8 +1,6 @@
 // utils.h
 //
-
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 // Standard Libraries
 #include <cstdlib>
@@ -20,6 +18,7 @@
 #define NUMBER_OF_FRETS 5
 #define DEBUG 0
 #define MAX_STONE_PER_TRACK 30
+#define DEFAULT_ACC 20
 
 using namespace std;
 
@@ -64,20 +63,11 @@ typedef struct musicEvent_t
 	timer.tv_sec	= (long int)diff_time; \
 	diff_time -= timer.tv_sec; \
 	\
-	timer.tv_nsec	= diff_time * ONE_BILLION; \
+	timer.tv_usec	= diff_time * ONE_BILLION; \
 }
 
-#define DOUBLE_TO_TIMEVAL(diff_time, timer) \
-{ \
-	timer.tv_sec	= (long int)diff_time; \
-	diff_time -= timer.tv_sec; \
-	\
-	timer->tv_nsec	= diff_time * ONE_MILLION; \
-}
-
+struct timeval double_to_timeval( double diff_time );
 double timeval_to_double(struct timeval t);
 double time_diff (timeval base_time);
 int buttonType_to_int (buttonType button);
-
-#endif
 

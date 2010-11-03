@@ -34,6 +34,8 @@ vector<Stone*>	stonesOnScreen[NUMBER_OF_FRETS];
 // indicates the end of the music for the keyboard polling function
 bool endOfMusic;
 
+int mutex=0;
+
 std::string defaultFile = "example.mid", songFile = "example.ogg", guitarFile = "";
 note theScreen[SCREEN_Y][NUMBER_OF_FRETS];
 
@@ -44,16 +46,82 @@ video::IVideoDriver* driver;
 scene::ISceneManager* smgr;
 
 
-void matrix_update()
+static void *updater(void *argument) 
 {
+	struct	timeval start, aTime;
+	double	musicTime;
+
+	// get the time before starting the music (so we can know how much time passed in each note)
+	gettimeofday(&start, NULL);
+	
+	while( !endOfMusic )
+	{
+		musicTime = time_diff(start);// + 10;
+		/*
+		cout << "music time: "	   << musicTime		 << endl
+			 << "upcoming event: " << theMusic[0].time << endl;*/
+
+		while( ((musicTime + STONE_DELAY) > theMusic[0].time) && !endOfMusic) {
+			int track = buttonType_to_int(theMusic[0].button); //0~4
+			
+			switch(theMusic[0].type) { 
+				case ON:
+				{	 
+					gettimeofday(&aTime, NULL);
+					Stone *newStone = new Stone(smgr, theMusic[0], aTime,
+												track*10 - 25, 70, 0); //x,y,z
+					stonesOnScreen[track].push_back(newStone); // puts the stone on the end of the queue, i.e., it is, now, the last stone to be destroyed
+					break;
+				}
+				case OFF:
+				{
+					// sets the destroy_time of the last element of the vector of stones of the referred track.
+					if(stonesOnScreen[track].size() > 0)
+						stonesOnScreen[track].back()->destroyTime = theMusic[0].time;
+					else
+						cout << "received an OFF without an ON O.o" << endl; //lol 8D
+					break;
+				}
+				default:
+					break;
+
+			}
+			
+			if(theMusic.size() > 0)
+				theMusic.erase(theMusic.begin());
+			else
+				endOfMusic = true;
+		}
+		
+		// updates nodes positions
+		for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			for(unsigned int j=0; j<stonesOnScreen[i].size(); j++) 
+				stonesOnScreen[i][j]->update();
+		
+		while(mutex==0);
+		// desalocate the stones for which the time has already gone
+		for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			// while we have stones AND it is time to destroy them
+			while ( (stonesOnScreen[i].size() > 0) &&
+					(stonesOnScreen[i][0]->howLongActive() > 5) ) {
+					
+					delete stonesOnScreen[i][0]; //call class desconstructor
+					stonesOnScreen[i].erase(stonesOnScreen[i].begin()); //remove reference from matrix
+			}
+		mutex=0;
+	}
+	
+	return NULL;
+}
+
+void matrix_update() {
 	// propagates the lines of the matrix	
 	for(int lin=SCREEN_Y-1; lin>0; lin--)
 		for(int col=0; col<NUMBER_OF_FRETS; col++)
 			theScreen[lin][col] = theScreen[lin-1][col];
 }
 
-void matrix_print()
-{
+void matrix_print() {
 	//prints the matrix	
 	for(int lin=0; lin<SCREEN_Y; lin++)
 	{
@@ -70,82 +138,7 @@ void matrix_print()
 		cout<<endl;
 	}
 }
-
-static void *updater(void *argument) 
-{
-	struct	timeval start;
-	double	musicTime;
-
-	// get the time before starting the music (so we can know how much time passed in each note)
-	gettimeofday(&start, NULL);
 	
-	while( !endOfMusic )
-	{
-		// In order to do framerate independent movement, we have to know how long it was since the last frame
-        u32 then = device->getTimer()->getTime();
-		const u32 now = device->getTimer()->getTime();
-		const f32 frameDeltaTime = (f32)(now - then) / 1000.f; // Time in seconds
-		then = now;
-
-		musicTime = time_diff(start) + 10;
-		/*
-		cout << "music time: "	   << musicTime		 << endl
-			 << "upcoming event: " << theMusic[0].time << endl;*/
-
-		while( ((musicTime + STONE_DELAY) > theMusic[0].time) && !endOfMusic) {
-			int track = buttonType_to_int(theMusic[0].button); //0~4
-			
-			switch(theMusic[0].type) { 
-				case ON:
-				{	 
-					Stone *newStone = new Stone(theMusic[0], smgr,
-												track*10 - 25, 70, 0); //x,y,z
-					stonesOnScreen[track].push_back(newStone); // puts the stone on the end of the queue, i.e., it is, now, the last stone to be destroyed
-					break;
-				}
-				case OFF:
-				{
-					// sets the destroy_time of the last element of the vector of
-					// stones of the referred track.
-					if(stonesOnScreen[track].size() > 0)
-						stonesOnScreen[track].back()->destroy_time = theMusic[0].time;
-					else
-						cout << "received an OFF without an ON O.o" << endl; //lol 8D
-					
-					break;
-				}
-				default:
-					break;
-
-			}
-			if(theMusic.size() > 0)
-				theMusic.erase(theMusic.begin());
-			else
-				endOfMusic = true;
-		}
-		
-		// updates nodes positions
-		for (int i = 0; i < NUMBER_OF_FRETS; i++)
-			for(unsigned int j=0; j<stonesOnScreen[i].size(); j++) 
-				stonesOnScreen[i][j]->update();
-
-		/*
-		// desalocate the stones for which the time has already gone for each track
-		for (int i = 0; i < NUMBER_OF_FRETS; i++)
-				// while we have stones AND it is time to destroy them
-				while ( (stonesOnScreen[i].size() > 0) &&
-						(musicTime > stonesOnScreen[i][0]->destroy_time) )  {
-						
-						//delete stonesOnScreen[i].front(); //call class desconstructor
-						stonesOnScreen[i].front()->node->setScale( core::vector3df(0.,0.,0.) );
-						stonesOnScreen[i].erase(stonesOnScreen[i].begin()); //remove reference from matrix
-				}*/
-
-	}
-	
-	return NULL;	
-}
-
 static void* drawer(void *argument) 
 {
 	struct	timeval start;
@@ -311,8 +304,11 @@ int main(int argc, char *argv[])
 	int lastFPS = -1;
 	while(device->run()) {
 			driver->beginScene(true, true, video::SColor(255,113,113,133));
-
+	
+			while(mutex==1);
 			smgr->drawAll(); // draw the 3d scene
+			mutex=1;
+			
 			device->getGUIEnvironment()->drawAll(); // draw the gui environment
 
 			driver->endScene();
