@@ -13,10 +13,17 @@ vector<event> aMusic;
  * <font color="orange">*sistema de fretting*</font> _(20%)_
    Sistema responsável por captar os botões pressionados pelo usuário e determinar se acertou as notas ou não.
  * <font color="orange">*joystick*</font> _(90%)_
-   Não precisa estar funcional, mas temos que ter algum aval sobre o uso dele.
+
  * <font color="green">*estudar Engines pra decidirmos uma pra nós!*</font> _(100%)_
-   Sem pressa aqui. mas não preciso dizer que isso é muito importante né :)
-   Sugestões de nomes conhecidos:
-    * <font color="gray">Panda</font>
-    * Irrlicht
-    * <font color="gray">Ogre</font>
+
+ * <font color="red">*sistema de pontuação*</font> _(0%)_
+   isto é baseado no sistema de fretting. basicamente é a implementação do HP e do XP.
+
+ * <font color="red">*sistema skills*</font> _(0%)_
+   esta é a segunda parte fundamental do trabalho. trata-se do sistema que interpretará os _solos_, que dispararão skills.
+
+ * <font color="red">*sistema de instrumentos*</font> _(0%)_
+   sistema como os equipamentos de um jogo de RPG. irá influenciar no HP, nas skills que podem executadas e compradas, na precisão da execução do fretting, no som emitido pelas notas durante o solo (notas midi), etc.
+
+ * <font color="red">*IA*</font> _(0%)_
+   inicialmente um sistema bem simples que simplesmente acerte ou erre notas de tempos em tempos. posteriormente, adicionamos uma IA que execute skills, etc.
