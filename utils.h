@@ -20,6 +20,15 @@
 #define MAX_STONE_PER_TRACK 30
 #define DEFAULT_ACC 20
 
+//#define HAVE_IRRKLANG 1 //comment me to disable irrklang!
+#define HAVE_FMOD		//comment me to disable fmod =D
+
+#ifdef HAVE_IRRKLANG
+  #include <irrKlang.h>
+#elif defined HAVE_FMOD
+  #include <fmod.hpp>
+#endif
+
 using namespace std;
 
 typedef unsigned char u_char;
@@ -65,6 +74,14 @@ typedef struct musicEvent_t
 	\
 	timer.tv_usec	= diff_time * ONE_BILLION; \
 }
+
+#define ERRCHECK(result) \
+	if (result != FMOD_OK) \
+	{ \
+		printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)); \
+		exit(-1); \
+	}
+
 
 struct timeval double_to_timeval( double diff_time );
 double timeval_to_double(struct timeval t);
