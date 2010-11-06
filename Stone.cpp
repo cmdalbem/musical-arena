@@ -23,14 +23,11 @@ Stone::~Stone()
 }
 
 double Stone::howLongActive()
-{
-	return time_diff(creationTime);
-}
+{	return time_diff(creationTime);	}
 
 void Stone::update( double acc /*default value=DEFAULT_ACC*/ )
 {
 	// utilizes MRU equation to determine position of the stone
-	
 	irr::core::vector3df pos = node->getPosition();
 	pos.Y = initPos.Y - time_diff(creationTime)*acc;
 	node->setPosition(pos);	

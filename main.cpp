@@ -36,7 +36,9 @@ bool endOfMusic;
 
 int mutex=0;
 
-std::string defaultFile = "example.mid", songFile = "example.ogg", guitarFile = "";
+std::string defaultFile = "example.mid",
+			songFile = "example.ogg",
+			guitarFile = "";
 note theScreen[SCREEN_Y][NUMBER_OF_FRETS];
 
 // Irrlicht-related globals
@@ -70,7 +72,9 @@ static void *updater(void *argument)
 					gettimeofday(&aTime, NULL);
 					Stone *newStone = new Stone(smgr, theMusic[0], aTime,
 												track*10 - 25, 70, 0); //x,y,z
-					stonesOnScreen[track].push_back(newStone); // puts the stone on the end of the queue, i.e., it is, now, the last stone to be destroyed
+					// puts the stone on the end of the queue, i.e., it is, now,
+					// the last stone to be destroyed
+					stonesOnScreen[track].push_back(newStone);
 					break;
 				}
 				case OFF:
@@ -105,7 +109,7 @@ static void *updater(void *argument)
 			while ( (stonesOnScreen[i].size() > 0) &&
 					(stonesOnScreen[i][0]->howLongActive() > 5) ) {
 					
-					delete stonesOnScreen[i][0]; //call class desconstructor
+					delete stonesOnScreen[i][0]; //call class destructor
 					stonesOnScreen[i].erase(stonesOnScreen[i].begin()); //remove reference from matrix
 			}
 		mutex=0;
@@ -220,9 +224,11 @@ void musa_init()
 {
 	theMusic = decoder.decodeMidi(defaultFile);
 	
-	cout<<"MIDI parsed. This is your music:"<<endl;
-	for(unsigned int i=0; i<theMusic.size(); i++) {
-		cout<<theMusic[i].time<<" - "<<theMusic[i].button << ": ";
+	cout << "MIDI parsed. This is your music:" << endl;
+	
+	// Shows the events (of the midi file read) on the command line
+	for(unsigned int i = 0; i < theMusic.size(); i++) {
+		cout << theMusic[i].time << " - " << theMusic[i].button << ": ";
 		switch(theMusic[i].type)
 		{
 			case ON: cout << "ON"; break;
@@ -244,10 +250,10 @@ void initializeIrrlicht()
 {
 // Graphical engine initializing
 	device = createDevice( video::EDT_OPENGL, core::dimension2d<u32>(800,600), 32,
-												false, //fullscreen?
-												false, //used stencil buffer?
-												false, //use vsync?
-												&receiver //event receiver
+							false, //fullscreen?
+							false, //used stencil buffer?
+							false, //use vsync?
+							&receiver //event receiver
 						);
 	device->setWindowCaption(L"Musical Arena (MusA): The Adventures of Lucy in the Enchanted Realm of Diamond Sky");
 
@@ -270,6 +276,9 @@ void initializeIrrlicht()
 
 int main(int argc, char *argv[])
 {
+	/*
+	 * inicializing the sound engine
+	 */
 	#ifdef HAVE_IRRKLANG
 		irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
 		irrklang::ISoundSource* oggMusic = soundEngine->addSoundSourceFromFile(songFile.c_str());
@@ -280,16 +289,18 @@ int main(int argc, char *argv[])
 			guitar = NULL;
 	#endif
 	
+	/*
+	 * inicializing the graphics engine
+	 */
 	initializeIrrlicht();
 
-
-	// Game engine initializing
+	/*
+	 * inicializing game engine
+	 */
 	pthread_t thread[3];
 	int arg = 1;
 
 	musa_init();
-
-	//cout<<"Press enter to start the music!"<<endl; getchar();
 
 	#ifdef HAVE_IRRKLANG
 		soundEngine->play2D(oggMusic, true);
@@ -300,34 +311,37 @@ int main(int argc, char *argv[])
 	pthread_create(&thread[1], NULL, fretting, (void *) arg);
 	pthread_create(&thread[2], NULL, updater, (void *) arg);
 	
-	// Irrklang Main Loop
+	/*
+	 * Irrlicht Main Loop
+	 */
 	int lastFPS = -1;
 	while(device->run()) {
-			driver->beginScene(true, true, video::SColor(255,113,113,133));
-	
-			while(mutex==1);
-			smgr->drawAll(); // draw the 3d scene
-			mutex=1;
-			
-			device->getGUIEnvironment()->drawAll(); // draw the gui environment
+		driver->beginScene(true, true, video::SColor(255,113,113,133));
 
-			driver->endScene();
+		while(mutex==1);
+		smgr->drawAll(); // draw the 3d scene
+		mutex=1;
+		
+		device->getGUIEnvironment()->drawAll(); // draw the gui environment
 
-			int fps = driver->getFPS();
+		driver->endScene();
 
-			if (lastFPS != fps)
-			{
-					core::stringw tmp(L"Movement Example - Irrlicht Engine [");
-					tmp += driver->getName();
-					tmp += L"] fps: ";
-					tmp += fps;
+		int fps = driver->getFPS();
+		if (lastFPS != fps)
+		{
+			core::stringw tmp(L"Movement Example - Irrlicht Engine [");
+			tmp += driver->getName();
+			tmp += L"] fps: ";
+			tmp += fps;
 
-					device->setWindowCaption(tmp.c_str());
-					lastFPS = fps;
-			}
+			device->setWindowCaption(tmp.c_str());
+			lastFPS = fps;
+		}
 	}
+	/*
+	 * End the game gracefully =D
+	 */
 	device->drop();
-	
 	
 	// wait for threads to complete
 	pthread_join(thread[0], NULL);
