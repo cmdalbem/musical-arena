@@ -13,25 +13,7 @@ using namespace irr;
 #include "utils.h"
 #include "eventReceiver.h"
 
-//#define HAVE_IRRKLANG 1 //comment me to disable irrklang!
-#define HAVE_FMOD		//comment me to disable fmod =D
-
-#ifdef HAVE_IRRKLANG
-  #include <irrKlang.h>
-#elif defined HAVE_FMOD
-  #include <fmod.hpp>
-#endif
-
-
 #define STONE_DELAY -2
-
-
-#define ERRCHECK(result) \
-	if (result != FMOD_OK) \
-	{ \
-		printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)); \
-		exit(-1); \
-	}
 
 Decoder decoder; 
 
