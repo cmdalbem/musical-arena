@@ -5,12 +5,6 @@
 #include <iostream>
 using namespace std;
 
-//#define HAVE_IRRKLANG 1 //comment me to disable irrklang!
-
-#ifdef HAVE_IRRKLANG
-  #include <irrKlang.h>
-#endif
-
 #include "irrlicht.h"
 using namespace irr;
 
@@ -19,9 +13,25 @@ using namespace irr;
 #include "utils.h"
 #include "eventReceiver.h"
 
+//#define HAVE_IRRKLANG 1 //comment me to disable irrklang!
+#define HAVE_FMOD		//comment me to disable fmod =D
+
+#ifdef HAVE_IRRKLANG
+  #include <irrKlang.h>
+#elif defined HAVE_FMOD
+  #include <fmod.hpp>
+#endif
+
 
 #define STONE_DELAY -2
 
+
+#define ERRCHECK(result) \
+	if (result != FMOD_OK) \
+	{ \
+		printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)); \
+		exit(-1); \
+	}
 
 Decoder decoder; 
 
@@ -279,15 +289,24 @@ int main(int argc, char *argv[])
 	/*
 	 * inicializing the sound engine
 	 */
-	#ifdef HAVE_IRRKLANG
-		irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
-		irrklang::ISoundSource* oggMusic = soundEngine->addSoundSourceFromFile(songFile.c_str());
-		irrklang::ISoundSource* guitar;
-		if( guitarFile.length()>0 )
-			guitar = soundEngine->addSoundSourceFromFile(guitarFile.c_str());
-		else
-			guitar = NULL;
-	#endif
+#ifdef HAVE_IRRKLANG
+	irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
+	irrklang::ISoundSource* oggMusic = soundEngine->addSoundSourceFromFile(songFile.c_str());
+	irrklang::ISoundSource* guitar;
+	if( guitarFile.length()>0 )
+		guitar = soundEngine->addSoundSourceFromFile(guitarFile.c_str());
+	else
+		guitar = NULL;
+#elif defined HAVE_FMOD
+	FMOD_RESULT result;
+	FMOD::System *system;
+	
+	result = FMOD::System_Create(&system);		// Create the main system object.
+	ERRCHECK(result)
+	
+	result = system->init(100, FMOD_INIT_NORMAL, 0);	// Initialize FMOD.
+	ERRCHECK(result)
+#endif
 	
 	/*
 	 * inicializing the graphics engine
@@ -302,11 +321,13 @@ int main(int argc, char *argv[])
 
 	musa_init();
 
-	#ifdef HAVE_IRRKLANG
-		soundEngine->play2D(oggMusic, true);
-		if(guitar)
-			soundEngine->play2D(guitar, true);
-	#endif
+#ifdef HAVE_IRRKLANG
+	soundEngine->play2D(oggMusic, true);
+	if(guitar)
+		soundEngine->play2D(guitar, true);
+#elif defined HAVE_FMOD
+	
+#endif
 	//pthread_create(&thread[0], NULL, drawer, (void *) arg);
 	pthread_create(&thread[1], NULL, fretting, (void *) arg);
 	pthread_create(&thread[2], NULL, updater, (void *) arg);
