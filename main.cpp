@@ -38,7 +38,7 @@ MyEventReceiver receiver;
 IrrlichtDevice *device;
 video::IVideoDriver* driver;
 scene::ISceneManager* smgr;
-
+scene::ICameraSceneNode *camera;
 
 static void *updater(void *argument) 
 {
@@ -62,8 +62,8 @@ static void *updater(void *argument)
 				case ON:
 				{	 
 					gettimeofday(&aTime, NULL);
-					Stone *newStone = new Stone(smgr, theMusic[0], aTime,
-												track*10 - 25, 70, 0); //x,y,z
+					Stone *newStone = new Stone(smgr, camera, theMusic[0], aTime,
+												track*5 - 10, -10, 100); //x,y,z
 					// puts the stone on the end of the queue, i.e., it is, now,
 					// the last stone to be destroyed
 					stonesOnScreen[track].push_back(newStone);
@@ -254,11 +254,13 @@ void initializeIrrlicht()
 	
     // like the real game camera
     ///*
-    smgr->addCameraSceneNode (
-		0,					  // Camera parent
-		core::vector3df(0, -50, -30), // Look from
-		core::vector3df(0, 1, 0), // Look to
-		1);						  // Camera ID
+    camera = smgr->addCameraSceneNode (
+				0,					  // Camera parent
+//				core::vector3df(0, -50, -30), // Look from
+//				core::vector3df(0, 1, 0), // Look to
+				core::vector3df(0, 0, -1),
+				core::vector3df(0, 0, 0),
+				1);						  // Camera ID
 	//*/
 		
 	// debugging camera
@@ -316,7 +318,7 @@ int main(int argc, char *argv[])
 #elif defined HAVE_FMOD
 	FMOD::Channel *channel;
 	
-	// effectively, plays our music
+	// effectively, plays our music (TREMENDOUSLY REDUCES FPS D=)
 	result = system->playSound(FMOD_CHANNEL_FREE, sound, false, &channel);
 	ERRCHECK(result);
 #endif
@@ -334,7 +336,7 @@ int main(int argc, char *argv[])
 		while(mutex==1);
 		smgr->drawAll(); // draw the 3d scene
 		mutex=1;
-		
+
 		device->getGUIEnvironment()->drawAll(); // draw the gui environment
 
 		driver->endScene();
