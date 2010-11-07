@@ -27,6 +27,7 @@
   #include <irrKlang.h>
 #elif defined HAVE_FMOD
   #include <fmod.hpp>
+  #include <fmod_errors.h>
 #endif
 
 using namespace std;

@@ -288,6 +288,12 @@ int main(int argc, char *argv[])
 	
 	result = system->init(100, FMOD_INIT_NORMAL, 0);	// Initialize FMOD.
 	ERRCHECK(result)
+
+	// loads the sound file on the memory
+	FMOD::Sound *sound;
+	result = system->createSound(songFile.c_str(), FMOD_DEFAULT, 0, &sound);
+	// FMOD_DEFAULT uses the defaults.  These are the same as FMOD_LOOP_OFF | FMOD_2D | FMOD_HARDWARE.
+	ERRCHECK(result);
 #endif
 	
 	/*
@@ -308,7 +314,11 @@ int main(int argc, char *argv[])
 	if(guitar)
 		soundEngine->play2D(guitar, true);
 #elif defined HAVE_FMOD
+	FMOD::Channel *channel;
 	
+	// effectively, plays our music
+	result = system->playSound(FMOD_CHANNEL_FREE, sound, false, &channel);
+	ERRCHECK(result);
 #endif
 	//pthread_create(&thread[0], NULL, drawer, (void *) arg);
 	pthread_create(&thread[1], NULL, fretting, (void *) arg);
