@@ -18,7 +18,7 @@
 #define NUMBER_OF_FRETS 5
 #define DEBUG 0
 #define MAX_STONE_PER_TRACK 30
-#define DEFAULT_ACC 20
+#define DEFAULT_ACC 15
 
 //#define HAVE_IRRKLANG 1 //comment me to disable irrklang!
 #define HAVE_FMOD		//comment me to disable fmod =D

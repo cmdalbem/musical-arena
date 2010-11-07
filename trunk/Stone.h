@@ -10,7 +10,11 @@
 class Stone
 {
 	public:
-		Stone(irr::scene::ISceneManager* sceneManager, musicEvent event, struct timeval _creationTime, float x, float y, float z);
+		Stone(irr::scene::ISceneManager* sceneManager, musicEvent event, 
+				struct timeval _creationTime, float x, float y, float z);
+		Stone(irr::scene::ISceneManager* sceneManager, irr::scene::ISceneNode* sceneNode, musicEvent event,
+				struct timeval _creationTime, float x, float y, float z);
+
 		~Stone();
 
 		musicEvent				event;
