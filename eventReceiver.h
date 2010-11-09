@@ -4,7 +4,19 @@ using namespace irr;
 
 class MyEventReceiver : public IEventReceiver
 {
+	private:
+		// We use this array to store the current state of each key
+		bool KeyIsDown[KEY_KEY_CODES_COUNT];
+
 	public:
+		//////////////////////////////////////////////////////////// CONSTRUCTOR
+		MyEventReceiver()
+		{
+			for (u32 i=0; i<KEY_KEY_CODES_COUNT; ++i)
+				KeyIsDown[i] = false;
+		}
+	
+		////////////////////////////////////////////////////////// OTHER METHODS
 		// This is the one method that we have to implement
 		virtual bool OnEvent(const SEvent& event)
 		{
@@ -17,17 +29,5 @@ class MyEventReceiver : public IEventReceiver
 
 		// This is used to check whether a key is being held down
 		virtual bool IsKeyDown(EKEY_CODE keyCode) const
-		{
-			return KeyIsDown[keyCode];
-		}
-		
-		MyEventReceiver()
-		{
-			for (u32 i=0; i<KEY_KEY_CODES_COUNT; ++i)
-				KeyIsDown[i] = false;
-		}
-
-	private:
-		// We use this array to store the current state of each key
-		bool KeyIsDown[KEY_KEY_CODES_COUNT];
+		{	return KeyIsDown[keyCode];	}
 };
