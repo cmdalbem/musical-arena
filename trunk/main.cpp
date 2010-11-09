@@ -26,6 +26,8 @@ vector<Stone*>	stonesOnScreen[NUMBER_OF_FRETS];
 // indicates the end of the music for the keyboard polling function
 bool endOfMusic;
 
+double	musicTime;
+
 int mutex=0;
 
 std::string defaultFile = "example.mid",
@@ -43,7 +45,6 @@ scene::ICameraSceneNode *camera;
 static void *updater(void *argument) 
 {
 	struct	timeval start, aTime;
-	double	musicTime;
 
 	// get the time before starting the music (so we can know how much time passed in each note)
 	gettimeofday(&start, NULL);
@@ -138,7 +139,6 @@ void matrix_print() {
 static void* drawer(void *argument) 
 {
 	struct	timeval start;
-	double	musicTime;
 	
 	// this is needed because, while we are using drawer() and updater()
 	// 	at the same time, both are editing theMusic vector.
@@ -154,7 +154,6 @@ static void* drawer(void *argument)
 	{
 		usleep(80000);
 		system("clear");
-		musicTime = time_diff(start);
 		
 		cout << "music time: "	   << musicTime		 << endl
 			 << "upcoming event: " << theMusicCopied[0].time << endl;
@@ -189,24 +188,87 @@ static void* drawer(void *argument)
 void* fretting (void *arg)
 // Poll the keyboard testing if the player has pressed the right notes.
 {
+	// flags indicating if, on the last frame, this button was or not pressed
+	bool wasGreenPressed = false,
+		 wasRedPressed = false,
+		 wasYellowPressed = false,
+		 wasBluePressed = false,
+		 wasOrangePressed = false;
+
 	while(!endOfMusic)
-	{		
-		// example of how to get handle keyboard keys with Irrlicht
-		/*
-		core::vector3df nodePosition = node->getPosition();
-		
+	{
 		// receiver is a global EventHandler
-		if(receiver.IsKeyDown(irr::KEY_KEY_W))
-				nodePosition.Y += MOVEMENT_SPEED * frameDeltaTime;
-		else if(receiver.IsKeyDown(irr::KEY_KEY_S))
-				nodePosition.Y -= MOVEMENT_SPEED * frameDeltaTime;
+		
+		if(receiver.IsKeyDown(irr::KEY_KEY_A))	// GREEN fret
+		{
+			if (!wasGreenPressed)
+			{
+				wasGreenPressed = true;
+				// test if there is any stone on the screen in this track
+				if (stonesOnScreen[0].size() > 0)
+				{
+					// testa se o botão foi pressionado em boa hora - ESTÁ COM SÉRIOS PROBLEMAS D=
+					if (musicTime > (stonesOnScreen[0][0]->event.time - tolerance) &&
+						musicTime < (stonesOnScreen[0][0]->destroyTime))
+					{
+						// aqui é onde a pontuação deve aumentar (ou a chamada da função que faz isso)
+						cout << "acertou \o/" << endl;
+					}
+				}
+				cout << endl << "green pressed";
+			}
+			else
+				// essa parte trata aquelas notas que são de "segurar o botão" =D
+				// aqui é onde a pontuação deve aumentar =D (ou a chamada da função que faz isso)
+				//cout << "-";
+				;
+		}
+		else
+			wasGreenPressed = false;
+		
+		if(receiver.IsKeyDown(irr::KEY_KEY_S))	// RED fret
+		{
+			if(!wasRedPressed)
+			{
+				wasRedPressed = true;
+				cout << "red pressed" << endl;
+			}
+		}
+		else
+			wasRedPressed = false;
 
-		if(receiver.IsKeyDown(irr::KEY_KEY_A))
-				nodePosition.X -= MOVEMENT_SPEED * frameDeltaTime;
-		else if(receiver.IsKeyDown(irr::KEY_KEY_D))
-				nodePosition.X += MOVEMENT_SPEED * frameDeltaTime;
-
-		node->setPosition(nodePosition); */
+		if(receiver.IsKeyDown(irr::KEY_KEY_J))	// YELLOW fret
+		{
+			if(!wasYellowPressed)
+			{
+				wasYellowPressed = true;
+				cout << "yellow pressed" << endl;
+			}
+		}
+		else
+			wasYellowPressed = false;
+		
+		if(receiver.IsKeyDown(irr::KEY_KEY_K))	// BLUE fret
+		{
+			if(!wasBluePressed)
+			{
+				wasBluePressed = true;
+				cout << "blue pressed" << endl;
+			}
+		}
+		else
+			wasBluePressed = false;
+		
+		if(receiver.IsKeyDown(irr::KEY_KEY_L))	// ORANGE fret
+		{
+			if(!wasOrangePressed)
+			{
+				wasOrangePressed = true;
+				cout << "orange pressed" << endl;
+			}
+		}
+		else
+			wasOrangePressed = false;
 	}
 	
 	return NULL;
@@ -330,7 +392,9 @@ int main(int argc, char *argv[])
 	 * Irrlicht Main Loop
 	 */
 	int lastFPS = -1;
-	while(device->run()) {
+	while(device->run() //)
+		&& !endOfMusic)			// put this line so the program doesn't halts when the music ends:
+		{						// it closes himself \o/ (in the middle of the music O.o D=)
 		driver->beginScene(true, true, video::SColor(255,113,113,133));
 
 		while(mutex==1);
@@ -356,6 +420,8 @@ int main(int argc, char *argv[])
 	/*
 	 * End the game gracefully =D
 	 */
+	
+	// THERE IS AN ERROR IN THIS END OF THE GAME. TRYING TO FIND IT D=
 	device->drop();
 	
 	// wait for threads to complete
