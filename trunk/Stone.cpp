@@ -43,6 +43,6 @@ void Stone::update( double acc /*default value=DEFAULT_ACC*/ )
 {
 	// utilizes MRU equation to determine position of the stone
 	irr::core::vector3df pos = node->getPosition();
-	pos.Z = initPos.Z - time_diff(creationTime)*acc;
+	pos.Y = initPos.Y - time_diff(creationTime)*acc;
 	node->setPosition(pos);	
 }
