@@ -63,8 +63,8 @@ static void *updater(void *argument)
 				case ON:
 				{	 
 					gettimeofday(&aTime, NULL);
-					Stone *newStone = new Stone(smgr, camera, theMusic[0], aTime,
-												track*5 - 10, -10, 100); //x,y,z
+					Stone *newStone = new Stone(smgr, theMusic[0], aTime,
+												track*10 - 25, 70, 0); //x,y,z
 					// puts the stone on the end of the queue, i.e., it is, now,
 					// the last stone to be destroyed
 					stonesOnScreen[track].push_back(newStone);
@@ -318,10 +318,8 @@ void initializeIrrlicht()
     ///*
     camera = smgr->addCameraSceneNode (
 				0,					  // Camera parent
-//				core::vector3df(0, -50, -30), // Look from
-//				core::vector3df(0, 1, 0), // Look to
-				core::vector3df(0, 0, -1),
-				core::vector3df(0, 0, 0),
+				core::vector3df(0, -50, -30), // Look from
+				core::vector3df(0, 1, 0), // Look to
 				1);						  // Camera ID
 	//*/
 		
