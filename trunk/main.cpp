@@ -14,7 +14,7 @@ using namespace irr;
 #include "eventReceiver.h"
 #include "Fretting.h"
 
-#define STONE_DELAY -2
+#define STONE_DELAY 4
 
 Decoder decoder; 
 
@@ -49,7 +49,7 @@ scene::ICameraSceneNode *camera;
 
 static void *updater(void *argument) 
 {
-	struct	timeval start, aTime;
+	struct	timeval start;
 
 	// get the time before starting the music (so we can know how much time passed in each note)
 	gettimeofday(&start, NULL);
@@ -67,9 +67,7 @@ static void *updater(void *argument)
 			switch(theMusic[0].type) { 
 				case ON:
 				{	 
-					gettimeofday(&aTime, NULL);
-					Stone *newStone = new Stone(smgr, theMusic[0], aTime,
-												track*10 - 25, 70, 0); //x,y,z
+					Stone *newStone = new Stone(smgr, theMusic[0], track*10 - 20, 70, 0); //x,y,z
 					// puts the stone on the end of the queue, i.e., it is, now,
 					// the last stone to be destroyed
 					stonesOnScreen[track].push_back(newStone);
@@ -78,8 +76,9 @@ static void *updater(void *argument)
 				case OFF:
 				{
 					// sets the destroy_time of the last element of the vector of stones of the referred track.
-					if(stonesOnScreen[track].size() > 0)
+					if(stonesOnScreen[track].size() > 0) {
 						stonesOnScreen[track].back()->destroyTime = theMusic[0].time;
+					}
 					else
 						cout << "received an OFF without an ON O.o" << endl; //lol 8D
 					break;
@@ -98,14 +97,14 @@ static void *updater(void *argument)
 		// updates nodes positions
 		for (int i = 0; i < NUMBER_OF_FRETS; i++)
 			for(unsigned int j=0; j<stonesOnScreen[i].size(); j++) 
-				stonesOnScreen[i][j]->update();
+				stonesOnScreen[i][j]->update(musicTime+STONE_DELAY);
 		
 		while(mutex==0);
 		// desalocate the stones for which the time has already gone
 		for (int i = 0; i < NUMBER_OF_FRETS; i++)
 			// while we have stones AND it is time to destroy them
 			while ( (stonesOnScreen[i].size() > 0) &&
-					(stonesOnScreen[i][0]->howLongActive() > 5) ) {
+					(musicTime > stonesOnScreen[i][0]->destroyTime+STONE_DELAY)) {
 					
 					delete stonesOnScreen[i][0]; //call class destructor
 					stonesOnScreen[i].erase(stonesOnScreen[i].begin()); //remove reference from matrix
@@ -254,7 +253,7 @@ void initializeIrrlicht()
     ///*
     camera = smgr->addCameraSceneNode (
 				0,					  // Camera parent
-				core::vector3df(0, -50, -30), // Look from
+				core::vector3df(0, -80, -20), // Look from
 				core::vector3df(0, 1, 0), // Look to
 				1);						  // Camera ID
 	//*/
@@ -290,7 +289,6 @@ int main(int argc, char *argv[])
 	// loads the sound file on the memory
 	FMOD::Sound *sound;
 	result = system->createSound(songFile.c_str(), FMOD_DEFAULT, 0, &sound);
-	// FMOD_DEFAULT uses the defaults.  These are the same as FMOD_LOOP_OFF | FMOD_2D | FMOD_HARDWARE.
 	ERRCHECK(result);
 #endif
 	
@@ -328,15 +326,21 @@ int main(int argc, char *argv[])
 	 * Irrlicht Main Loop
 	 */
 	int lastFPS = -1;
-	
-	cout << "entrarah no main loop" << endl;
-	while(device->run() //)
-		&& !endOfMusic)			// put this line so the program doesn't halts when the music ends:
-		{						// it closes himself \o/ (in the middle of the music O.o D=)
+
+	while(device->run() && !endOfMusic)			// put this line so the program doesn't halts when the music ends:
+	{											// it closes himself \o/ (in the middle of the music O.o D=)
 		driver->beginScene(true, true, video::SColor(255,113,113,133));
 
 		while(mutex==1);
 		smgr->drawAll(); // draw the 3d scene
+		video::SMaterial m;
+		driver->setMaterial(m);
+		driver->setTransform(video::ETS_WORLD, core::matrix4()); 
+		for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			for(int k = 0; k < stonesOnScreen[i].size(); k++)
+				driver->draw3DLine(stonesOnScreen[i][k]->node->getPosition(),
+								   stonesOnScreen[i][k]->trailEndPos,
+								   video::SColor(255,255,255,255)); 
 		mutex=1;
 
 		device->getGUIEnvironment()->drawAll(); // draw the gui environment

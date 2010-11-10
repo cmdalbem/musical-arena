@@ -10,21 +10,24 @@
 class Stone
 {
 	public:
-		Stone(irr::scene::ISceneManager* sceneManager, musicEvent event, 
-				struct timeval _creationTime, float x, float y, float z);
-		Stone(irr::scene::ISceneManager* sceneManager, irr::scene::ISceneNode* sceneNode, musicEvent event,
-				struct timeval _creationTime, float x, float y, float z);
+		Stone(irr::scene::ISceneManager* sceneManager, musicEvent event, float x, float y, float z);
+
+		Stone(irr::scene::ISceneManager* sceneManager, irr::scene::ISceneNode* sceneNode, musicEvent event, float x, float y, float z);
+
+		void initialize( irr::scene::ISceneManager* sceneManager, musicEvent event, float x, float y, float z );
 
 		~Stone();
 
 		musicEvent				event;
 		double					destroyTime;
-		irr::scene::ISceneNode *node;
+		double		 			creationTime;
+		
+		irr::scene::ISceneNode 	*node;
+		irr::core::vector3df	trailEndPos;
 				
-		double 					howLongActive();
-		void 					update( double acc=DEFAULT_ACC );	
+		double 					howLongActive( double musicTime );
+		void 					update( double musicTime, double vel=DEFAULT_VEL );	
 		
 	private:
-		struct timeval 		creationTime;
 		irr::core::vector3df initPos;
 };
