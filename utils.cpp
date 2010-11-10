@@ -20,6 +20,14 @@ double time_diff (timeval base_time)
 	return timeval_to_double(end);
 }
 
+double timeval_diff(timeval a, timeval b)
+/* returns the difference between two times */
+{
+	timeval result;
+	result.tv_sec  = a.tv_sec  - b.tv_sec;
+	result.tv_usec = a.tv_usec - b.tv_usec;
+	return timeval_to_double(result);
+}
 int buttonType_to_int (buttonType button)
 {
 	switch (button)

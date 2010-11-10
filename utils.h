@@ -18,7 +18,7 @@
 #define NUMBER_OF_FRETS 5
 #define DEBUG 0
 #define MAX_STONE_PER_TRACK 30
-#define DEFAULT_ACC 15
+#define DEFAULT_VEL 15
 
 const double tolerance = 4;
 
@@ -86,5 +86,6 @@ typedef struct musicEvent_t
 struct timeval double_to_timeval( double diff_time );
 double timeval_to_double(struct timeval t);
 double time_diff (timeval base_time);
+double timeval_diff(timeval a, timeval b);
 int buttonType_to_int (buttonType button);
 
