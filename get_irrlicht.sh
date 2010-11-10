@@ -9,6 +9,7 @@ wget $URL -O $FILE
 unzip $FILE
 
 echo -en "Installing...\n"
+sudo apt-get install libxxf86vm-dev
 cd $FOLDER/source/Irrlicht
 make
 
