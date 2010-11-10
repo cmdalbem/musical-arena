@@ -13,7 +13,6 @@ FMODLIB = libfmodex.so
 endif
 
 LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf -lpthread irrlicht-1.7.1/lib/Linux/libIrrlicht.a -lXxf86vm -lXext -lX11 `pkg-config glib-2.0 --cflags` fmod/api/lib/$(FMODLIB)
-#-I"irrKlang-1.3.0/include" irrKlang-1.3.0/bin/linux-gcc/libIrrKlang.so
 
 
 all: musa

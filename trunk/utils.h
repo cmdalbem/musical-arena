@@ -18,7 +18,6 @@
 #define NUMBER_OF_FRETS 5
 #define DEBUG 0
 #define MAX_STONE_PER_TRACK 30
-#define DEFAULT_VEL 15
 
 const double tolerance = 4;
 

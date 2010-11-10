@@ -7,6 +7,7 @@ using namespace std;
 
 #include "irrlicht.h"
 using namespace irr;
+using irr::core::vector3df;
 
 #include "Decoder.h"
 #include "Stone.h"
@@ -14,7 +15,7 @@ using namespace irr;
 #include "eventReceiver.h"
 #include "Fretting.h"
 
-#define STONE_DELAY 4
+#define STONE_DELAY 5
 
 Decoder decoder; 
 
@@ -27,9 +28,12 @@ vector<Stone*>	stonesOnScreen[NUMBER_OF_FRETS];
 // indicates the end of the music for the keyboard polling function
 bool endOfMusic;
 
-double	musicTime = 0;
 Fretting fretting1;
 EKEY_CODE eventos[5] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
+
+double speed = 15;
+
+double	musicTime = 0;
 
 char array[20];
 
@@ -38,6 +42,7 @@ int mutex=0;
 std::string defaultFile = "example.mid",
 			songFile = "example.ogg",
 			guitarFile = "";
+			
 note theScreen[SCREEN_Y][NUMBER_OF_FRETS];
 
 // Irrlicht-related globals
@@ -49,33 +54,32 @@ scene::ICameraSceneNode *camera;
 
 static void *updater(void *argument) 
 {
-	struct	timeval start;
-
+	struct timeval start;
+	
 	// get the time before starting the music (so we can know how much time passed in each note)
 	gettimeofday(&start, NULL);
 	
 	while( !endOfMusic )
 	{
 		musicTime = time_diff(start);// + 10;
-		/*
-		cout << "music time: "	   << musicTime		 << endl
-			 << "upcoming event: " << theMusic[0].time << endl;*/
 
-		while( ((musicTime + STONE_DELAY) > theMusic[0].time) && !endOfMusic) {
+		while( ((musicTime + STONE_DELAY) > theMusic[0].time) && !endOfMusic ) {
+			
 			int track = buttonType_to_int(theMusic[0].button); //0~4
 			
 			switch(theMusic[0].type) { 
-				case ON:
-				{	 
-					Stone *newStone = new Stone(smgr, theMusic[0], track*10 - 20, 70, 0); //x,y,z
+				case ON: {	 
+					
+					Stone *newStone = new Stone(smgr, theMusic[0], 15,
+												track*10 - 20, 0, 0); //x,y,z
 					// puts the stone on the end of the queue, i.e., it is, now,
 					// the last stone to be destroyed
 					stonesOnScreen[track].push_back(newStone);
 					break;
 				}
-				case OFF:
-				{
-					// sets the destroy_time of the last element of the vector of stones of the referred track.
+				case OFF: {
+					
+					// sets destroy_time
 					if(stonesOnScreen[track].size() > 0) {
 						stonesOnScreen[track].back()->destroyTime = theMusic[0].time;
 					}
@@ -97,19 +101,26 @@ static void *updater(void *argument)
 		// updates nodes positions
 		for (int i = 0; i < NUMBER_OF_FRETS; i++)
 			for(unsigned int j=0; j<stonesOnScreen[i].size(); j++) 
-				stonesOnScreen[i][j]->update(musicTime+STONE_DELAY);
+				stonesOnScreen[i][j]->update(musicTime + STONE_DELAY);
 		
+		// deletion of stones
 		while(mutex==0);
-		// desalocate the stones for which the time has already gone
 		for (int i = 0; i < NUMBER_OF_FRETS; i++)
 			// while we have stones AND it is time to destroy them
 			while ( (stonesOnScreen[i].size() > 0) &&
-					(musicTime > stonesOnScreen[i][0]->destroyTime+STONE_DELAY)) {
+					(musicTime > stonesOnScreen[i][0]->destroyTime)) {
 					
 					delete stonesOnScreen[i][0]; //call class destructor
 					stonesOnScreen[i].erase(stonesOnScreen[i].begin()); //remove reference from matrix
 			}
 		mutex=0;
+		
+		/*
+		// hiding of stones
+		for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			// while we have stones AND it is time to destroy them
+			while ( (stonesOnScreen[i].size() > 0) && (musicTime > stonesOnScreen[i][0]->event.time) )
+					stonesOnScreen[i][0]->node->setVisible(false);*/
 	}
 	
 	return NULL;
@@ -140,6 +151,7 @@ void matrix_print() {
 	}
 }
 	
+/*
 static void* drawer(void *argument) 
 {
 	struct	timeval start;
@@ -164,7 +176,7 @@ static void* drawer(void *argument)
 
 		matrix_update();
 
-		while( ((musicTime /*+ STONE_DELAY*/) > theMusicCopied[0].time) && !endOfMusic) {
+		while( ((musicTime + STONE_DELAY) > theMusicCopied[0].time) && !endOfMusic) {
 			// updates the first line of the matrix with the actual configuration
 			switch(theMusicCopied[0].type) {
 				case ON:
@@ -187,20 +199,20 @@ static void* drawer(void *argument)
 	}
 	
 	return NULL;	
-}
+}*/
 
 void* fretting (void *arg)
 // Poll the keyboard testing if the player has pressed the right notes.
 {	
 	while(!endOfMusic)
 	{
+		/*
 		for (int color = 0; color < 5; color++)
-			fretting1.verify_event(color, stonesOnScreen, musicTime, tolerance);
+			fretting1.verify_event(color, stonesOnScreen, musicTime, tolerance);*/
 
 		/*
 		for (int color = 0; color < 5; color++)
-			fretting2.verify_event(color);
-		*/
+			fretting2.verify_event(color);*/
 	}
 	
 	return NULL;
@@ -249,17 +261,16 @@ void initializeIrrlicht()
 	driver = device->getVideoDriver();
 	smgr = device->getSceneManager();
 	
+	
+	scene::ILightSceneNode *light = smgr->addLightSceneNode(0, vector3df(0,-STONE_DELAY*speed,-50), video::SColorf(1.0f, 1.0f, 1.0f), 10.0f);
+	//light->setLightType(video::ELT_DIRECTIONAL);
+	
     // like the real game camera
-    ///*
     camera = smgr->addCameraSceneNode (
 				0,					  // Camera parent
-				core::vector3df(0, -80, -20), // Look from
-				core::vector3df(0, 1, 0), // Look to
+				vector3df(0, -100, -40), // Look from
+				vector3df(0, -40, 20), // Look to
 				1);						  // Camera ID
-	//*/
-		
-	// debugging camera
-	//smgr->addCameraSceneNode ( 0, core::vector3df(0, 0, -120), core::vector3df(0, 1, 0), 1);
 
 }
 
@@ -268,15 +279,7 @@ int main(int argc, char *argv[])
 	/*
 	 * inicializing the sound engine
 	 */
-#ifdef HAVE_IRRKLANG
-	irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
-	irrklang::ISoundSource* oggMusic = soundEngine->addSoundSourceFromFile(songFile.c_str());
-	irrklang::ISoundSource* guitar;
-	if( guitarFile.length()>0 )
-		guitar = soundEngine->addSoundSourceFromFile(guitarFile.c_str());
-	else
-		guitar = NULL;
-#elif defined HAVE_FMOD
+
 	FMOD_RESULT result;
 	FMOD::System *system;
 	
@@ -290,7 +293,7 @@ int main(int argc, char *argv[])
 	FMOD::Sound *sound;
 	result = system->createSound(songFile.c_str(), FMOD_DEFAULT, 0, &sound);
 	ERRCHECK(result);
-#endif
+
 	
 	/*
 	 * inicializing the graphics engine
@@ -305,18 +308,11 @@ int main(int argc, char *argv[])
 
 	musa_init();
 
-#ifdef HAVE_IRRKLANG
-	soundEngine->play2D(oggMusic, true);
-	if(guitar)
-		soundEngine->play2D(guitar, true);
-#elif defined HAVE_FMOD
 	FMOD::Channel *channel;
-	
-	// effectively, plays our music (TREMENDOUSLY REDUCES FPS D=)
+	// plays the ogg (TREMENDOUSLY REDUCES FPS D=) (seriously?)
 	result = system->playSound(FMOD_CHANNEL_FREE, sound, false, &channel);
 	ERRCHECK(result);
-#endif
-	cout << "vai criar as threads" << endl;
+
 
 	//pthread_create(&thread[0], NULL, drawer, (void *) arg);
 	pthread_create(&thread[1], NULL, fretting, (void *) arg);
@@ -334,14 +330,20 @@ int main(int argc, char *argv[])
 		while(mutex==1);
 		smgr->drawAll(); // draw the 3d scene
 		video::SMaterial m;
+		m.Thickness = 2;
 		driver->setMaterial(m);
 		driver->setTransform(video::ETS_WORLD, core::matrix4()); 
 		for (int i = 0; i < NUMBER_OF_FRETS; i++)
-			for(int k = 0; k < stonesOnScreen[i].size(); k++)
+			for(unsigned int k = 0; k < stonesOnScreen[i].size(); k++)
 				driver->draw3DLine(stonesOnScreen[i][k]->node->getPosition(),
 								   stonesOnScreen[i][k]->trailEndPos,
 								   video::SColor(255,255,255,255)); 
 		mutex=1;
+		
+		m.Thickness = 1;
+		driver->setMaterial(m);
+		driver->draw3DLine(vector3df(-20,-STONE_DELAY*speed,0), vector3df(20,-STONE_DELAY*speed,0), video::SColor(255,255,255,255)); 
+		driver->draw3DLine(vector3df(-20,0,0),vector3df(20,0,0), video::SColor(255,255,255,255)); 
 
 		device->getGUIEnvironment()->drawAll(); // draw the gui environment
 
@@ -350,9 +352,7 @@ int main(int argc, char *argv[])
 		int fps = driver->getFPS();
 		if (lastFPS != fps)
 		{
-			core::stringw tmp(L"Movement Example - Irrlicht Engine [");
-			tmp += driver->getName();
-			tmp += L"] fps: ";
+			core::stringw tmp(L"fps: ");
 			tmp += fps;
 
 			device->setWindowCaption(tmp.c_str());
@@ -371,8 +371,5 @@ int main(int argc, char *argv[])
 	pthread_join(thread[1], NULL);
 	pthread_join(thread[2], NULL);
 
-	#ifdef HAVE_IRRKLANG
-		soundEngine->drop();
-	#endif
 	return 0;
 }
