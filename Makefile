@@ -1,8 +1,8 @@
 CC = g++
 
-FLAGS = -Wall -I"/usr/include" -I"irrlicht-1.7.1/include" -I"fmod/api/inc"
+FLAGS = -Wall -I"/usr/include" -I"irrlicht-1.7.1/include" -I"fmod/api/inc" -DHAVE_FMOD
 
-OBJS = Decoder.o utils.o Stone.o
+OBJS = Decoder.o utils.o Stone.o Fretting.o
 
 # Takes the fmod library name for your computer =D
 MYSYSTEM := $(shell uname -m)
@@ -28,6 +28,9 @@ Stone.o: Stone.cpp Stone.h
 	$(CC) $(FLAGS) $< -c $(FLAGS) $(LIBS)
 
 utils.o: utils.cpp utils.h
+	$(CC) $(FLAGS) $< -c $(FLAGS) $(LIBS)
+
+Fretting.o: Fretting.cpp Fretting.h
 	$(CC) $(FLAGS) $< -c $(FLAGS) $(LIBS)
 
 clean:

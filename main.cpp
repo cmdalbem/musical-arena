@@ -12,6 +12,7 @@ using namespace irr;
 #include "Stone.h"
 #include "utils.h"
 #include "eventReceiver.h"
+#include "Fretting.h"
 
 #define STONE_DELAY -2
 
@@ -26,7 +27,11 @@ vector<Stone*>	stonesOnScreen[NUMBER_OF_FRETS];
 // indicates the end of the music for the keyboard polling function
 bool endOfMusic;
 
-double	musicTime;
+double	musicTime = 0;
+Fretting fretting1;
+EKEY_CODE eventos[5] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
+
+char array[20];
 
 int mutex=0;
 
@@ -36,7 +41,7 @@ std::string defaultFile = "example.mid",
 note theScreen[SCREEN_Y][NUMBER_OF_FRETS];
 
 // Irrlicht-related globals
-MyEventReceiver receiver;
+eventReceiver receiver;
 IrrlichtDevice *device;
 video::IVideoDriver* driver;
 scene::ISceneManager* smgr;
@@ -187,88 +192,16 @@ static void* drawer(void *argument)
 
 void* fretting (void *arg)
 // Poll the keyboard testing if the player has pressed the right notes.
-{
-	// flags indicating if, on the last frame, this button was or not pressed
-	bool wasGreenPressed = false,
-		 wasRedPressed = false,
-		 wasYellowPressed = false,
-		 wasBluePressed = false,
-		 wasOrangePressed = false;
-
+{	
 	while(!endOfMusic)
 	{
-		// receiver is a global EventHandler
-		
-		if(receiver.IsKeyDown(irr::KEY_KEY_A))	// GREEN fret
-		{
-			if (!wasGreenPressed)
-			{
-				wasGreenPressed = true;
-				// test if there is any stone on the screen in this track
-				if (stonesOnScreen[0].size() > 0)
-				{
-					// testa se o botão foi pressionado em boa hora - ESTÁ COM SÉRIOS PROBLEMAS D=
-					if (musicTime > (stonesOnScreen[0][0]->event.time - tolerance) &&
-						musicTime < (stonesOnScreen[0][0]->destroyTime))
-					{
-						// aqui é onde a pontuação deve aumentar (ou a chamada da função que faz isso)
-						cout << "acertou \o/" << endl;
-					}
-				}
-				cout << endl << "green pressed";
-			}
-			else
-				// essa parte trata aquelas notas que são de "segurar o botão" =D
-				// aqui é onde a pontuação deve aumentar =D (ou a chamada da função que faz isso)
-				//cout << "-";
-				;
-		}
-		else
-			wasGreenPressed = false;
-		
-		if(receiver.IsKeyDown(irr::KEY_KEY_S))	// RED fret
-		{
-			if(!wasRedPressed)
-			{
-				wasRedPressed = true;
-				cout << "red pressed" << endl;
-			}
-		}
-		else
-			wasRedPressed = false;
+		for (int color = 0; color < 5; color++)
+			fretting1.verify_event(color, stonesOnScreen, musicTime, tolerance);
 
-		if(receiver.IsKeyDown(irr::KEY_KEY_J))	// YELLOW fret
-		{
-			if(!wasYellowPressed)
-			{
-				wasYellowPressed = true;
-				cout << "yellow pressed" << endl;
-			}
-		}
-		else
-			wasYellowPressed = false;
-		
-		if(receiver.IsKeyDown(irr::KEY_KEY_K))	// BLUE fret
-		{
-			if(!wasBluePressed)
-			{
-				wasBluePressed = true;
-				cout << "blue pressed" << endl;
-			}
-		}
-		else
-			wasBluePressed = false;
-		
-		if(receiver.IsKeyDown(irr::KEY_KEY_L))	// ORANGE fret
-		{
-			if(!wasOrangePressed)
-			{
-				wasOrangePressed = true;
-				cout << "orange pressed" << endl;
-			}
-		}
-		else
-			wasOrangePressed = false;
+		/*
+		for (int color = 0; color < 5; color++)
+			fretting2.verify_event(color);
+		*/
 	}
 	
 	return NULL;
@@ -276,6 +209,9 @@ void* fretting (void *arg)
 
 void musa_init()
 {
+	fretting1.setEvents(eventos);
+	fretting1.setReceiver(&receiver);
+	
 	theMusic = decoder.decodeMidi(defaultFile);
 	
 	cout << "MIDI parsed. This is your music:" << endl;
@@ -382,6 +318,8 @@ int main(int argc, char *argv[])
 	result = system->playSound(FMOD_CHANNEL_FREE, sound, false, &channel);
 	ERRCHECK(result);
 #endif
+	cout << "vai criar as threads" << endl;
+
 	//pthread_create(&thread[0], NULL, drawer, (void *) arg);
 	pthread_create(&thread[1], NULL, fretting, (void *) arg);
 	pthread_create(&thread[2], NULL, updater, (void *) arg);
@@ -390,6 +328,8 @@ int main(int argc, char *argv[])
 	 * Irrlicht Main Loop
 	 */
 	int lastFPS = -1;
+	
+	cout << "entrarah no main loop" << endl;
 	while(device->run() //)
 		&& !endOfMusic)			// put this line so the program doesn't halts when the music ends:
 		{						// it closes himself \o/ (in the middle of the music O.o D=)

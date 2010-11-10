@@ -20,10 +20,7 @@
 #define MAX_STONE_PER_TRACK 30
 #define DEFAULT_ACC 15
 
-const double tolerance = 10;
-
-//#define HAVE_IRRKLANG 1 //comment me to disable irrklang!
-#define HAVE_FMOD		//comment me to disable fmod =D
+const double tolerance = 4;
 
 #ifdef HAVE_IRRKLANG
   #include <irrKlang.h>
