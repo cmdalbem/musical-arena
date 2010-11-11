@@ -84,37 +84,31 @@ static void *updater(void *argument)
 void* fretting (void *arg)
 // Poll the keyboard testing if the player has pressed the right notes.
 {	
-	double tolerance = 1;
+	double	tolerance = 1;
 	
-	while(!endOfMusic) {
-		
-		int ret;
-		
+	while(!endOfMusic) {		
 		//sem_wait(&semaphore);
-		for (int track = 0; track < 5; track++)
-			if(player1.track->stones[track].size() > 0)
-				ret = player1.fretting->verify_event(track, player1.track->stones[track][0], musicTime, tolerance);
+		//player1.verify_buttons(mainTrack->stones, musicTime, tolerance);
+		int ret = player1.fretting->verify_event(player1.track->stones, musicTime, tolerance);
 		//sem_post(&semaphore);
-
+		/*
 		if(good && bad)
 			switch(ret)
 			{
-				case 1:
+				case HIT:
 					cout<<"acertei"<<endl;
 					good->setVisible(true);
 					bad->setVisible(false);
 					break;
-				case -1:
+				case ERROR:
 					cout<<"errei"<<endl;
 					bad->setVisible(true);
 					good->setVisible(false);
 					break;
-				case 0:
-					//bad->setVisible(false);
-					//good->setVisible(false);
+				default:
 					break;
 			}
-
+		*/
 		/*
 		for (int track = 0; track < 5; track++)
 			fretting2.verify_event(track);*/
