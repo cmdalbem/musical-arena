@@ -5,11 +5,22 @@
 
 #include <ctime>
 
+/////////////////////////////////////////////////////////////////// CONSTRUCTORS
 Player::Player()
 {
 	this->inicialize();
 }
 
+//////////////////////////////////////////////////////////////////// DESTRUCTORS
+Player::~Player()
+{	}
+
+////////////////////////////////////////////////////////////// GETTERS & SETTERS
+Fretting* Player::getFretting()
+{	return fretting;	}
+
+
+////////////////////////////////////////////////////////////////// OTHER METHODS
 void Player::inicialize()
 {
 	srand((unsigned)time(0));
@@ -24,7 +35,8 @@ void Player::inicialize()
 	gold = 0;
 }
 
-Player::~Player()
-{	}
-
+void Player::verify_buttons()
+{
+	
+}
 
