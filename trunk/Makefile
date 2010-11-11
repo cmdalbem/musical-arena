@@ -11,7 +11,7 @@ CC = g++
 
 FLAGS = -Wall -I"/usr/include" -I"irrlicht-1.7.1/include" -I"fmod/api/inc" -DHAVE_FMOD
 
-OBJS = Decoder.o utils.o Stone.o Fretting.o Track.o
+OBJS = Decoder.o utils.o Stone.o Fretting.o Track.o Player.o
 
 LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf -lpthread irrlicht-1.7.1/lib/Linux/libIrrlicht.a -lXxf86vm -lXext -lX11 `pkg-config glib-2.0 --cflags` fmod/api/lib/$(FMODLIB)
 
@@ -34,6 +34,9 @@ Fretting.o: Fretting.cpp Fretting.h
 	$(CC) $(FLAGS) $< -c $(FLAGS) $(LIBS)
 
 Track.o: Track.cpp Track.h
+	$(CC) $(FLAGS) $< -c $(FLAGS) $(LIBS)
+
+Player.o: Player.cpp Player.h
 	$(CC) $(FLAGS) $< -c $(FLAGS) $(LIBS)
 
 clean:

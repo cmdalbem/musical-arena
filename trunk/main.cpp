@@ -15,6 +15,7 @@ using irr::core::vector3df;
 #include "eventReceiver.h"
 #include "Fretting.h"
 #include "Track.h"
+#include "Player.h"
 
 
 Decoder decoder; 
@@ -26,13 +27,12 @@ Track* mainTrack;
 // indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
 bool endOfMusic=false;
 
-Fretting fretting1;
-EKEY_CODE eventos[5] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
-
 double	musicTime = 0;
 int		musicIndex=0;
 
-char array[20];
+Fretting fretting1;
+EKEY_CODE eventos[5] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
+Player player1(&fretting1);
 
 int mutex=1;
 
@@ -80,15 +80,14 @@ static void *updater(void *argument)
 void* fretting (void *arg)
 // Poll the keyboard testing if the player has pressed the right notes.
 {	
-	while(0)//!endOfMusic)
+	while(1)//!endOfMusic)
 	{
-		/*
 		for (int color = 0; color < 5; color++)
-			fretting1.verify_event(color, mainTrack.stones, musicTime, tolerance);*/
+			player1.fretting->verify_event(color, mainTrack->stones, musicTime, tolerance);
 
 		/*
 		for (int color = 0; color < 5; color++)
-			fretting2.verify_event(color);*/
+			/*player2->fretting2.verify_event(color);*/
 	}
 	
 	return NULL;
@@ -181,7 +180,7 @@ int main(int argc, char *argv[])
 	musa_init();
 
 	FMOD::Channel *channel;
-	// plays the ogg (TREMENDOUSLY REDUCES FPS D=) (seriously?)
+	// plays the ogg (TREMENDOUSLY REDUCES FPS D=) (seriously?) (actually, not)
 	result = system->playSound(FMOD_CHANNEL_FREE, sound, false, &channel);
 	ERRCHECK(result);
 
@@ -231,7 +230,7 @@ int main(int argc, char *argv[])
 }
 
 ////////////////////////////////////////////////////////////////////////
-// Debuging function. Saved because my be useful later.
+// Debuging function. Saved because may be useful later.
 /*
 static void* drawer(void *argument) 
 {
