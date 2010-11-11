@@ -1,3 +1,6 @@
+// Track.cpp
+//
+
 #include "Track.h"
 
 using irr::video::SColor;
@@ -28,7 +31,7 @@ void Track::update( double musicTime )
 	for (int i = 0; i < NUMBER_OF_FRETS; i++) {
 	
 		// calculates stones positions
-		for(unsigned int j=0; j<stones[i].size(); j++) 
+		for(unsigned int j=0; j < stones[i].size(); j++) 
 			stones[i][j]->update(musicTime + spawnDelay);
 	
 		// deleting stones
