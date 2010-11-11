@@ -26,7 +26,7 @@ vector<musicEvent> theMusic;
 vector<Stone*>	stonesOnScreen[NUMBER_OF_FRETS];
 
 // indicates the end of the music for the keyboard polling function
-bool endOfMusic;
+bool endOfMusic=false;
 
 Fretting fretting1;
 EKEY_CODE eventos[5] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
@@ -37,10 +37,10 @@ double	musicTime = 0;
 
 char array[20];
 
-int mutex=0;
+int mutex=1;
 
-std::string defaultFile = "example.mid",
-			songFile = "example.ogg",
+std::string defaultFile = "music/example.mid",
+			songFile = "music/example.ogg",
 			guitarFile = "";
 			
 note theScreen[SCREEN_Y][NUMBER_OF_FRETS];
@@ -61,9 +61,9 @@ static void *updater(void *argument)
 	
 	while( !endOfMusic )
 	{
-		musicTime = time_diff(start);// + 10;
+		musicTime = time_diff(start);// + 73;
 
-		while( ((musicTime + STONE_DELAY) > theMusic[0].time) && !endOfMusic ) {
+		while( theMusic.size()>0 && ((musicTime + STONE_DELAY) > theMusic[0].time) ) {
 			
 			int track = buttonType_to_int(theMusic[0].button); //0~4
 			
@@ -91,11 +91,8 @@ static void *updater(void *argument)
 					break;
 
 			}
-			
-			if(theMusic.size() > 0)
-				theMusic.erase(theMusic.begin());
-			else
-				endOfMusic = true;
+
+			theMusic.erase(theMusic.begin());
 		}
 		
 		// updates nodes positions
@@ -118,9 +115,9 @@ static void *updater(void *argument)
 		/*
 		// hiding of stones
 		for (int i = 0; i < NUMBER_OF_FRETS; i++)
-			// while we have stones AND it is time to destroy them
-			while ( (stonesOnScreen[i].size() > 0) && (musicTime > stonesOnScreen[i][0]->event.time) )
-					stonesOnScreen[i][0]->node->setVisible(false);*/
+			for(unsigned int k = 0; k < stonesOnScreen[i].size(); k++)
+				if( musicTime > stonesOnScreen[i][k]->event.time )
+					stonesOnScreen[i][k]->node->setVisible(false);*/
 	}
 	
 	return NULL;
@@ -262,14 +259,14 @@ void initializeIrrlicht()
 	smgr = device->getSceneManager();
 	
 	
-	scene::ILightSceneNode *light = smgr->addLightSceneNode(0, vector3df(0,-STONE_DELAY*speed,-50), video::SColorf(1.0f, 1.0f, 1.0f), 10.0f);
+	scene::ILightSceneNode *light = smgr->addLightSceneNode(0, vector3df(0,-STONE_DELAY*speed,-50), video::SColorf(1.0f, 1.0f, 1.0f, 1.0f), 10.0f);
 	//light->setLightType(video::ELT_DIRECTIONAL);
 	
     // like the real game camera
     camera = smgr->addCameraSceneNode (
 				0,					  // Camera parent
-				vector3df(0, -100, -40), // Look from
-				vector3df(0, -40, 20), // Look to
+				vector3df(0, -90, -40), // Look from
+				vector3df(0, -30, 20), // Look to
 				1);						  // Camera ID
 
 }
@@ -293,7 +290,6 @@ int main(int argc, char *argv[])
 	FMOD::Sound *sound;
 	result = system->createSound(songFile.c_str(), FMOD_DEFAULT, 0, &sound);
 	ERRCHECK(result);
-
 	
 	/*
 	 * inicializing the graphics engine
@@ -303,9 +299,6 @@ int main(int argc, char *argv[])
 	/*
 	 * inicializing game engine
 	 */
-	pthread_t thread[3];
-	int arg = 1;
-
 	musa_init();
 
 	FMOD::Channel *channel;
@@ -313,7 +306,8 @@ int main(int argc, char *argv[])
 	result = system->playSound(FMOD_CHANNEL_FREE, sound, false, &channel);
 	ERRCHECK(result);
 
-
+	pthread_t thread[3];
+	int arg = 1;
 	//pthread_create(&thread[0], NULL, drawer, (void *) arg);
 	pthread_create(&thread[1], NULL, fretting, (void *) arg);
 	pthread_create(&thread[2], NULL, updater, (void *) arg);
@@ -321,37 +315,33 @@ int main(int argc, char *argv[])
 	/*
 	 * Irrlicht Main Loop
 	 */
-	int lastFPS = -1;
-
-	while(device->run() && !endOfMusic)			// put this line so the program doesn't halts when the music ends:
-	{											// it closes himself \o/ (in the middle of the music O.o D=)
+	while(device->run()) {
+		
 		driver->beginScene(true, true, video::SColor(255,113,113,133));
 
 		while(mutex==1);
 		smgr->drawAll(); // draw the 3d scene
-		video::SMaterial m;
-		m.Thickness = 2;
-		driver->setMaterial(m);
-		driver->setTransform(video::ETS_WORLD, core::matrix4()); 
 		for (int i = 0; i < NUMBER_OF_FRETS; i++)
 			for(unsigned int k = 0; k < stonesOnScreen[i].size(); k++)
-				driver->draw3DLine(stonesOnScreen[i][k]->node->getPosition(),
-								   stonesOnScreen[i][k]->trailEndPos,
-								   video::SColor(255,255,255,255)); 
+				stonesOnScreen[i][k]->drawTrail(driver);
 		mutex=1;
 		
+		// Starting and Ending track lines
+		video::SMaterial m;
 		m.Thickness = 1;
 		driver->setMaterial(m);
+		driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4());  //global positioning
 		driver->draw3DLine(vector3df(-20,-STONE_DELAY*speed,0), vector3df(20,-STONE_DELAY*speed,0), video::SColor(255,255,255,255)); 
 		driver->draw3DLine(vector3df(-20,0,0),vector3df(20,0,0), video::SColor(255,255,255,255)); 
 
-		device->getGUIEnvironment()->drawAll(); // draw the gui environment
+		//device->getGUIEnvironment()->drawAll(); // draw the gui environment
 
 		driver->endScene();
 
+		// FPS
 		int fps = driver->getFPS();
-		if (lastFPS != fps)
-		{
+		static int lastFPS = 0;
+		if (lastFPS != fps) {
 			core::stringw tmp(L"fps: ");
 			tmp += fps;
 
@@ -363,13 +353,13 @@ int main(int argc, char *argv[])
 	 * End the game gracefully =D
 	 */
 	
-	// THERE IS AN ERROR IN THIS END OF THE GAME. TRYING TO FIND IT D=
-	device->drop();
-	
 	// wait for threads to complete
-	pthread_join(thread[0], NULL);
+	//pthread_join(thread[0], NULL); //drawer
 	pthread_join(thread[1], NULL);
 	pthread_join(thread[2], NULL);
+	
+	// THERE IS AN ERROR IN THIS END OF THE GAME. TRYING TO FIND IT D=
+	//device->drop();
 
 	return 0;
 }

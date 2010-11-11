@@ -39,6 +39,8 @@ int buttonType_to_int (buttonType button)
 		case B5: return 4;
 		case NIL: return 5;
 	}
+	
+	return 0;
 }
 
 struct timeval double_to_timeval( double diff_time )
