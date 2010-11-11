@@ -31,9 +31,8 @@ void Stone::initialize( ISceneManager* sceneManager, musicEvent event, double _s
 
 	speed = _speed;
 
-	node = sceneManager->addSphereSceneNode();
+	node = sceneManager->addSphereSceneNode(1);
 	node->setPosition( initPos );
-	node->setScale( irr::core::vector3df(0.2,0.2,0.2) );
 	
 	switch(event.button) {
 		case B1:
@@ -78,12 +77,15 @@ void Stone::update( double musicTime )
 		trailEndPos.Y = initPos.Y;
 }
 
-void Stone::drawTrail( irr::video::IVideoDriver* driver )
+void Stone::draw( irr::video::IVideoDriver* driver )
 {
-		irr::video::SMaterial m = node->getMaterial(0);
-		m.Thickness = 2;
-		driver->setMaterial(m);
-		driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4()); //global positioning
-		//driver->setMaterial( stonesOnScreen[i][k]->node->getMaterial(0) );
-		driver->draw3DLine( node->getPosition(), this->trailEndPos, node->getMaterial(0).EmissiveColor );
+	//draw2DRectangle (SColor color, const core::rect< s32 > &pos, const core::rect< s32 > *clip=0)=0
+	
+	// draw Trails
+	irr::video::SMaterial m = node->getMaterial(0);
+	m.Thickness = 2;
+	driver->setMaterial(m);
+	driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4()); //global positioning
+	//driver->setMaterial( stonesOnScreen[i][k]->node->getMaterial(0) );
+	driver->draw3DLine( node->getPosition(), this->trailEndPos, node->getMaterial(0).EmissiveColor );
 }
