@@ -5,6 +5,7 @@
 #include <iostream>
 using namespace std;
 
+#include <semaphore.h>
 #include "irrlicht.h"
 using namespace irr;
 using irr::core::vector3df;
@@ -22,32 +23,30 @@ Decoder decoder;
 
 vector<musicEvent> theMusic;
 
-Track* mainTrack;
-
 // indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
 bool endOfMusic=false;
 
-double	musicTime = 0;
-int		musicIndex=0;
+double musicTime = 0;
 
-Fretting fretting1;
-EKEY_CODE eventos[5] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
-Player player1(&fretting1);
+Player player1, player2;
 
-int mutex=1;
+int mutex=0;
+sem_t semaphore;
 
 std::string defaultFile = "music/example.mid",
 			songFile = "music/example.ogg",
 			guitarFile = "";
 			
-note theScreen[SCREEN_Y][NUMBER_OF_FRETS];
+//note theScreen[SCREEN_Y][NUMBER_OF_FRETS];
 
 // Irrlicht-related globals
-eventReceiver receiver;
-IrrlichtDevice *device;
-video::IVideoDriver* driver;
-scene::ISceneManager* smgr;
-scene::ICameraSceneNode *camera;
+IrrlichtDevice 				*device;
+video::IVideoDriver 		*driver;
+scene::ISceneManager 		*smgr;
+scene::ICameraSceneNode 	*camera;
+eventReceiver 				receiver;
+gui::IGUIImage 				*good, *bad;
+gui::IGUIStaticText 		*fpsText;
 
 
 static void *updater(void *argument) 
@@ -59,19 +58,24 @@ static void *updater(void *argument)
 	
 	while( !endOfMusic ) {
 		
-		musicTime = time_diff(start);// + 73;
+		musicTime = time_diff(start);// + 20;
 
-		while( (unsigned int)musicIndex < theMusic.size() &&
-			   (musicTime + mainTrack->spawnDelay) > theMusic[musicIndex].time ) {
+		while( (unsigned int)player1.track->musicPos < theMusic.size() &&
+			   (musicTime + player1.track->spawnDelay) > theMusic[player1.track->musicPos].time ) {
 			
-			mainTrack->processEvent(theMusic[musicIndex]);
-			
-			++musicIndex; // we won't be deleting things anymore
+			player1.track->processEvent(theMusic[player1.track->musicPos]);
 		}
 		
-		while(mutex==0);
-		mainTrack->update(musicTime);
-		mutex=0;
+		while( (unsigned int)player2.track->musicPos < theMusic.size() &&
+			   (musicTime + player2.track->spawnDelay) > theMusic[player2.track->musicPos].time ) {
+			
+			player2.track->processEvent(theMusic[player2.track->musicPos]);
+		}
+		
+		//sem_wait(&semaphore);
+		player1.track->update(musicTime);
+		player2.track->update(musicTime);
+		//sem_post(&semaphore);
 	}
 	
 	return NULL;
@@ -80,14 +84,40 @@ static void *updater(void *argument)
 void* fretting (void *arg)
 // Poll the keyboard testing if the player has pressed the right notes.
 {	
-	while(1)//!endOfMusic)
-	{
-		for (int color = 0; color < 5; color++)
-			player1.fretting->verify_event(color, mainTrack->stones, musicTime, tolerance);
+	double tolerance = 1;
+	
+	while(!endOfMusic) {
+		
+		int ret;
+		
+		//sem_wait(&semaphore);
+		for (int track = 0; track < 5; track++)
+			if(player1.track->stones[track].size() > 0)
+				ret = player1.fretting->verify_event(track, player1.track->stones[track][0], musicTime, tolerance);
+		//sem_post(&semaphore);
+
+		if(good && bad)
+			switch(ret)
+			{
+				case 1:
+					cout<<"acertei"<<endl;
+					good->setVisible(true);
+					bad->setVisible(false);
+					break;
+				case -1:
+					cout<<"errei"<<endl;
+					bad->setVisible(true);
+					good->setVisible(false);
+					break;
+				case 0:
+					//bad->setVisible(false);
+					//good->setVisible(false);
+					break;
+			}
 
 		/*
-		for (int color = 0; color < 5; color++)
-			/*player2->fretting2.verify_event(color);*/
+		for (int track = 0; track < 5; track++)
+			fretting2.verify_event(track);*/
 	}
 	
 	return NULL;
@@ -95,24 +125,18 @@ void* fretting (void *arg)
 
 void musa_init()
 {
-	fretting1.setEvents(eventos);
-	fretting1.setReceiver(&receiver);
+	player1.fretting = new Fretting();
+	player1.track = new Track(smgr,driver,10, -20);
+	player2.fretting = new Fretting();
+	player2.track = new Track(smgr,driver,5, 20);
 	
-	mainTrack = new Track(smgr,driver,15);
+	EKEY_CODE eventos[5] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
 	
-	theMusic = decoder.decodeMidi(defaultFile);
-	cout << "MIDI parsed. This is your music:" << endl;
-	// Shows the events (of the midi file read) on the command line
-	for(unsigned int i = 0; i < theMusic.size(); i++) {
-		cout << theMusic[i].time << " - " << theMusic[i].button << ": ";
-		switch(theMusic[i].type)
-		{
-			case ON: cout << "ON"; break;
-			case OFF: cout << "OFF"; break;
-			default: break;
-		}
-		cout<<endl;
-	}
+	player1.fretting->setEvents(eventos);
+	player1.fretting->setReceiver(&receiver);
+	
+	theMusic = decoder.decodeMidi(defaultFile, EXPERT);
+	//decoder.printMusic(theMusic);
 		
 	/*
 	//initializes the matrix (for drawer)
@@ -135,6 +159,12 @@ void initializeIrrlicht()
 	driver = device->getVideoDriver();
 	smgr = device->getSceneManager();
 	
+	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::rect<int>(0, 0, 100, 10));
+	good = device->getGUIEnvironment()->addImage( driver->getTexture("img/good.png"), core::position2d<s32>(100,20), true );
+	bad = device->getGUIEnvironment()->addImage( driver->getTexture("img/bad.png"), core::position2d<s32>(150,30), true );
+	good->setVisible(false);
+	bad->setVisible(false);
+	//device->getGUIEnvironment()->addButton(core::rect<int>(50,240,110,240 + 32), 0, 0, L"Increase speed", L"Increases speed");
 	
 	scene::ILightSceneNode *light = smgr->addLightSceneNode(0, vector3df(0,-80,-30), video::SColorf(1.0f, 1.0f, 1.0f), 20.0f);
 	//light->setLightType(video::ELT_DIRECTIONAL);
@@ -146,13 +176,22 @@ void initializeIrrlicht()
 				vector3df(0, -90, -40), // Look from
 				vector3df(0, -30, 20), // Look to
 				1);						  // Camera ID
+	
+	/*
+	// debug camera
+	camera = smgr->addCameraSceneNode (
+				0,					  // Camera parent
+				vector3df(0, -150, -300), // Look from
+				vector3df(0, -150, 1), // Look to
+				1);						  // Camera ID				
+				*/
 
 }
 
 int main(int argc, char *argv[])
 {
 	/*
-	 * inicializing the sound engine
+	 * initializing the sound engine
 	 */
 
 	FMOD_RESULT result;
@@ -165,25 +204,34 @@ int main(int argc, char *argv[])
 	ERRCHECK(result)
 
 	// loads the sound file on the memory
-	FMOD::Sound *sound;
-	result = system->createSound(songFile.c_str(), FMOD_DEFAULT, 0, &sound);
+	FMOD::Sound *song, *guitar;
+	result = system->createSound(songFile.c_str(), FMOD_DEFAULT, 0, &song);
+	if(guitarFile.size()>0)
+		system->createSound(guitarFile.c_str(), FMOD_DEFAULT, 0, &guitar);
 	ERRCHECK(result);
 	
 	/*
-	 * inicializing the graphics engine
+	 * initializing the graphics engine
 	 */
 	initializeIrrlicht();
 
 	/*
-	 * inicializing game engine
+	 * initializing game engine
 	 */
 	musa_init();
-
+	
 	FMOD::Channel *channel;
 	// plays the ogg (TREMENDOUSLY REDUCES FPS D=) (seriously?) (actually, not)
-	result = system->playSound(FMOD_CHANNEL_FREE, sound, false, &channel);
+	result = system->playSound(FMOD_CHANNEL_FREE, song, false, &channel);
+	if(guitarFile.size()>0)
+		system->playSound(FMOD_CHANNEL_FREE, guitar, false, &channel);
 	ERRCHECK(result);
 
+	/*
+	 * initializing threads
+	 */
+	sem_init(&semaphore, 0, 1);
+	
 	pthread_t thread[3];
 	int arg = 1;
 	//pthread_create(&thread[0], NULL, drawer, (void *) arg);
@@ -197,12 +245,14 @@ int main(int argc, char *argv[])
 		
 		driver->beginScene(true, true, video::SColor(255,113,113,133));
 
-		while(mutex==1);
+		// mutex must be 2
+		sem_wait(&semaphore);
 		smgr->drawAll(); // draw the stones sceneNodes
-		mainTrack->draw();
-		mutex=1;
+		player1.track->draw();
+		player2.track->draw();
+		sem_post(&semaphore);
 
-		//device->getGUIEnvironment()->drawAll(); // draw the gui environment
+		device->getGUIEnvironment()->drawAll(); // draw the gui environment
 
 		driver->endScene();
 
@@ -212,8 +262,7 @@ int main(int argc, char *argv[])
 		if (lastFPS != fps) {
 			core::stringw tmp(L"fps: ");
 			tmp += fps;
-
-			device->setWindowCaption(tmp.c_str());
+			fpsText->setText(tmp.c_str());
 			lastFPS = fps;
 		}
 	}
