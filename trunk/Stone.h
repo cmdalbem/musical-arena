@@ -9,6 +9,7 @@
 
 using irr::scene::ISceneManager;
 using irr::scene::ISceneNode;
+using irr::video::IVideoDriver;
 
 class Stone
 {
@@ -29,7 +30,7 @@ class Stone
 				
 		double 					howLongActive( double musicTime );
 		void 					update( double musicTime );	
-		void					drawTrail( irr::video::IVideoDriver* driver );
+		void					draw( IVideoDriver* driver );
 		
 	private:
 		irr::core::vector3df 	initPos;

@@ -28,20 +28,6 @@ double timeval_diff(timeval a, timeval b)
 	result.tv_usec = a.tv_usec - b.tv_usec;
 	return timeval_to_double(result);
 }
-int buttonType_to_int (buttonType button)
-{
-	switch (button)
-	{
-		case B1: return 0;
-		case B2: return 1;
-		case B3: return 2;
-		case B4: return 3;
-		case B5: return 4;
-		case NIL: return 5;
-	}
-	
-	return 0;
-}
 
 struct timeval double_to_timeval( double diff_time )
 {
