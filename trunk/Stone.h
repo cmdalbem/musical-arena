@@ -7,13 +7,16 @@
 
 #include "Decoder.h"
 
+using irr::scene::ISceneManager;
+using irr::scene::ISceneNode;
+
 class Stone
 {
 	public:
-		Stone(irr::scene::ISceneManager* sceneManager, musicEvent event, double speed, float x, float y, float z);
-		Stone(irr::scene::ISceneManager* sceneManager, musicEvent event, double speed, irr::scene::ISceneNode* sceneNode, float x, float y, float z);
+		Stone( ISceneManager* sceneManager, musicEvent event, double speed, float x, float y, float z );
+		Stone( ISceneManager* sceneManager, musicEvent event, double speed, ISceneNode* sceneNode, float x, float y, float z );
 
-		void initialize( irr::scene::ISceneManager* sceneManager, musicEvent event, double _speed, float x, float y, float z );
+		void initialize( ISceneManager* sceneManager, musicEvent event, double _speed, float x, float y, float z );
 
 		~Stone();
 
@@ -26,6 +29,7 @@ class Stone
 				
 		double 					howLongActive( double musicTime );
 		void 					update( double musicTime );	
+		void					drawTrail( irr::video::IVideoDriver* driver );
 		
 	private:
 		irr::core::vector3df 	initPos;
