@@ -2,18 +2,20 @@
 //
 
 #include "Fretting.h"
+#include "Track.h"
 
 
 class Player
 {
 	public:
-		Player(Fretting *fretting = NULL);
+		Player();
 		~Player();
 		
 		void inicialize();
 
 		// Instrument	instrument;
 		Fretting	*fretting;
+		Track		*track;
 		
 		int			HP;
 		int			maxHP;

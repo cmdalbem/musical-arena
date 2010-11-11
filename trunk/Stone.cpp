@@ -79,8 +79,6 @@ void Stone::update( double musicTime )
 
 void Stone::draw( irr::video::IVideoDriver* driver )
 {
-	//draw2DRectangle (SColor color, const core::rect< s32 > &pos, const core::rect< s32 > *clip=0)=0
-	
 	// draw Trails
 	irr::video::SMaterial m = node->getMaterial(0);
 	m.Thickness = 2;

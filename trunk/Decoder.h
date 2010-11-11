@@ -19,7 +19,7 @@ class Decoder
 		map< string,pair<buttonType,difficultyType> > notes;
 
 		int 		readMidi( string file );
-		void 		decodeMidiEvent( smf_event_t *event, music* theMusic );
+		void 		decodeMidiEvent( smf_event_t *event, music* theMusic, difficultyType difficulty );
 		string 		note_from_int(int note_number);
 		buttonType 	whatButton( string note );	
 		buttonType 	whatButton( string note, difficultyType difficulty);
@@ -29,5 +29,6 @@ class Decoder
 		Decoder();
 		~Decoder();
 		
-		music 		decodeMidi( string file );
+		music 		decodeMidi( string file, difficultyType difficulty );
+		void 		printMusic( music aMusic );
 };

@@ -5,11 +5,9 @@
 
 #include <ctime>
 
-Player::Player(Fretting *fretting)
+Player::Player()
 {
 	this->inicialize();
-	
-	this->fretting = fretting;
 }
 
 void Player::inicialize()

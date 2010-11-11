@@ -19,8 +19,6 @@
 #define DEBUG 0
 #define MAX_STONE_PER_TRACK 30
 
-const double tolerance = 0.2;
-
 #ifdef HAVE_IRRKLANG
   #include <irrKlang.h>
 #elif defined HAVE_FMOD

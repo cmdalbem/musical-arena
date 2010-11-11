@@ -46,7 +46,7 @@ Decoder::Decoder()
 Decoder::~Decoder() {}
 
 
-music Decoder::decodeMidi( string file )
+music Decoder::decodeMidi( string file, difficultyType difficulty )
 /* reads the mid file calling decodeMidiEvent() for every event */
 {
 	music *theMusic = new music;
@@ -69,19 +69,34 @@ music Decoder::decodeMidi( string file )
 		else if( smf_event_is_metadata(event) )	// ignores these events
 			;
 		else
-			decodeMidiEvent(event,theMusic);
+			decodeMidiEvent(event,theMusic,difficulty);
 	}
 	
 	//cout << endl << "End of file." << endl;
 	smf_delete(smf);
-		
-	return *theMusic;
 	
+	return *theMusic;
 }
 
-void Decoder::decodeMidiEvent( smf_event_t *event, music* theMusic )
+void Decoder::printMusic( music aMusic )
 {
-	buttonType button = whatButton( note_from_int(event->midi_buffer[1]), EXPERT );
+	cout << "MIDI parsed. This is your music:" << endl;
+	for(unsigned int i = 0; i < aMusic.size(); i++) {
+		cout << aMusic[i].time << " - " << aMusic[i].button << ": ";
+		switch(aMusic[i].type)
+		{
+			case ON: cout << "ON"; break;
+			case OFF: cout << "OFF"; break;
+			default: break;
+		}
+		cout<<endl;
+	}
+}	
+
+
+void Decoder::decodeMidiEvent( smf_event_t *event, music* theMusic, difficultyType difficulty )
+{
+	buttonType button = whatButton( note_from_int(event->midi_buffer[1]), difficulty );
 	//cout << smf_event_decode(event) << endl;
 	
 	if(button != NIL)  {	// decoded the event successfully

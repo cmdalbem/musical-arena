@@ -6,8 +6,12 @@
 using irr::video::SColor;
 using irr::video::SMaterial;
 using irr::core::vector3df;
+using irr::core::aabbox3d;
+using irr::core::rect;
+using irr::core::position2d;
+using irr::core::dimension2d;
 
-Track::Track( ISceneManager* _sceneManager, IVideoDriver* _driver, double _speed )
+Track::Track( ISceneManager* _sceneManager, IVideoDriver* _driver, double _speed, int _posx, int _posy, int _posz )
 {
 	speed = _speed;
 	sceneManager = _sceneManager;
@@ -15,10 +19,15 @@ Track::Track( ISceneManager* _sceneManager, IVideoDriver* _driver, double _speed
 	
 	sizex = 30;
 	sizey = 70;
-	posx = 0;
-	posy = 0;
+	posx = _posx;
+	posy = _posy;
+	posz = _posz;
+	
+	musicPos = 0;
 	
 	spawnDelay = sizey/speed;
+	
+	node = new TrackSceneNode(NULL, _sceneManager, 0, sizex, sizey, posx, posy, posz);
 }
 
 Track::~Track()
@@ -56,19 +65,21 @@ void Track::insertStone( musicEvent event )
 	stones[event.button].push_back(newStone);	
 }
 
-void Track::drawDelimiters()
+void Track::drawTrack()
 {
+	///*
 	// Starting and Ending track lines
 	SMaterial m;
 	m.Thickness = 1;
 	driver->setMaterial(m);
 	driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4());  //global positioning
-	driver->draw3DLine( vector3df(-sizex/2 + posx,-this->sizey + this->posy,0),
-						vector3df(sizex/2 + posx,-this->sizey + this->posy,0),
-						SColor(255,255,255,255)); 
-	driver->draw3DLine( vector3df(-sizex/2 + posx,this->posy,0),
-						vector3df(sizex/2 + posx,this->posy,0),
-						SColor(255,255,255,255)); 
+	driver->draw3DBox( aabbox3d<float>(-sizex/2+posx-2, -sizey+posy, 0,
+										sizex/2+posx+2, posy, 0),
+						SColor(255,255,255,255) );
+						//*/
+						
+	//node->render();
+	
 }	
 
 void Track::drawStones()
@@ -81,7 +92,7 @@ void Track::drawStones()
 void Track::draw()
 {
 	drawStones();
-	drawDelimiters();	
+	drawTrack();
 }
 
 void Track::processEvent( musicEvent event )
@@ -103,4 +114,6 @@ void Track::processEvent( musicEvent event )
 		default:
 			break;
 	}
+	
+	this->musicPos++;
 }

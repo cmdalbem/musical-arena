@@ -40,17 +40,14 @@ void Fretting::setReceiver (eventReceiver *receiver)
 
 ////////////////////////////////////////////////////////////////// OTHER METHODS
 
-void Fretting::verify_event(int color, vector<Stone*> stonesOnScreen[NUMBER_OF_FRETS], double musicTime, const double tolerance)
+int Fretting::verify_event(int color, Stone* stone, double musicTime, const double tolerance)
 {
 	double noteCreationTime = INT_MAX;
 	double noteDestructionTime = INT_MIN;
 
-	if (stonesOnScreen[color].size() > 0)
-	{
-		// semáforo lock;
-		noteCreationTime = stonesOnScreen[color][0]->event.time;
-		noteDestructionTime = stonesOnScreen[color][0]->destroyTime;
-		// semáforo unlock
+	if (stone != NULL) {
+		noteCreationTime = stone->event.time;
+		noteDestructionTime = stone->destroyTime;
 	}
 	
 	if (receiver->IsKeyDown(events[color]))
@@ -59,7 +56,8 @@ void Fretting::verify_event(int color, vector<Stone*> stonesOnScreen[NUMBER_OF_F
 		{
 			if( musicTime < noteDestructionTime &&  // tem uma nota tocando
 				rightPressed[color]) 				// acertei (no último frame)
-				cout << "ganho ponto" << endl;
+
+			return 1;
 				//ganho ponto
 			/*
 			else if ( // tem uma nota tocando
@@ -75,17 +73,17 @@ void Fretting::verify_event(int color, vector<Stone*> stonesOnScreen[NUMBER_OF_F
 			if( (musicTime > noteCreationTime - tolerance) &&
 				(musicTime < noteCreationTime + tolerance) ) // eu acertei AGORA
 			{
-				cout << "ganho ponto" << endl;
+				// ganho ponto
 				trackPressed[color] = true;
 				rightPressed[color] = true;
-				// ganho ponto
+				return 1;
 			}
 			else
 			{
 				// perco multiplier, vida, etc
-				cout << "preco multiplier, vida, etc" << endl;
 				trackPressed[color] = true;
 				rightPressed[color] = false;
+				return -1;
 			}
 		}
 	}
@@ -94,4 +92,6 @@ void Fretting::verify_event(int color, vector<Stone*> stonesOnScreen[NUMBER_OF_F
 		trackPressed[color] = false;
 		rightPressed[color] = false;
 	}
+	
+	return 0;
 }
