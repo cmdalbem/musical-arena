@@ -1,0 +1,28 @@
+*SKILLS QUE SÓ FUNCIONARIAM COM IA OU COM MULTIPLAYER EM REDE*
+  * diminuir a tela do outro
+  * deixar mais lento o seu
+  * deixar mais rapido o do outro
+----
+
+
+*SKILLS SACANINHAS :P*
+  * aumentar nivel de dificuldade
+  * dobrar as notas
+  * diminuir a tolerancia
+  * tirar uma corda
+----
+
+
+*SKILLS DE DEFESA*
+  * ficar imune
+  * recuperar vida
+  * tirar o efeito da ultima skill
+----
+
+
+*SKILLS DE ATAQUE*
+  * causar dano
+  * fazer o outro tomar o dobro de dano
+  * poison
+  * tira stamina
+  * feedback
