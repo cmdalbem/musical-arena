@@ -90,11 +90,6 @@ void* fretting (void *arg)
 
 	//double	tolerance = 1;
 
-	while (!endOfMusic)
-	{
-		;
-	}
-	
 
 	return NULL;
 }
@@ -146,6 +141,9 @@ void musa_init()
 	for(int lin=0; lin<SCREEN_Y; lin++)
 		for(int col=0; col<5; col++)
 			theScreen[lin][col] = NOTHING;*/
+			
+	// start getting signals, baby
+	//receiver.enabled = true;
 }
 
 void initializeIrrlicht()
@@ -165,6 +163,8 @@ void initializeIrrlicht()
 	/*scene::ILightSceneNode *light = */smgr->addLightSceneNode(0, vector3df(0,-80,-30), video::SColorf(1.0f, 1.0f, 1.0f), 20.0f);
 	//light->setLightType(video::ELT_DIRECTIONAL);
 	//light->setRotation(vector3df(-90,0,0));
+	
+	//smgr->addSkyDomeSceneNode( driver->getTexture("img/rockwall.jpg") );
 	
     // like the real game camera
     camera = smgr->addCameraSceneNode (
@@ -235,8 +235,7 @@ int main(int argc, char *argv[])
 	
 	/*
 	 * Irrlicht Main Loop
-	 */
-	receiver.enabled = true;
+	 */	
 	while(device->run()) {
 		
 		driver->beginScene(true, true, video::SColor(255,113,113,133));

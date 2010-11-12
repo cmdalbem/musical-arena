@@ -60,7 +60,7 @@ class Fretting
 			int	 chordCounter = 0;
 			
 			// verifies what buttons are pressed
-			for (int index = 0; index < events.size(); index++)
+			for (unsigned int index = 0; index < events.size(); index++)
 			{
 				if (stones[index].size() > 0)
 				{

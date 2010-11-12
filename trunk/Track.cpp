@@ -11,7 +11,7 @@ using irr::core::rect;
 using irr::core::position2d;
 using irr::core::dimension2d;
 
-Track::Track( ISceneManager* _sceneManager, IVideoDriver* _driver, double _speed, int _posx, int _posy, int _posz )
+Track::Track( ISceneManager* _sceneManager, IVideoDriver* _driver, double _speed, double _posx, double _posy, double _posz )
 {
 	speed = _speed;
 	sceneManager = _sceneManager;
@@ -60,7 +60,7 @@ void Track::update( double musicTime )
 
 void Track::insertStone( musicEvent event )
 {
-	Stone *newStone = new Stone(this->sceneManager, event, speed, event.button*((sizex+1)/5) - sizex/2 + this->posx, this->posy, 0); //x,y,z
+	Stone *newStone = new Stone(driver, this->sceneManager, event, speed, event.button*((sizex+1)/5) - sizex/2 + this->posx, this->posy, 0); //x,y,z
 	
 	stones[event.button].push_back(newStone);	
 }

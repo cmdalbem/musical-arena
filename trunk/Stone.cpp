@@ -7,22 +7,23 @@
 using irr::scene::ISceneManager;
 using irr::scene::ISceneNode;
 using irr::video::SColor;
+using irr::video::IVideoDriver;
 
-Stone::Stone( ISceneManager* sceneManager, musicEvent event, double _speed,
+Stone::Stone( IVideoDriver *driver, ISceneManager* sceneManager, musicEvent event, double _speed, 
 		float x, float y, float z)
 {
-	initialize( sceneManager, event, _speed, x, y, z );
+	initialize( driver, sceneManager, event, _speed, x, y, z );
 }
 
-Stone::Stone( ISceneManager* sceneManager, musicEvent event, double _speed, ISceneNode* sceneNode,
+Stone::Stone( IVideoDriver *driver, ISceneManager* sceneManager, musicEvent event, double _speed, ISceneNode* sceneNode,
 		float x, float y, float z)
 {
-	initialize( sceneManager, event, _speed, x, y, z );
+	initialize( driver, sceneManager, event, _speed, x, y, z );
 
 	sceneNode->addChild( node );
 }
 
-void Stone::initialize( ISceneManager* sceneManager, musicEvent event, double _speed, float x, float y, float z )
+void Stone::initialize( IVideoDriver *driver, ISceneManager* sceneManager, musicEvent event, double _speed, float x, float y, float z )
 {
 	this->event = event;
 	this->destroyTime = INT_MAX;
