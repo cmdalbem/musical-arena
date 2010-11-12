@@ -5,7 +5,6 @@
 #include "Fretting.h"
 #include "Track.h"
 
-
 class Player
 {
 	public:

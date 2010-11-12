@@ -87,7 +87,15 @@ static void *updater(void *argument)
 void* fretting (void *arg)
 // Poll the keyboard testing if the player has pressed the right notes.
 {	
+
+	//double	tolerance = 1;
+
+	while (!endOfMusic)
+	{
+		;
+	}
 	
+
 	return NULL;
 }
 
@@ -115,10 +123,18 @@ void musa_init()
 	player2.fretting = new Fretting();
 	player2.track = new Track(smgr,driver,5, 20);
 	
-	EKEY_CODE eventos[5] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
+	player1.fretting->tolerance = 1;
+	player2.fretting->tolerance = 1;
+	player1.fretting->musicTime = &musicTime;
+	player2.fretting->musicTime = &musicTime;
+	
+//	receiver = new eventReceiver();
+	receiver.player1 = &player1;
+	receiver.player2 = &player2;
+	
+	EKEY_CODE eventos[NUMBER_OF_FRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
 	
 	player1.fretting->setEvents(eventos);
-	player1.fretting->setReceiver(&receiver);
 	
 	screen = new Screen(device,driver);
 	
@@ -194,7 +210,6 @@ int main(int argc, char *argv[])
 	 * initializing the graphics engine
 	 */
 	initializeIrrlicht();
-
 	/*
 	 * initializing game engine
 	 */
@@ -215,12 +230,13 @@ int main(int argc, char *argv[])
 	pthread_t thread[3];
 	int arg = 1;
 	//pthread_create(&thread[0], NULL, drawer, (void *) arg);
-	pthread_create(&thread[1], NULL, fretting, (void *) arg);
+	//pthread_create(&thread[1], NULL, fretting, (void *) arg);
 	pthread_create(&thread[2], NULL, updater, (void *) arg);
 	
 	/*
 	 * Irrlicht Main Loop
 	 */
+	receiver.enabled = true;
 	while(device->run()) {
 		
 		driver->beginScene(true, true, video::SColor(255,113,113,133));
@@ -253,7 +269,7 @@ int main(int argc, char *argv[])
 	 */
 	// wait for threads to complete
 	//pthread_join(thread[0], NULL); //drawer
-	pthread_join(thread[1], NULL);
+	//pthread_join(thread[1], NULL);
 	pthread_join(thread[2], NULL);
 	
 	return 0;

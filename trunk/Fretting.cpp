@@ -40,12 +40,15 @@ void Fretting::initialize()
 		this->trackPressed[i] = false;
 		this->rightPressed[i] = false;
 	}	
+	
+	acertadas = 0;
+	erradas	= 0;
+	neutras = 0;
 }
 
-Fretting::Fretting(EKEY_CODE events[NUMBER_OF_FRETS], eventReceiver *receiver)
+Fretting::Fretting(EKEY_CODE events[NUMBER_OF_FRETS])
 {
 	setEvents(&(events[NUMBER_OF_FRETS]));
-	setReceiver(receiver);
 	initialize();
 }
 
@@ -60,16 +63,11 @@ void Fretting::setEvents(EKEY_CODE events[NUMBER_OF_FRETS])
 		this->events.push_back(events[i]);
 }
 
-void Fretting::setReceiver (eventReceiver *receiver)
-{	this->receiver = receiver;	}
-
 ////////////////////////////////////////////////////////////////// OTHER METHODS
-int Fretting::verify_event(vector<Stone*> stones[NUMBER_OF_FRETS], double musicTime, const double tolerance)
-{
-	
+
+
 	// vejo quais botões estão apertados;
 	// se algum foi apertado agora;
-	// // se ele é o mais da direita;
 	// // // se tem alguma nota nova pra ele;
 	// // // // se tem uma outra nota com início no mesmo momento;
 	// // // // // se tem alguma nota apertada já errada
@@ -80,17 +78,13 @@ int Fretting::verify_event(vector<Stone*> stones[NUMBER_OF_FRETS], double musicT
 	// // // // // acertou
 	// // // se não tem alguma nota nova pra ele
 	// // // // errou
-	// // se ele não é o mais da direita;
-	// // // errou
 	// se ninguém foi apertado agora
-	// // se tem nota tocando agora
+	// // se tem nota tocando agora & acertei (last frame)
 	// // // "dá ponto"
 	// // se nao tem nota tocando agora
 	// // // nao faz nada
 	// O caso de o jogador deixar um nota passar será tratado pela track =D
-	
-	return 0;
-}
+
 
 Skill* Fretting::findSkill( buttonType buttonPressed )
 {
