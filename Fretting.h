@@ -30,7 +30,7 @@ class Fretting
 {
 	public:
 		Fretting();
-		Fretting( vector<Skill> skills );
+		Fretting( vector<Skill> *skills );
 		Fretting(EKEY_CODE events[NUMBER_OF_FRETS], eventReceiver *receiver);
 		~Fretting();
 
@@ -38,17 +38,19 @@ class Fretting
 		void 	setReceiver(eventReceiver *receiver);
 
 		int 	verify_event(vector<Stone*> stones[NUMBER_OF_FRETS], double musicTime, const double tolerance);
+		Skill*				findSkill( buttonType buttonPressed );
 
 	private:
-		tree<skillTreeNode> skillsTree;
-		skillTreeNode*		actualNode;
+		tree<skillTreeNode> 			skillsTree;
+		tree<skillTreeNode>::iterator 	actualSkillNode;
 		
 		eventReceiver 		*receiver;
 		vector<EKEY_CODE> 	events;
 		bool 				trackPressed[5];		// tell us the state of the tracks on the last
 		bool 				rightPressed[5];		// frame		
 		
-		void				generateSkillsTree( vector<Skill> skills );
+		
+		void				generateSkillsTree( vector<Skill> *skills );
 		void				initialize();
 };
 
