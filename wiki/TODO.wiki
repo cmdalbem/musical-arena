@@ -27,3 +27,6 @@ vector<event> aMusic;
 
  * <font color="red">*IA*</font> _(0%)_
    inicialmente um sistema bem simples que simplesmente acerte ou erre notas de tempos em tempos. posteriormente, adicionamos uma IA que execute skills, etc.
+
+ * <font color="red">*Gráficos*</font> _(20%)_
+   gráfico mooooonstro
