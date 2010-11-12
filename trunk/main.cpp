@@ -87,57 +87,30 @@ static void *updater(void *argument)
 void* fretting (void *arg)
 // Poll the keyboard testing if the player has pressed the right notes.
 {	
-	double	tolerance = 1;
-	
-	while(!endOfMusic) {		
-		//sem_wait(&semaphore);
-		//player1.verify_buttons(mainTrack->stones, musicTime, tolerance);
-		int fretEvent = player1.fretting->verify_event(player1.track->stones, musicTime, tolerance);
-		//sem_post(&semaphore);
-		
-		switch(fretEvent)
-		{
-			case HIT:
-				cout<<"acertei"<<endl;
-				screen->showGood();
-				break;
-			case ERROR:
-				cout<<"errei"<<endl;
-				screen->showBad();
-				break;
-			default:
-				break;
-		}
-		
-		/*
-		for (int track = 0; track < 5; track++)
-			fretting2.verify_event(track);*/
-	}
 	
 	return NULL;
 }
 
 void musa_init()
 {
-	vector<Skill> skills;
+	static vector<Skill> skills;
 	Skill s1, s2, s3;
 	s1.keysSequence.push_back(B1);
 	s1.keysSequence.push_back(B4);
 	s1.name = "Meduse";
 	s2.keysSequence.push_back(B1);
 	s2.keysSequence.push_back(B2);
-	s2.keysSequence.push_back(B3);
+	s2.keysSequence.push_back(B4);
 	s2.name = "Stick with it";
+	s3.keysSequence.push_back(B1);
 	s3.keysSequence.push_back(B2);
 	s3.keysSequence.push_back(B3);
-	s3.keysSequence.push_back(B5);
-	s3.name = "Feedback";
+	s3.name = "People = Shit";
 	skills.push_back(s1);
 	skills.push_back(s2);
 	skills.push_back(s3);
 	
-	
-	player1.fretting = new Fretting(skills);
+	player1.fretting = new Fretting(&skills);	
 	player1.track = new Track(smgr,driver,10, -20);
 	player2.fretting = new Fretting();
 	player2.track = new Track(smgr,driver,5, 20);
@@ -173,7 +146,7 @@ void initializeIrrlicht()
 	driver = device->getVideoDriver();
 	smgr = device->getSceneManager();
 	
-	scene::ILightSceneNode *light = smgr->addLightSceneNode(0, vector3df(0,-80,-30), video::SColorf(1.0f, 1.0f, 1.0f), 20.0f);
+	/*scene::ILightSceneNode *light = */smgr->addLightSceneNode(0, vector3df(0,-80,-30), video::SColorf(1.0f, 1.0f, 1.0f), 20.0f);
 	//light->setLightType(video::ELT_DIRECTIONAL);
 	//light->setRotation(vector3df(-90,0,0));
 	

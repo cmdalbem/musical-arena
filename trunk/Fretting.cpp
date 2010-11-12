@@ -9,11 +9,11 @@ ostream& operator<<(ostream& out, skillTreeNode& node )
 {
 	switch(node.button)
 	{
-		case B1: return out << "B1";
-		case B2: return out << "B2";
-		case B3: return out << "B3";
-		case B4: return out << "B4";
-		case B5: return out << "B5";
+		case B1: return out << "B1(" << node.skill << ")";
+		case B2: return out << "B2(" << node.skill << ")";
+		case B3: return out << "B3(" << node.skill << ")";
+		case B4: return out << "B4(" << node.skill << ")";
+		case B5: return out << "B5(" << node.skill << ")";
 		case NIL: return out << "NIL";
 	}
 	
@@ -27,7 +27,7 @@ Fretting::Fretting()
 	initialize();
 }
 
-Fretting::Fretting( vector<Skill> skills )
+Fretting::Fretting( vector<Skill> *skills )
 {
 	initialize();
 	
@@ -66,106 +66,6 @@ void Fretting::setReceiver (eventReceiver *receiver)
 ////////////////////////////////////////////////////////////////// OTHER METHODS
 int Fretting::verify_event(vector<Stone*> stones[NUMBER_OF_FRETS], double musicTime, const double tolerance)
 {
-	double  noteCreationTime[NUMBER_OF_FRETS];
-	double  noteDestructionTime[NUMBER_OF_FRETS];
-	bool	noonePressedNow = true;
-	
-	//stores on a vector what buttons are pressed
-	vector<int> whatPressed;
-	
-	for(int i = 0; i < NUMBER_OF_FRETS; i++)
-	{
-		// discovers what buttons are pressed now
-		if(receiver->IsKeyDown(events[i]))
-			whatPressed.push_back(i);
-
-		// inicializes the times
-		if (stones[i].size() > 0)
-		{
-			// semáforo lock;
-			noteCreationTime[i] = stones[i][0]->event.time;
-			noteDestructionTime[i] = stones[i][0]->destroyTime;
-			// semáforo unlock
-		}
-		else
-		{
-			noteCreationTime[i] = INT_MAX;
-			noteDestructionTime[i] = INT_MIN;
-		}
-	}
-	
-	/*cout << "buttons pressed: " << whatPressed.size()
-		 << "\t stones on each track: " << stones[0].size()
-		 << " " << stones[1].size() << " " << stones[2].size()
-		 << " " << stones[3].size() << " " << stones[4].size()
-		 << endl;*/
-	
-	// if no button was pressed, ignores the rest of the function
-	if (whatPressed.size() == 0)
-		return NO_BUTTON_PRESSED;		// acho que equivale ao DO_NOTHING
-	
-	// tests the algorithm written on the end of this function (comment)
-	for (int wPIndex = 0; wPIndex < whatPressed.size(); wPIndex++)
-	{
-		int actualButton = whatPressed[wPIndex];
-		
-		// if this button was pressed now
-		if (trackPressed[actualButton] == false)
-		{
-			cout << "button " << actualButton << "was pressed now" << endl;
-			noonePressedNow = false;
-			// if actualButton is the "rightier" button pressed (it is the last button on whatPressed)
-			if ( wPIndex == whatPressed.size() - 1)
-			{
-				// if there was any note on the time the button was pressed
-				if( (musicTime > noteCreationTime[actualButton] - tolerance) &&
-					(musicTime < noteCreationTime[actualButton] + tolerance) ) // eu acertei AGORA
-				{
-					// if there's another note starting at the same time
-					bool anotherNote = false;
-					for (int i = 0; i < NUMBER_OF_FRETS; i++)
-					{
-						if (stones[i][0]->event.time == noteCreationTime[actualButton] && i != actualButton)
-							anotherNote = true;
-					}
-					
-					if (anotherNote)
-					{
-						// if there's any note wrong pressed (every note must be pressed on its "CreationTime")
-						for (int wPIndex2 = 0; wPIndex2 < whatPressed.size(); wPIndex2++)
-						{
-							int actualButton2 = whatPressed.size();
-							if(!((musicTime > noteCreationTime[actualButton2] - tolerance) &&
-								 (musicTime < noteCreationTime[actualButton2] + tolerance) ))
-								return ERROR;
-							else
-								return DO_NOTHING;
-						}
-					}
-					else
-						return HIT;
-				}
-				else
-					return ERROR;
-			}
-			else
-				return ERROR;
-		}
-	}
-	
-	// tests if is there any note bad pressed
-	if (noonePressedNow)
-	{
-		for (int wPIndex = 0; wPIndex < whatPressed.size(); wPIndex++)
-		{
-			int actualButton = whatPressed[wPIndex];
-			if (musicTime > noteCreationTime[actualButton] &&
-				musicTime < noteDestructionTime[actualButton])
-				return	HIT;
-			else
-				return	DO_NOTHING;
-		}
-	}
 	
 	// vejo quais botões estão apertados;
 	// se algum foi apertado agora;
@@ -188,65 +88,76 @@ int Fretting::verify_event(vector<Stone*> stones[NUMBER_OF_FRETS], double musicT
 	// // se nao tem nota tocando agora
 	// // // nao faz nada
 	// O caso de o jogador deixar um nota passar será tratado pela track =D
+	
+	return 0;
 }
 
-void Fretting::generateSkillsTree( vector<Skill> skills )
+Skill* Fretting::findSkill( buttonType buttonPressed )
+{
+	bool found = false;
+	tree<skillTreeNode>::sibling_iterator sib;
+
+	// search for this key in the actual depth of the search tree
+	for(sib = actualSkillNode.begin(); sib!=actualSkillNode.end() && !found; sib++)
+		if( (*sib).button == buttonPressed ) {
+			found=true;
+			actualSkillNode = sib;
+		}
+		
+	if(found) {
+		if( (*actualSkillNode).skill!=NULL ) { // node is a leaf!
+			tree<skillTreeNode>::sibling_iterator temp = actualSkillNode;
+			actualSkillNode = skillsTree.begin();
+			return (*temp).skill; // return Skill found
+		}
+		else {
+			// will continue searching in next call
+		}
+	}
+	else
+		actualSkillNode = skillsTree.begin(); // didn't find any keys here, going back to the root!
+	
+	
+	return NULL; // didn't find any Skills.
+}
+
+void Fretting::generateSkillsTree( vector<Skill> *skills )
 {
 	tree<skillTreeNode>::iterator top, actual;
 	tree<skillTreeNode>::sibling_iterator sib;
 
 	top = skillsTree.begin();
-	
-	top = skillsTree.insert(top, skillTreeNode(NIL,NULL));
-	
-	cout<<"Skills:"<<endl;
-	for(unsigned int i=0; i<skills.size(); i++)
-	{
-		for(unsigned int k=0; k<skills[i].keysSequence.size(); k++)
-			cout << skills[i].keysSequence[k]+1 << "-";
-		cout << endl;
-	}
-	
-	for(unsigned int i=0; i<skills.size(); i++)
-	{
+	top = skillsTree.insert(top, skillTreeNode(NIL,NULL)); //dummy root
+
+	// for each skill
+	for(unsigned int i=0; i<skills->size(); i++) {
 		actual = top;
 		
-		cout<<"- SKILL "<<skills[i].name<<endl;
-		for(unsigned int k=0; k<skills[i].keysSequence.size(); k++)
-		{
+		// for each key in the skill
+		for(unsigned int k=0; k<skills->at(i).keysSequence.size(); k++) {
 			bool found = false;
-			cout<<"searching for: "<<skills[i].keysSequence[k]+1<<endl;
-			cout<<"in:";
+
+			// search for actual key in current depth
 			for(sib = actual.begin(); sib!=actual.end(); sib++)
-			{
-				cout<<(*sib).button+1<<",";
-				if( (*sib).button == skills[i].keysSequence[k] ) {
+				if( (*sib).button == skills->at(i).keysSequence[k] ) {
 					found=true;
 					actual = sib;
 				}
-			}
-			
+
+			// we must insert a new key in this depth
 			if( !found ) {
-				cout<<"didn't find! inserting..."<<endl;
-				if(actual==top)
-				{
-					cout<<"ROOTS BLOODY ROOTS"<<endl;
-					actual = skillsTree.append_child(top, skillTreeNode(skills[i].keysSequence[k],NULL));
-				}
-				else
-					if(k==skills[i].keysSequence.size()-1) //skill leaf
-						actual = skillsTree.append_child(actual, skillTreeNode(skills[i].keysSequence[k],&skills[i]));
-					else
-						actual = skillsTree.append_child(actual, skillTreeNode(skills[i].keysSequence[k],NULL));
+				if(k==skills->at(i).keysSequence.size()-1) // it's a leaf, we register with pointer to the Skill
+					actual = skillsTree.append_child(actual, skillTreeNode(skills->at(i).keysSequence[k],&(skills->at(i)) ));
+				else // it's a node in the middle of the way, so no pointer to any Skill!
+					actual = skillsTree.append_child(actual, skillTreeNode(skills->at(i).keysSequence[k],NULL));
 			}
-			else
-				cout<<"ok, found it."<<endl;
 		}
 	}
 	
-	cout<<"Arvore:"<<endl;
+	cout<<"Skills tree:"<<endl;
 	kptree::print_tree_bracketed(skillsTree);
 	cout<<endl;
 	
-	actualNode = &(*skillsTree.begin());
+	// set actual searching node to the top (root)
+	actualSkillNode = top;
 }
