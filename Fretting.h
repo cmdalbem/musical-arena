@@ -15,9 +15,14 @@ enum {
 };
 
 
-struct skillTreeNode {
-	buttonType button;
-	Skill *skill;
+class skillTreeNode {
+	
+	public:
+		skillTreeNode( buttonType b, Skill* s ) : button(b), skill(s) {}
+		
+		buttonType button;
+		Skill *skill;
+				
 };
 
 
@@ -25,6 +30,7 @@ class Fretting
 {
 	public:
 		Fretting();
+		Fretting( vector<Skill> skills );
 		Fretting(EKEY_CODE events[NUMBER_OF_FRETS], eventReceiver *receiver);
 		~Fretting();
 
@@ -35,9 +41,14 @@ class Fretting
 
 	private:
 		tree<skillTreeNode> skillsTree;
+		skillTreeNode*		actualNode;
+		
 		eventReceiver 		*receiver;
 		vector<EKEY_CODE> 	events;
 		bool 				trackPressed[5];		// tell us the state of the tracks on the last
 		bool 				rightPressed[5];		// frame		
+		
+		void				generateSkillsTree( vector<Skill> skills );
+		void				initialize();
 };
 

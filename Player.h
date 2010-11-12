@@ -12,23 +12,23 @@ class Player
 		Player();
 		~Player();
 		
-		Fretting*	getFretting();
-		void		verify_buttons();
+		Fretting*		getFretting();
+		void			verify_buttons();
 		
-		void inicialize();
+		void 			initialize();
 		
-		// Instrument	instrument;
-		Fretting	*fretting;
-		Track		*track;
+		//Instrument		instrument;
+		Fretting		*fretting;
+		Track			*track;
 		
-		int			HP;
-		int			maxHP;
-		int			stamina;
-		int			maxStamina;
+		int				HP;
+		int				maxHP;
+		int				stamina;
+		int				maxStamina;
 		
-		int			XP;
-		int			level;
-		// vector<Skill>	skills; // each skill has its own cooldown
+		int				XP;
+		int				level;
+		vector<Skill>	skills;
 		
 		int			gold;
 };

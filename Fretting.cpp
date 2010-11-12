@@ -2,26 +2,51 @@
 //
 #include "Fretting.h"
 #include "limits.h"
+#include "tree_util.hh"
+
+
+ostream& operator<<(ostream& out, skillTreeNode& node )
+{
+	switch(node.button)
+	{
+		case B1: return out << "B1";
+		case B2: return out << "B2";
+		case B3: return out << "B3";
+		case B4: return out << "B4";
+		case B5: return out << "B5";
+		case NIL: return out << "NIL";
+	}
+	
+	return out;
+}
+
 
 /////////////////////////////////////////////////////////////////// CONSTRUCTORS
 Fretting::Fretting()
 {
-	for (int i = 0; i < NUMBER_OF_FRETS; i++)
-	{
+	initialize();
+}
+
+Fretting::Fretting( vector<Skill> skills )
+{
+	initialize();
+	
+	generateSkillsTree(skills);
+}
+
+void Fretting::initialize()
+{
+	for (int i = 0; i < NUMBER_OF_FRETS; i++) {
 		this->trackPressed[i] = false;
 		this->rightPressed[i] = false;
-	}
+	}	
 }
 
 Fretting::Fretting(EKEY_CODE events[NUMBER_OF_FRETS], eventReceiver *receiver)
 {
 	setEvents(&(events[NUMBER_OF_FRETS]));
 	setReceiver(receiver);
-	for (int i = 0; i < NUMBER_OF_FRETS; i++)
-	{
-		this->trackPressed[i] = false;
-		this->rightPressed[i] = false;
-	}
+	initialize();
 }
 
 //////////////////////////////////////////////////////////////////// DESTRUCTORS
@@ -165,3 +190,63 @@ int Fretting::verify_event(vector<Stone*> stones[NUMBER_OF_FRETS], double musicT
 	// O caso de o jogador deixar um nota passar será tratado pela track =D
 }
 
+void Fretting::generateSkillsTree( vector<Skill> skills )
+{
+	tree<skillTreeNode>::iterator top, actual;
+	tree<skillTreeNode>::sibling_iterator sib;
+
+	top = skillsTree.begin();
+	
+	top = skillsTree.insert(top, skillTreeNode(NIL,NULL));
+	
+	cout<<"Skills:"<<endl;
+	for(unsigned int i=0; i<skills.size(); i++)
+	{
+		for(unsigned int k=0; k<skills[i].keysSequence.size(); k++)
+			cout << skills[i].keysSequence[k]+1 << "-";
+		cout << endl;
+	}
+	
+	for(unsigned int i=0; i<skills.size(); i++)
+	{
+		actual = top;
+		
+		cout<<"- SKILL "<<skills[i].name<<endl;
+		for(unsigned int k=0; k<skills[i].keysSequence.size(); k++)
+		{
+			bool found = false;
+			cout<<"searching for: "<<skills[i].keysSequence[k]+1<<endl;
+			cout<<"in:";
+			for(sib = actual.begin(); sib!=actual.end(); sib++)
+			{
+				cout<<(*sib).button+1<<",";
+				if( (*sib).button == skills[i].keysSequence[k] ) {
+					found=true;
+					actual = sib;
+				}
+			}
+			
+			if( !found ) {
+				cout<<"didn't find! inserting..."<<endl;
+				if(actual==top)
+				{
+					cout<<"ROOTS BLOODY ROOTS"<<endl;
+					actual = skillsTree.append_child(top, skillTreeNode(skills[i].keysSequence[k],NULL));
+				}
+				else
+					if(k==skills[i].keysSequence.size()-1) //skill leaf
+						actual = skillsTree.append_child(actual, skillTreeNode(skills[i].keysSequence[k],&skills[i]));
+					else
+						actual = skillsTree.append_child(actual, skillTreeNode(skills[i].keysSequence[k],NULL));
+			}
+			else
+				cout<<"ok, found it."<<endl;
+		}
+	}
+	
+	cout<<"Arvore:"<<endl;
+	kptree::print_tree_bracketed(skillsTree);
+	cout<<endl;
+	
+	actualNode = &(*skillsTree.begin());
+}

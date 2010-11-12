@@ -29,7 +29,7 @@ scene::ICameraSceneNode 	*camera;
 eventReceiver 				receiver;
 
 
-Decoder decoder;
+Decoder decoder; 
 Screen *screen;
 
 vector<musicEvent> theMusic;
@@ -61,12 +61,14 @@ static void *updater(void *argument)
 		
 		musicTime = time_diff(start);// + 20;
 
+		// spawning on track1
 		while( (unsigned int)player1.track->musicPos < theMusic.size() &&
 			   (musicTime + player1.track->spawnDelay) > theMusic[player1.track->musicPos].time ) {
 			
 			player1.track->processEvent(theMusic[player1.track->musicPos]);
 		}
 		
+		// spawning on track2
 		while( (unsigned int)player2.track->musicPos < theMusic.size() &&
 			   (musicTime + player2.track->spawnDelay) > theMusic[player2.track->musicPos].time ) {
 			
@@ -90,10 +92,10 @@ void* fretting (void *arg)
 	while(!endOfMusic) {		
 		//sem_wait(&semaphore);
 		//player1.verify_buttons(mainTrack->stones, musicTime, tolerance);
-		int ret = player1.fretting->verify_event(player1.track->stones, musicTime, tolerance);
+		int fretEvent = player1.fretting->verify_event(player1.track->stones, musicTime, tolerance);
 		//sem_post(&semaphore);
 		
-		switch(ret)
+		switch(fretEvent)
 		{
 			case HIT:
 				cout<<"acertei"<<endl;
@@ -117,7 +119,25 @@ void* fretting (void *arg)
 
 void musa_init()
 {
-	player1.fretting = new Fretting();
+	vector<Skill> skills;
+	Skill s1, s2, s3;
+	s1.keysSequence.push_back(B1);
+	s1.keysSequence.push_back(B4);
+	s1.name = "Meduse";
+	s2.keysSequence.push_back(B1);
+	s2.keysSequence.push_back(B2);
+	s2.keysSequence.push_back(B3);
+	s2.name = "Stick with it";
+	s3.keysSequence.push_back(B2);
+	s3.keysSequence.push_back(B3);
+	s3.keysSequence.push_back(B5);
+	s3.name = "Feedback";
+	skills.push_back(s1);
+	skills.push_back(s2);
+	skills.push_back(s3);
+	
+	
+	player1.fretting = new Fretting(skills);
 	player1.track = new Track(smgr,driver,10, -20);
 	player2.fretting = new Fretting();
 	player2.track = new Track(smgr,driver,5, 20);
