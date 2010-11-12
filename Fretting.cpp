@@ -9,13 +9,15 @@ ostream& operator<<(ostream& out, skillTreeNode& node )
 {
 	switch(node.button)
 	{
-		case B1: return out << "B1(" << node.skill << ")";
-		case B2: return out << "B2(" << node.skill << ")";
-		case B3: return out << "B3(" << node.skill << ")";
-		case B4: return out << "B4(" << node.skill << ")";
-		case B5: return out << "B5(" << node.skill << ")";
-		case NIL: return out << "NIL";
+		case B1: out << "B1"; break;
+		case B2: out << "B2"; break;
+		case B3: out << "B3"; break;
+		case B4: out << "B4"; break;
+		case B5: out << "B5"; break;
+		case NIL: out << "NIL"; break;
 	}
+	
+	//out << "(" << node.skill << ")";
 	
 	return out;
 }
@@ -148,9 +150,9 @@ void Fretting::generateSkillsTree( vector<Skill> *skills )
 		}
 	}
 	
-	cout<<"Skills tree:"<<endl;
+	cout<<"\nSkills tree:\n";
 	kptree::print_tree_bracketed(skillsTree);
-	cout<<endl;
+	cout<<endl<<endl;
 	
 	// set actual searching node to the top (root)
 	actualSkillNode = top;

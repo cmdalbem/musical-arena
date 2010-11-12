@@ -10,14 +10,15 @@
 using irr::scene::ISceneManager;
 using irr::scene::ISceneNode;
 using irr::video::IVideoDriver;
+using irr::video::IVideoDriver;
 
 class Stone
 {
 	public:
-		Stone( ISceneManager* sceneManager, musicEvent event, double speed, float x, float y, float z );
-		Stone( ISceneManager* sceneManager, musicEvent event, double speed, ISceneNode* sceneNode, float x, float y, float z );
+		Stone( IVideoDriver *driver, ISceneManager* sceneManager, musicEvent event, double speed, float x, float y, float z );
+		Stone( IVideoDriver *driver, ISceneManager* sceneManager, musicEvent event, double speed, ISceneNode* sceneNode, float x, float y, float z );
 
-		void initialize( ISceneManager* sceneManager, musicEvent event, double _speed, float x, float y, float z );
+		void initialize( IVideoDriver *driver, ISceneManager* sceneManager, musicEvent event, double _speed, float x, float y, float z );
 
 		~Stone();
 
