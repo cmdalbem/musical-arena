@@ -46,19 +46,23 @@ class Fretting
 
 		void 	setEvents(EKEY_CODE events[NUMBER_OF_FRETS]);
 
-		int 	verify_events(bool KeyIsDown[KEY_KEY_CODES_COUNT], vector<Stone*> stones[NUMBER_OF_FRETS])
+		int 	verify_events(SEvent event, vector<Stone*> stones[NUMBER_OF_FRETS])
 		{
 			double noteCreationTime[NUMBER_OF_FRETS];
 			double noteDestructionTime[NUMBER_OF_FRETS];
-		Skill*				findSkill( buttonType buttonPressed );
-
-			bool pressed[NUMBER_OF_FRETS];
-			bool mustPress[NUMBER_OF_FRETS];
-			bool mustPressYet[NUMBER_OF_FRETS];
-			bool chords[NUMBER_OF_FRETS];
-			bool rightNow[NUMBER_OF_FRETS];
-			int	 chordCounter = 0;
+			//Skill*		findSkill( buttonType buttonPressed );
+			int		usefulButton = -1;
 			
+
+			for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			{
+				if (event.KeyInput.Key == events[i])
+				{
+					//code = event.KeyInput.Key;
+					usefulButton = i;
+				}
+			}
+
 			// verifies what buttons are pressed
 			for (unsigned int index = 0; index < events.size(); index++)
 			{
@@ -66,198 +70,62 @@ class Fretting
 				{
 					noteCreationTime[index] = stones[index][0]->event.time;
 					noteDestructionTime[index] = stones[index][0]->destroyTime;
-					if (*musicTime > noteCreationTime[index] - tolerance &&
-						*musicTime < noteCreationTime[index] + tolerance)
-						mustPress[index] = true;
-					else
-						mustPress[index] = false;
-					
-					if (*musicTime > noteDestructionTime[index])
-						mustPressYet[index] = false;
-					else
-						mustPressYet[index] = true;
 				}
 				else
 				{
 					noteCreationTime[index] = INT_MAX;
 					noteDestructionTime[index] = INT_MIN;
-					mustPressYet[index] = false;
-					mustPress[index] = false;
 				}
-				
-				rightNow[index] = false;
-				chords[index] = false;
-				EKEY_CODE code = events[index];
-				pressed[index] = KeyIsDown[code];
 			}
+
 			
-			int chordCreationTime = INT_MAX;
-			for (int i = 0; i < NUMBER_OF_FRETS; i++)
-				if (noteCreationTime[i] < chordCreationTime)
-					chordCreationTime = noteCreationTime[i];
-					
-			for (int i = 0; i < NUMBER_OF_FRETS; i++)
-				for (int j = 0; j < NUMBER_OF_FRETS; j++)
-					if (noteCreationTime[i] == noteCreationTime[j]
-						&& i != j && chordCreationTime == noteCreationTime[i])
-					{
-						chords[i] = true;
-						chords[j] = true;
-					}
-			for (int i = 0; i < NUMBER_OF_FRETS; i++)
-				if (chords [i])
-					chordCounter++;
-			
-			for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			if (usefulButton != -1)
 			{
-				
-				if (mustPress[i])
-					if (pressed[i])
-						if (rightPressed[i])
-							if (chords[i])
-							{
-								chordCounter--;
-								if (chordCounter == 0)
-								{
-									// acertou --> track/right[i] = true
-									acertadas++;
-//									cout << "acertou" << endl;
-									trackPressed[i] = true;
-									rightPressed[i] = true;
-								}
-							}
-							else
-							{
-								// errou -->  trackPressed = true / rightPressed[i] = false
-								erradas++;
-//								cout << "errou" << endl;
-								trackPressed[i] = true;
-								rightPressed[i] = false;
-							}
-						else
-						{
-							if (trackPressed[i])
-							{
-								// nao faz nada --> trackPressed[i] = true / rightPressed = false
-								neutras++;
-	//							cout << "faz nada" << endl;
-								trackPressed[i] = true;
-								rightPressed[i] = false;
-							}
-							else
-							{
-								// acertou
-								acertadas++;
-								trackPressed[i] = true;
-								rightPressed[i] = true;
-							}	
-						}
-					else
-					{
-						// espera (nao faz nada) --> rightPressed/trackPressed = false;
-						//neutras++;
-//						cout << "faz nada" << endl;
-						trackPressed[i] = false;
-						rightPressed[i] = false;
-					}
-				else if (pressed[i])
-					if (trackPressed[i])
-					{
-						// nao faz nada --> trackPressed[i] = true/ rightPressed = false
-//						cout << "faz nada" << endl;
-						trackPressed[i] = true;
-						rightPressed[i] = false;	
-					}
-					else
-					{
-						// errou --> trackPressed[i] = true/ rightPressed = false
-						erradas++;
-//						cout << "errou" << endl;
-						trackPressed[i] = true;
-						rightPressed[i] = false;	
-					}
-				else
+				if (event.KeyInput.PressedDown)
 				{
-					// nao faz nada ("acertou não apertar nada =D")
-					// trackPressed = true/ rightPressed = false;
-//					cout << "faz nada" << endl;
-					trackPressed[i] = true;
-					rightPressed[i] = false;	
+					switch (hitting[usefulButton])
+					{
+					case 0: // wasn't pressing
+						if (*musicTime > noteCreationTime[usefulButton] - tolerance &&
+							*musicTime < noteCreationTime[usefulButton] + tolerance)
+							// hit strike
+							hitting[usefulButton] = 1;
+						else
+							// missed strike
+							hitting[usefulButton] = -1;
+						break;
+					case 1: // hitting
+						if (*musicTime < noteDestructionTime[usefulButton] &&
+							*musicTime > noteCreationTime[usefulButton])
+							// holding the button
+							hitting[usefulButton] = 1;
+						else
+							// didnt press in the strike
+							hitting[usefulButton] = 2;
+						break;
+					case 2: // holding "do nothing" state
+						if (*musicTime > noteCreationTime[usefulButton] &&
+							*musicTime < noteCreationTime[usefulButton] + tolerance)
+							hitting[usefulButton] = -1;
+						else
+							hitting[usefulButton] = 2;
+						break;
+					case -1: // missed
+						if (*musicTime > noteCreationTime[usefulButton] &&
+							*musicTime < noteCreationTime[usefulButton] + tolerance)
+							hitting[usefulButton] = -1;
+						else
+							hitting[usefulButton] = 2;
+						break;
+					}
 				}
-						
-				if (mustPressYet[i])
-					if (trackPressed[i])
-						if (pressed[i])
-							if (rightPressed[i])
-							{
-								// acertou -> track/right = true
-								acertadas++;
-//								cout << "acertou" << endl;
-								trackPressed[i] = true;
-								rightPressed[i] = true;	
-							}
-							else
-							{
-								// faz nada -> track = true, right = false
-//								cout << "faz nada" << endl;
-								trackPressed[i] = true;
-								rightPressed[i] = false;	
-							}
-						else
-						{
-							// faz nada -> track = false, right = false
-//							cout << "faz nada" << endl;
-							trackPressed[i] = false;
-							rightPressed[i] = false;	
-						}
-					else 
-					if (pressed[i])
-					{
-						// errei -> track = true, right = false
-						erradas++;
-//						cout << "errou" << endl;
-						trackPressed[i] = true;
-						rightPressed[i] = false;	
-					}	
-					else
-					{
-						// nao faz nada -> track = false, right = false
-//						cout << "faz nada" << endl;
-						trackPressed[i] = false;
-						rightPressed[i] = false;	
-					}
-				else
-					if (pressed[i])
-						if (trackPressed[i])
-						{
-							// nao faz nada -> track = true, right = false
-//							cout << "faz nada" << endl;
-							trackPressed[i] = true;
-							rightPressed[i] = false;	
-						}
-						else
-						{
-							// errei -> track = true, right = false
-							erradas++;
-//							cout << "errou" << endl;
-							trackPressed[i] = true;
-							rightPressed[i] = false;	
-						}
-					else
-					{
-						// nao faz nada -> track = false, right = false
-//						cout << "faz nada" << endl;
-						trackPressed[i] = false;
-						rightPressed[i] = false;	
-					}
-							
-						
-				
+				else //key was released
+					hitting[usefulButton] = 0; // pressed nothing				
 			}
-			cout << "acertadas: " << acertadas <<
-				 "\terradas: " << erradas <<
-				 "\tneutras: " << neutras << endl;
 			
+
+			cout << "hitting: " << hitting[usefulButton] << endl;
+
 			return 1;
 				// vejo quais botões estão apertados;
 				// se algum foi apertado agora;
@@ -285,6 +153,8 @@ class Fretting
 		tree<skillTreeNode>::iterator 	actualSkillNode;
 		
 		vector<EKEY_CODE> 	events;
+		int					hitting[5];
+		
 		bool 				trackPressed[NUMBER_OF_FRETS];		// tell us the state of the tracks on the last
 		bool 				rightPressed[NUMBER_OF_FRETS];		// frame		
 		

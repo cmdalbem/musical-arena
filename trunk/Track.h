@@ -41,10 +41,10 @@ class TrackSceneNode : public scene::ISceneNode
 					for (s32 i=1; i<4; ++i)
 							Box.addInternalPoint(Vertices[i].Pos);
 							
-					//video::IVideoDriver* driver = SceneManager->getVideoDriver();
-					//Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-					//Material.setFlag(video::EMF_TEXTURE_WRAP, true);
-					//Material.setTexture(0, driver->getTexture("img/neck.png"));
+					video::IVideoDriver* driver = SceneManager->getVideoDriver();
+					Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+					Material.setFlag(video::EMF_TEXTURE_WRAP, true);
+					Material.setTexture(0, driver->getTexture("img/neck.png"));
 			}
 
 			virtual void OnRegisterSceneNode() {
@@ -53,8 +53,8 @@ class TrackSceneNode : public scene::ISceneNode
 
 					ISceneNode::OnRegisterSceneNode();
 			}
-			
 			virtual void render() {
+			
 					u16 indices[] = {      0,1,3, 0,3,2      };
 					video::IVideoDriver* driver = SceneManager->getVideoDriver();
 
