@@ -67,7 +67,7 @@ void Track::insertStone( musicEvent event )
 
 void Track::drawTrack()
 {
-	///*
+	/*
 	// Starting and Ending track lines
 	SMaterial m;
 	m.Thickness = 1;
@@ -76,9 +76,9 @@ void Track::drawTrack()
 	driver->draw3DBox( aabbox3d<float>(-sizex/2+posx-2, -sizey+posy, 0,
 										sizex/2+posx+2, posy, 0),
 						SColor(255,255,255,255) );
-						//*/
+						*/
 						
-	//node->render();
+	node->render();
 	
 }	
 

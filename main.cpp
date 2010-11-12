@@ -143,7 +143,7 @@ void musa_init()
 			theScreen[lin][col] = NOTHING;*/
 			
 	// start getting signals, baby
-	//receiver.enabled = true;
+	receiver.enabled = true;
 }
 
 void initializeIrrlicht()

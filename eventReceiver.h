@@ -14,6 +14,7 @@ class eventReceiver : public IEventReceiver
 		Player *player1;
 		Player *player2;
 		bool	enabled;
+		int contador;
 	
 		//////////////////////////////////////////////////////////// CONSTRUCTOR
 		eventReceiver()
@@ -22,6 +23,7 @@ class eventReceiver : public IEventReceiver
 				KeyIsDown[i] = false;
 			
 			enabled = false;
+			contador = 0;
 		}
 
 		// This is the one method that we have to implement
@@ -31,9 +33,10 @@ class eventReceiver : public IEventReceiver
 			if (event.EventType == irr::EET_KEY_INPUT_EVENT)
 				KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
 
-			if (enabled)
-				player1->fretting->verify_events(KeyIsDown, player1->track->stones);
-
+			cout << "contador: " << contador++ << endl;
+			if (enabled)				
+				player1->fretting->verify_events(event, player1->track->stones);
+			
 			return false;
 		}
 
