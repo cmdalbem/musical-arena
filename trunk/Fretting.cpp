@@ -69,11 +69,11 @@ int Fretting::verify_event(vector<Stone*> stones[NUMBER_OF_FRETS], double musicT
 		}
 	}
 	
-	cout << "buttons pressed: " << whatPressed.size()
+	/*cout << "buttons pressed: " << whatPressed.size()
 		 << "\t stones on each track: " << stones[0].size()
 		 << " " << stones[1].size() << " " << stones[2].size()
 		 << " " << stones[3].size() << " " << stones[4].size()
-		 << endl;
+		 << endl;*/
 	
 	// if no button was pressed, ignores the rest of the function
 	if (whatPressed.size() == 0)
@@ -99,8 +99,10 @@ int Fretting::verify_event(vector<Stone*> stones[NUMBER_OF_FRETS], double musicT
 					// if there's another note starting at the same time
 					bool anotherNote = false;
 					for (int i = 0; i < NUMBER_OF_FRETS; i++)
+					{
 						if (stones[i][0]->event.time == noteCreationTime[actualButton] && i != actualButton)
 							anotherNote = true;
+					}
 					
 					if (anotherNote)
 					{

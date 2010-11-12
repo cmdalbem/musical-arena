@@ -17,9 +17,20 @@ using irr::core::vector3df;
 #include "Fretting.h"
 #include "Track.h"
 #include "Player.h"
+#include "Screen.h"
+#include "Skill.h"
 
 
-Decoder decoder; 
+// Irrlicht-related globals
+IrrlichtDevice 				*device;
+video::IVideoDriver 		*driver;
+scene::ISceneManager 		*smgr;
+scene::ICameraSceneNode 	*camera;
+eventReceiver 				receiver;
+
+
+Decoder decoder;
+Screen *screen;
 
 vector<musicEvent> theMusic;
 
@@ -30,7 +41,6 @@ double musicTime = 0;
 
 Player player1, player2;
 
-int mutex=0;
 sem_t semaphore;
 
 std::string defaultFile = "music/example.mid",
@@ -38,15 +48,6 @@ std::string defaultFile = "music/example.mid",
 			guitarFile = "";
 			
 //note theScreen[SCREEN_Y][NUMBER_OF_FRETS];
-
-// Irrlicht-related globals
-IrrlichtDevice 				*device;
-video::IVideoDriver 		*driver;
-scene::ISceneManager 		*smgr;
-scene::ICameraSceneNode 	*camera;
-eventReceiver 				receiver;
-gui::IGUIImage 				*good, *bad;
-gui::IGUIStaticText 		*fpsText;
 
 
 static void *updater(void *argument) 
@@ -91,24 +92,21 @@ void* fretting (void *arg)
 		//player1.verify_buttons(mainTrack->stones, musicTime, tolerance);
 		int ret = player1.fretting->verify_event(player1.track->stones, musicTime, tolerance);
 		//sem_post(&semaphore);
-		/*
-		if(good && bad)
-			switch(ret)
-			{
-				case HIT:
-					cout<<"acertei"<<endl;
-					good->setVisible(true);
-					bad->setVisible(false);
-					break;
-				case ERROR:
-					cout<<"errei"<<endl;
-					bad->setVisible(true);
-					good->setVisible(false);
-					break;
-				default:
-					break;
-			}
-		*/
+		
+		switch(ret)
+		{
+			case HIT:
+				cout<<"acertei"<<endl;
+				screen->showGood();
+				break;
+			case ERROR:
+				cout<<"errei"<<endl;
+				screen->showBad();
+				break;
+			default:
+				break;
+		}
+		
 		/*
 		for (int track = 0; track < 5; track++)
 			fretting2.verify_event(track);*/
@@ -128,6 +126,8 @@ void musa_init()
 	
 	player1.fretting->setEvents(eventos);
 	player1.fretting->setReceiver(&receiver);
+	
+	screen = new Screen(device,driver);
 	
 	theMusic = decoder.decodeMidi(defaultFile, EXPERT);
 	//decoder.printMusic(theMusic);
@@ -152,13 +152,6 @@ void initializeIrrlicht()
 
 	driver = device->getVideoDriver();
 	smgr = device->getSceneManager();
-	
-	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::rect<int>(0, 0, 100, 10));
-	good = device->getGUIEnvironment()->addImage( driver->getTexture("img/good.png"), core::position2d<s32>(100,20), true );
-	bad = device->getGUIEnvironment()->addImage( driver->getTexture("img/bad.png"), core::position2d<s32>(150,30), true );
-	good->setVisible(false);
-	bad->setVisible(false);
-	//device->getGUIEnvironment()->addButton(core::rect<int>(50,240,110,240 + 32), 0, 0, L"Increase speed", L"Increases speed");
 	
 	scene::ILightSceneNode *light = smgr->addLightSceneNode(0, vector3df(0,-80,-30), video::SColorf(1.0f, 1.0f, 1.0f), 20.0f);
 	//light->setLightType(video::ELT_DIRECTIONAL);
@@ -245,7 +238,8 @@ int main(int argc, char *argv[])
 		player1.track->draw();
 		player2.track->draw();
 		sem_post(&semaphore);
-
+		
+		screen->update();
 		device->getGUIEnvironment()->drawAll(); // draw the gui environment
 
 		driver->endScene();
@@ -256,7 +250,7 @@ int main(int argc, char *argv[])
 		if (lastFPS != fps) {
 			core::stringw tmp(L"fps: ");
 			tmp += fps;
-			fpsText->setText(tmp.c_str());
+			screen->fpsText->setText(tmp.c_str());
 			lastFPS = fps;
 		}
 	}
