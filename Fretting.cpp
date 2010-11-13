@@ -39,18 +39,18 @@ Fretting::Fretting( vector<Skill> *skills )
 void Fretting::initialize()
 {
 	for (int i = 0; i < NUMBER_OF_FRETS; i++) {
-		this->trackPressed[i] = false;
-		this->rightPressed[i] = false;
+		_trackPressed[i] = false;
+		_rightPressed[i] = false;
 	}	
 	
-	acertadas = 0;
-	erradas	= 0;
-	neutras = 0;
+	_acertadas = 0;
+	_erradas	= 0;
+	_neutras = 0;
 }
 
 Fretting::Fretting(EKEY_CODE events[NUMBER_OF_FRETS])
 {
-	setEvents(&(events[NUMBER_OF_FRETS]));
+	setEvents( &(events[NUMBER_OF_FRETS]) );
 	initialize();
 }
 
@@ -62,33 +62,12 @@ Fretting::~Fretting()
 void Fretting::setEvents(EKEY_CODE events[NUMBER_OF_FRETS])
 {
 	for (int i = 0; i < NUMBER_OF_FRETS; i++)
-		this->events.push_back(events[i]);
+		_events.push_back(events[i]);
 }
 
 ////////////////////////////////////////////////////////////////// OTHER METHODS
 
-
-	// vejo quais botões estão apertados;
-	// se algum foi apertado agora;
-	// // // se tem alguma nota nova pra ele;
-	// // // // se tem uma outra nota com início no mesmo momento;
-	// // // // // se tem alguma nota apertada já errada
-	// // // // // // errou
-	// // // // // se nao tem alguma nota apertada errada
-	// // // // // // não faz nada (espera que o jogador ainda pode apertar as outras)
-	// // // // se não tem outra nota com o início no mesmo momento;
-	// // // // // acertou
-	// // // se não tem alguma nota nova pra ele
-	// // // // errou
-	// se ninguém foi apertado agora
-	// // se tem nota tocando agora & acertei (last frame)
-	// // // "dá ponto"
-	// // se nao tem nota tocando agora
-	// // // nao faz nada
-	// O caso de o jogador deixar um nota passar será tratado pela track =D
-
-
-Skill* Fretting::findSkill( buttonType buttonPressed )
+Skill* Fretting::findSkill( buttonType buttonPressed ) 
 {
 	bool found = false;
 	tree<skillTreeNode>::sibling_iterator sib;
@@ -104,6 +83,9 @@ Skill* Fretting::findSkill( buttonType buttonPressed )
 		if( (*actualSkillNode).skill!=NULL ) { // node is a leaf!
 			tree<skillTreeNode>::sibling_iterator temp = actualSkillNode;
 			actualSkillNode = skillsTree.begin();
+			
+			cout << "Player casted " << (*temp).skill->name << "!!!" << endl;
+			
 			return (*temp).skill; // return Skill found
 		}
 		else {
@@ -119,8 +101,8 @@ Skill* Fretting::findSkill( buttonType buttonPressed )
 
 void Fretting::generateSkillsTree( vector<Skill> *skills )
 {
-	tree<skillTreeNode>::iterator top, actual;
-	tree<skillTreeNode>::sibling_iterator sib;
+	skillSearchTree::iterator top, actual;
+	skillSearchTree::sibling_iterator sib;
 
 	top = skillsTree.begin();
 	top = skillsTree.insert(top, skillTreeNode(NIL,NULL)); //dummy root
@@ -156,4 +138,95 @@ void Fretting::generateSkillsTree( vector<Skill> *skills )
 	
 	// set actual searching node to the top (root)
 	actualSkillNode = top;
+}
+
+int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
+{
+	// vejo quais botões estão apertados;
+	// se algum foi apertado agora;
+	// // // se tem alguma nota nova pra ele;
+	// // // // se tem uma outra nota com início no mesmo momento;
+	// // // // // se tem alguma nota apertada já errada
+	// // // // // // errou
+	// // // // // se nao tem alguma nota apertada errada
+	// // // // // // não faz nada (espera que o jogador ainda pode apertar as outras)
+	// // // // se não tem outra nota com o início no mesmo momento;
+	// // // // // acertou
+	// // // se não tem alguma nota nova pra ele
+	// // // // errou
+	// se ninguém foi apertado agora
+	// // se tem nota tocando agora & acertei (last frame)
+	// // // "dá ponto"
+	// // se nao tem nota tocando agora
+	// // // nao faz nada
+	// O caso de o jogador deixar um nota passar será tratado pela track =D
+					
+	double noteCreationTime[NUMBER_OF_FRETS];
+	double noteDestructionTime[NUMBER_OF_FRETS];
+	int		usefulButton = -1;
+	
+	// verifies which button has been pressed
+	for (int i = 0; i < NUMBER_OF_FRETS; i++)
+		if (event.KeyInput.Key == _events[i])
+			usefulButton = i;
+	
+	if (usefulButton != -1)
+	{
+		findSkill( (buttonType)usefulButton );
+		
+		for (unsigned int index = 0; index < _events.size(); index++)
+			if( stones[usefulButton]!= NULL ) {
+				noteCreationTime[usefulButton] = stones[usefulButton]->event.time;
+				noteDestructionTime[usefulButton] = stones[usefulButton]->destroyTime;
+			}
+			else {
+				noteCreationTime[usefulButton] = INT_MAX;
+				noteDestructionTime[usefulButton] = INT_MIN;
+		}
+		
+		if (event.KeyInput.PressedDown) // key was pressed down
+		{
+			switch (_hitting[usefulButton])
+			{
+			case 0: // wasn't pressing
+				if (*musicTime > noteCreationTime[usefulButton] - tolerance &&
+					*musicTime < noteCreationTime[usefulButton] + tolerance)
+					// hit strike
+					_hitting[usefulButton] = 1;
+				else
+					// missed strike
+					_hitting[usefulButton] = -1;
+				break;
+			case 1: // hitting
+				if (*musicTime < noteDestructionTime[usefulButton] &&
+					*musicTime > noteCreationTime[usefulButton])
+					// holding the button
+					_hitting[usefulButton] = 1;
+				else
+					// didnt press in the strike
+					_hitting[usefulButton] = 2;
+				break;
+			case 2: // holding "do nothing" state
+				if (*musicTime > noteCreationTime[usefulButton] &&
+					*musicTime < noteCreationTime[usefulButton] + tolerance)
+					_hitting[usefulButton] = -1;
+				else
+					_hitting[usefulButton] = 2;
+				break;
+			case -1: // missed
+				if (*musicTime > noteCreationTime[usefulButton] &&
+					*musicTime < noteCreationTime[usefulButton] + tolerance)
+					_hitting[usefulButton] = -1;
+				else
+					_hitting[usefulButton] = 2;
+				break;
+			}
+		}
+		else // key was released
+			_hitting[usefulButton] = 0; // it's not being pressed
+	}
+
+	cout << "key state: " << _hitting[usefulButton] << endl;
+
+	return 1;
 }
