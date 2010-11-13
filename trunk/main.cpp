@@ -13,7 +13,7 @@ using irr::core::vector3df;
 #include "Decoder.h"
 #include "Stone.h"
 #include "utils.h"
-#include "eventReceiver.h"
+#include "EventReceiver.h"
 #include "Fretting.h"
 #include "Track.h"
 #include "Player.h"
@@ -26,7 +26,7 @@ IrrlichtDevice 				*device;
 video::IVideoDriver 		*driver;
 scene::ISceneManager 		*smgr;
 scene::ICameraSceneNode 	*camera;
-eventReceiver 				receiver;
+EventReceiver 				receiver;
 
 
 Decoder decoder; 
@@ -114,9 +114,9 @@ void musa_init()
 	skills.push_back(s3);
 	
 	player1.fretting = new Fretting(&skills);	
-	player1.track = new Track(smgr,driver,10, -20);
+	player1.track = new Track(smgr,driver,15, -20);
 	player2.fretting = new Fretting();
-	player2.track = new Track(smgr,driver,5, 20);
+	player2.track = new Track(smgr,driver,2, 20);
 	
 	player1.fretting->tolerance = 1;
 	player2.fretting->tolerance = 1;
@@ -127,7 +127,7 @@ void musa_init()
 	receiver.player1 = &player1;
 	receiver.player2 = &player2;
 	
-	EKEY_CODE eventos[NUMBER_OF_FRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
+	EKEY_CODE eventos[NUMBER_OF_FRETS] = { irr::KEY_F1, irr::KEY_F2, irr::KEY_F3, irr::KEY_F4, irr::KEY_F5 };
 	
 	player1.fretting->setEvents(eventos);
 	

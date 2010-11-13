@@ -37,6 +37,7 @@ Track::~Track()
 
 void Track::update( double musicTime )
 {
+	// update stones 
 	for (int i = 0; i < NUMBER_OF_FRETS; i++) {
 	
 		// calculates stones positions
@@ -46,7 +47,7 @@ void Track::update( double musicTime )
 		// deleting stones
 		while ( (stones[i].size() > 0) && (musicTime > stones[i][0]->destroyTime)) {
 				
-				delete stones[i][0]; //call class destructor
+				//delete stones[i][0]; //call class destructor
 				stones[i].erase(stones[i].begin()); //remove reference (should call stone's destructor, but sometimes it doesn't work)
 		}
 	
@@ -56,30 +57,37 @@ void Track::update( double musicTime )
 				stones[i][k]->node->setVisible(false);
 	}
 	
+	// update texture position
+	node->getMaterial(0).getTextureMatrix(0).setTextureTranslate( 0, //translate on x
+																  0/*track's creation time*/ - ((musicTime)*speed) / (sizey/1.5) );
+}
+
+double Track::getStoneXPos( int track )
+{
+	return (track+0.5)*(sizex/NUMBER_OF_FRETS) - sizex/2 + this->posx;
 }
 
 void Track::insertStone( musicEvent event )
 {
-	Stone *newStone = new Stone(driver, this->sceneManager, event, speed, event.button*((sizex+1)/5) - sizex/2 + this->posx, this->posy, 0); //x,y,z
+	Stone *newStone = new Stone(driver, this->sceneManager, event, speed, getStoneXPos(event.button), this->posy, posz-0.1); //x,y,z
 	
 	stones[event.button].push_back(newStone);	
 }
 
 void Track::drawTrack()
 {
-	/*
-	// Starting and Ending track lines
+	node->render();
+
+	// draw a line for fret
 	SMaterial m;
-	m.Thickness = 1;
+	m.Lighting = 0;
+	m.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 	driver->setMaterial(m);
 	driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4());  //global positioning
-	driver->draw3DBox( aabbox3d<float>(-sizex/2+posx-2, -sizey+posy, 0,
-										sizex/2+posx+2, posy, 0),
-						SColor(255,255,255,255) );
-						*/
-						
-	node->render();
-	
+	for(int i=0; i<NUMBER_OF_FRETS; i++)
+		driver->draw3DLine( vector3df(getStoneXPos(i),posy,posz),
+							vector3df(getStoneXPos(i),posy-sizey,posz),
+							SColor(170,0,0,0) );
 }	
 
 void Track::drawStones()
