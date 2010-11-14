@@ -16,15 +16,15 @@ FMODLIB = fmod/api/lib/$(FMODFILE)
 
 OBJDIR = obj
 OBJECTS = Decoder.o utils.o Stone.o Fretting.o Track.o Player.o Screen.o Skill.o EventReceiver.o CBoltSceneNode.o TrackSceneNode.o
-#OBJS = $(addprefix $(OBJDIR)/,$(OBJECTS))
+OBJS = $(addprefix $(OBJDIR)/,$(OBJECTS))
 
 BIN = musa
 
 
-all: main.cpp $(OBJECTS)
+all: main.cpp $(OBJS)
 	$(CC) $(FLAGS) $^ -o $(BIN) $(FLAGS) $(LIBS)
 
-%.o: %.cpp %.h $(OBJDIR)
+$(OBJDIR)/%.o: %.cpp %.h | $(OBJDIR)
 	$(CC) $(FLAGS) -c $< -o $@ $(FLAGS) $(LIBS) 
 
 $(OBJDIR):
