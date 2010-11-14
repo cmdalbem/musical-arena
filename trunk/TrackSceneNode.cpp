@@ -1,5 +1,7 @@
 #include "TrackSceneNode.h"
 
+#include "utils.h"
+
 using namespace irr;
 
 
@@ -25,9 +27,9 @@ TrackSceneNode::TrackSceneNode(scene::ISceneNode* parent, scene::ISceneManager* 
 			
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
 	Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-	Material.setTexture(0, driver->getTexture("img/neck.png"));
+	Material.setTexture(0, driver->getTexture("img/neck.png")); 
 	Material.setFlag(video::EMF_TEXTURE_WRAP, video::ETC_REPEAT);
-	Material.getTextureMatrix(0).setTextureScale(1,1.5);
+	Material.getTextureMatrix(0).setTextureScale(1,NECK_TEXTURE_PROPORTION);
 }
 
 void TrackSceneNode::OnRegisterSceneNode()

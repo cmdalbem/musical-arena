@@ -22,10 +22,10 @@ using irr::core::vector3df;
 
 
 // Irrlicht-related globals
-IrrlichtDevice 				*device;
-video::IVideoDriver 		*driver;
-scene::ISceneManager 		*smgr;
-scene::ICameraSceneNode 	*camera;
+IrrlichtDevice 				*device=NULL;
+video::IVideoDriver 		*driver=NULL;
+scene::ISceneManager 		*smgr=NULL;
+scene::ICameraSceneNode 	*camera=NULL;
 EventReceiver 				receiver;
 
 
@@ -76,8 +76,8 @@ static void *updater(void *argument)
 		}
 		 
 		sem_wait(&semaphore);
-		player1.track->update(musicTime);
-		player2.track->update(musicTime);
+		player1.track->update();
+		player2.track->update();
 		sem_post(&semaphore);
 	}
 	
@@ -105,9 +105,9 @@ void musa_init()
 	skills.push_back(s3);
 	
 	player1.fretting = new Fretting(&skills);	
-	player1.track = new Track(smgr,driver,15, -20);
+	player1.track = new Track(&theMusic,&musicTime,smgr,driver,15, -20);
 	player2.fretting = new Fretting();
-	player2.track = new Track(smgr,driver,2, 20);
+	player2.track = new Track(&theMusic,&musicTime,smgr,driver,5, 20);
 	
 	player1.fretting->tolerance = 1;
 	player2.fretting->tolerance = 1;
