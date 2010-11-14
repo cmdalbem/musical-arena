@@ -15,6 +15,12 @@ using irr::video::IVideoDriver;
 using namespace irr;
 
 
+static const irr::video::SColor fretColors[] = { SColor(255,0,255,0),
+												SColor(255,255,0,0),
+												SColor(255,255,255,0),
+												SColor(255,0,0,255),
+												SColor(255,255,128,0) };
+
 class Track
 {
 	public:
@@ -37,10 +43,11 @@ class Track
 		void			update();
 		void			draw();		
 		void 	 	 	processEvent( musicEvent event );
+		
+		double 			getStoneXPos( int track );
 	
 	private:
 		
-		double 			getStoneXPos( int track );
 		void			insertStone( musicEvent event );
 		void			drawTrack();
 		void			drawStones();

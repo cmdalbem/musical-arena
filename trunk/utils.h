@@ -14,16 +14,14 @@
 
 #define ONE_BILLION 1000000000
 #define ONE_MILLION 1000000
-#define SCREEN_Y 25
 #define NUMBER_OF_FRETS 5
+#define NPLAYERS 2
 #define DEBUG 0
 #define MAX_STONE_PER_TRACK 30
 #define STONE_RADIUS 1
 #define NECK_TEXTURE_PROPORTION 2 //how many texture copies fit on a neck
 
-#ifdef HAVE_IRRKLANG
-  #include <irrKlang.h>
-#elif defined HAVE_FMOD
+#ifdef HAVE_FMOD
   #include <fmod.hpp>
   #include <fmod_errors.h>
 #endif
@@ -63,6 +61,8 @@ typedef struct musicEvent_t
 	double time; //	time in seconds
 	int mspqn; // microseconds per quarter note
 } musicEvent;
+
+
 
 /*
  * MACROS

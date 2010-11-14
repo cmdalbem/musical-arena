@@ -41,7 +41,12 @@ void Fretting::initialize()
 	for (int i = 0; i < NUMBER_OF_FRETS; i++) {
 		_trackPressed[i] = false;
 		_rightPressed[i] = false;
+		
+		_hitting[i] = 0;
+		keyState[i] = 0;
 	}
+	
+	frettingState = 0;
 }
 
 Fretting::Fretting(EKEY_CODE events[NUMBER_OF_FRETS])
@@ -166,73 +171,75 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 		if (event.KeyInput.Key == _events[i])
 			usefulButton = i;
 	
-	if (usefulButton != -1)
-	{
-		//findSkill( (buttonType)usefulButton );
+	if (usefulButton == -1)
+		return 1;
 		
-		if( stones[usefulButton]!= NULL ) {
-			noteCreationTime = stones[usefulButton]->event.time;
-			noteDestructionTime = stones[usefulButton]->destroyTime;
-		}
-		else {
-			noteCreationTime = INT_MAX;
-			noteDestructionTime = INT_MIN;
-		}
-		
-		
-		/* What follows is a very intricated and badly programmed state
-		 * machines system.
-		 * Please don't try to understand it.
-		 * 
-		 * But if you do, increment the counter below with the time you
-		 * lost on it.
-		 * 
-		 * Total time lost: 3 minutes.
-		 */
-		
-		if (event.KeyInput.PressedDown) // key was pressed down
-		{
-			switch (_hitting[usefulButton])
-			{
-			case 0: // wasn't pressing
-				if (*musicTime > noteCreationTime - tolerance &&
-					*musicTime < noteCreationTime + tolerance)
-					// hit strike
-					_hitting[usefulButton] = 1;
-				else
-					// missed strike
-					_hitting[usefulButton] = -1;
-				break;
-			case 1: // hitting
-				if (*musicTime < noteDestructionTime &&
-					*musicTime > noteCreationTime)
-					// holding the button
-					_hitting[usefulButton] = 1;
-				else
-					// didnt press in the strike
-					_hitting[usefulButton] = 2;
-				break;
-			case 2: // holding "do nothing" state
-				if (*musicTime > noteCreationTime &&
-					*musicTime < noteCreationTime + tolerance)
-					_hitting[usefulButton] = -1;
-				else
-					_hitting[usefulButton] = 2;
-				break;
-			case -1: // missed
-				if (*musicTime > noteCreationTime &&
-					*musicTime < noteCreationTime + tolerance)
-					_hitting[usefulButton] = -1;
-				else
-					_hitting[usefulButton] = 2;
-				break;
-			}
-		}
-		else // key was released
-			_hitting[usefulButton] = 0; // it's not being pressed
+	//findSkill( (buttonType)usefulButton );
+	
+	if( stones[usefulButton]!= NULL ) {
+		noteCreationTime = stones[usefulButton]->event.time;
+		noteDestructionTime = stones[usefulButton]->destroyTime;
 	}
+	else {
+		noteCreationTime = INT_MAX;
+		noteDestructionTime = INT_MIN;
+	}
+	
+	/* What follows is a very intricated and badly programmed state
+	 * machines system.
+	 * Please don't try to understand it.
+	 * 
+	 * But if you do try, increment the counter below with the time you
+	 * lost on it.
+	 * 
+	 * Total time lost: 3 minutes.
+	 */
+	
+	if (event.KeyInput.PressedDown) // key was pressed down
+	{
+		switch (_hitting[usefulButton])
+		{
+		case 0: // wasn't pressing
+			if (*musicTime > noteCreationTime - tolerance &&
+				*musicTime < noteCreationTime + tolerance)
+				// hit strike
+				_hitting[usefulButton] = 1;
+			else
+				// missed strike
+				_hitting[usefulButton] = -1;
+			break;
+		case 1: // hitting
+			if (*musicTime < noteDestructionTime &&
+				*musicTime > noteCreationTime)
+				// holding the button
+				_hitting[usefulButton] = 1;
+			else
+				// didnt press in the strike
+				_hitting[usefulButton] = 2;
+			break;
+		case 2: // holding "do nothing" state
+			if (*musicTime > noteCreationTime &&
+				*musicTime < noteCreationTime + tolerance)
+				_hitting[usefulButton] = -1;
+			else
+				_hitting[usefulButton] = 2;
+			break;
+		case -1: // missed
+			if (*musicTime > noteCreationTime &&
+				*musicTime < noteCreationTime + tolerance)
+				_hitting[usefulButton] = -1;
+			else
+				_hitting[usefulButton] = 2;
+			break;
+		}
+	}
+	else // key was released
+		_hitting[usefulButton] = 0; // it's not being pressed
 
 
+	// final stage of decision
+	// here we will combine the state of this fret with the others to
+	//  decide de final fretting state.
 	switch( _hitting[usefulButton] )
 	{
 		case 0:
@@ -246,8 +253,8 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 			break;
 		case 1:
 		{
-			// if you are hitting one track but there's others
-			//  we check the ones being hit.
+			// if you are hitting one track we check if you should be
+			//  hitting other too
 			double hitTime[NUMBER_OF_FRETS];
 			for(int i=0; i<NUMBER_OF_FRETS; i++)
 				if( stones[i]!= NULL )
@@ -255,21 +262,37 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 				else
 					noteCreationTime = INT_MAX;
 			
-			for(int i=0; i<NUMBER_OF_FRETS; i++)
-				if( *musicTime > hitTime[i] && 	// if there's another note that should be hitting
-					*musicTime < hitTime[i] + tolerance)
-					switch(_hitting[i])
-					{
-						case 1: frettingState = 1; break;
-						case 0:
-						case 2: frettingState = 0; break;
-						case -1: frettingState = -1; break;
-					}
-		}				
-				
+			int hasSimultaneous = false;
 			
+			for(int i=0; i<NUMBER_OF_FRETS; i++) {
+					if( i != usefulButton &&
+						*musicTime > hitTime[i] && 	// if there's another note that should be hitting
+						*musicTime < hitTime[i] + tolerance)
+					{
+						hasSimultaneous=true;
+						
+						switch(_hitting[i]) //check the state of the simultaneous fret
+						{
+							case 1: frettingState = 1; break;
+							case 0:
+							case 2: frettingState = 0; break;
+							case -1: frettingState = -1; break;
+						}
+					}
+			}
+			
+			if(!hasSimultaneous)
+				frettingState = 1;
+		}	
 	}
-	cout << "frettingState: " << frettingState << endl;
+	
+	keyState[usefulButton] = frettingState;
+	
+	
+	// printing-time!
+	for(int i=0; i<NUMBER_OF_FRETS; i++)
+		cout<<_hitting[i]<<"\t";
+	cout << "  =[" << frettingState << "]" << endl;
 
 	return 1;
 }

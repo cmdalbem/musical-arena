@@ -76,8 +76,6 @@ static void *updater(void *argument)
 		player2.track->update();
 		sem_post(&semaphore);
 		
-		screen->update(player1.fretting,player2.fretting);
-		
 	}
 	
 	return NULL;
@@ -108,20 +106,20 @@ void musa_init()
 	player2.fretting = new Fretting();
 	player2.track = new Track(&theMusic,&musicTime,smgr,driver,10, 20);
 	
-	player1.fretting->tolerance = 1;
+	player1.fretting->tolerance = 0.1;
 	player2.fretting->tolerance = 1;
 	player1.fretting->musicTime = &musicTime;
 	player2.fretting->musicTime = &musicTime;
 	
-//	receiver = new eventReceiver();
 	receiver.player1 = &player1;
 	receiver.player2 = &player2;
 	
 	EKEY_CODE eventos[NUMBER_OF_FRETS] = { irr::KEY_F1, irr::KEY_F2, irr::KEY_F3, irr::KEY_F4, irr::KEY_F5 };
-	
 	player1.fretting->setEvents(eventos);
 	
-	screen = new Screen(device,driver);
+	screen = new Screen(device);
+	screen->players[0] = &player1;
+	screen->players[1] = &player2;
 	
 	theMusic = decoder.decodeMidi(defaultFile, EXPERT);
 	//decoder.printMusic(theMusic);
@@ -234,6 +232,8 @@ int main(int argc, char *argv[])
 		player1.track->draw();
 		player2.track->draw();
 		sem_post(&semaphore);
+		
+		screen->update();
 		
 		device->getGUIEnvironment()->drawAll(); // draw the gui environment
 
