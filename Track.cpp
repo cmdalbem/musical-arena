@@ -2,6 +2,7 @@
 //
 
 #include "Track.h"
+#include "utils.h"
 
 using irr::video::SColor;
 using irr::video::SMaterial;
@@ -11,8 +12,11 @@ using irr::core::rect;
 using irr::core::position2d;
 using irr::core::dimension2d;
 
-Track::Track( ISceneManager* _sceneManager, IVideoDriver* _driver, double _speed, double _posx, double _posy, double _posz )
+Track::Track( music* _theMusic, double *_musicTime, ISceneManager* _sceneManager, IVideoDriver* _driver, double _speed, double _posx, double _posy, double _posz )
 {
+	theMusic = _theMusic;
+	musicTime = _musicTime;
+	
 	speed = _speed;
 	sceneManager = _sceneManager;
 	driver = _driver;
@@ -30,36 +34,34 @@ Track::Track( ISceneManager* _sceneManager, IVideoDriver* _driver, double _speed
 	node = new TrackSceneNode(NULL, _sceneManager, 0, sizex, sizey, posx, posy, posz);
 }
 
-Track::~Track()
-{
+Track::~Track() {}
 
-}
 
-void Track::update( double musicTime )
+void Track::update()
 {
 	// update stones 
 	for (int i = 0; i < NUMBER_OF_FRETS; i++) {
 	
 		// calculates stones positions
 		for(unsigned int j=0; j < stones[i].size(); j++) 
-			stones[i][j]->update(musicTime + spawnDelay);
+			stones[i][j]->update(*musicTime + spawnDelay);
 	
 		// deleting stones
-		while ( (stones[i].size() > 0) && (musicTime > stones[i][0]->destroyTime)) {
+		while ( (stones[i].size() > 0) && (*musicTime > stones[i][0]->destroyTime)) {
 				
-				//delete stones[i][0]; //call class destructor
+				delete stones[i][0]; //call class destructor
 				stones[i].erase(stones[i].begin()); //remove reference (should call stone's destructor, but sometimes it doesn't work)
 		}
 	
 		// hiding stones
 		for(unsigned int k = 0; k < stones[i].size(); k++)
-			if( musicTime > stones[i][k]->event.time )
+			if( *musicTime > stones[i][k]->event.time )
 				stones[i][k]->node->setVisible(false);
 	}
 	
 	// update texture position
 	node->getMaterial(0).getTextureMatrix(0).setTextureTranslate( 0, //translate on x
-																  0/*track's creation time*/ - ((musicTime)*speed) / (sizey/1.5) );
+																  0/*track's creation time*/ - ((*musicTime)*speed) / (sizey/NECK_TEXTURE_PROPORTION) );
 }
 
 double Track::getStoneXPos( int track )
@@ -97,10 +99,37 @@ void Track::drawStones()
 			stones[i][k]->draw(driver);
 }
 
+void Track::drawQuarters()
+{
+	#define debug(x) cout<<#x<<" = "<<x<<endl
+
+	double spqn = theMusic->at(musicPos).mspqn/1000000.0; // seconds per quarter note
+	debug(spqn);
+
+	double trackTime = sizey/speed;
+	
+	double howManyLines = trackTime/spqn;
+	
+	double offset = fmod(*musicTime,spqn);
+
+	
+	// draw a line for fret
+	SMaterial m;
+	m.Lighting = 0;
+	m.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+	driver->setMaterial(m);
+	driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4());  //global positioning
+	for(int i=0; i<howManyLines; i++)
+		driver->draw3DLine( vector3df(posx-sizex/2, posy - ( ((i+1)*(spqn) + offset)*speed ),0),
+							vector3df(posx+sizex/2, posy - ( ((i+1)*(spqn) + offset)*speed ),0),
+							SColor(100,255,255,255) ); 
+} 
+
 void Track::draw()
 {
 	drawStones();
 	drawTrack();
+	//drawQuarters();
 }
 
 void Track::processEvent( musicEvent event )

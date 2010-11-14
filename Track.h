@@ -18,28 +18,32 @@ using namespace irr;
 class Track
 {
 	public:
-		Track( ISceneManager* sceneManager, IVideoDriver* driver, double speed, double posx=0, double posy=0, double posz=2 );
+		Track( music* theMusic, double *musicTime, ISceneManager* sceneManager, IVideoDriver* driver, double speed, double posx=0, double posy=0, double posz=2 );
 		~Track();
 	
 		vector<Stone*> 	stones[NUMBER_OF_FRETS];
 		scene::ISceneNode *node;
 				
-		ISceneManager* 	sceneManager;
-		IVideoDriver*	driver;
+		ISceneManager	*sceneManager;
+		IVideoDriver	*driver;
 		int				sizex, sizey;
 		int				posx, posy, posz;
 		double 			spawnDelay;
 		double 			speed;
 		int				musicPos;
-		
-		void			update( double musicTime );
+		double 			*musicTime;
+		music			*theMusic;	
+			
+		void			update();
 		void			draw();		
 		void 	 	 	processEvent( musicEvent event );
 	
 	private:
+		
 		double 			getStoneXPos( int track );
 		void			insertStone( musicEvent event );
 		void			drawTrack();
 		void			drawStones();
+		void			drawQuarters();
 
 };

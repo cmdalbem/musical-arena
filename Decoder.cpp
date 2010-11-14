@@ -55,6 +55,8 @@ music Decoder::decodeMidi( string file, difficultyType difficulty )
 	smf_event_t *event;
 	bool eof = false;
 	
+	int mspqn; // microseconds per quarter note
+	
 	// load the file
 	smf = smf_load( file.c_str() );
 	if (smf == NULL) 
@@ -66,10 +68,18 @@ music Decoder::decodeMidi( string file, difficultyType difficulty )
 		
 		if( !event ) 
 			eof = true;
-		else if( smf_event_is_metadata(event) )	// ignores these events
-			;
+		
+		else if( smf_event_is_metadata(event) )
+		{
+			//printf("%s\t %d\t %d\t %f\n", smf_event_decode(event), event->time_pulses, event->delta_time_pulses, event->time_seconds);
+			 switch (event->midi_buffer[1]) {
+				 case 0x51:
+					mspqn = (event->midi_buffer[3] << 16) + (event->midi_buffer[4] << 8) + event->midi_buffer[5];
+					break;
+			}
+		}
 		else
-			decodeMidiEvent(event,theMusic,difficulty);
+			decodeMidiEvent(event,mspqn,theMusic,difficulty);
 	}
 	
 	//cout << endl << "End of file." << endl;
@@ -94,7 +104,7 @@ void Decoder::printMusic( music aMusic )
 }	
 
 
-void Decoder::decodeMidiEvent( smf_event_t *event, music* theMusic, difficultyType difficulty )
+void Decoder::decodeMidiEvent( smf_event_t *event, int thisMspqn, music* theMusic, difficultyType difficulty )
 {
 	buttonType button = whatButton( note_from_int(event->midi_buffer[1]), difficulty );
 	//cout << smf_event_decode(event) << endl;
@@ -108,6 +118,7 @@ void Decoder::decodeMidiEvent( smf_event_t *event, music* theMusic, difficultyTy
 		newEvent.time = event->time_seconds;
 		newEvent.button = button;
 		newEvent.type  = type;	
+		newEvent.mspqn = thisMspqn;
 		theMusic->push_back(newEvent); // put this new event to the music events list
 	}
 }
