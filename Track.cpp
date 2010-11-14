@@ -71,7 +71,7 @@ double Track::getStoneXPos( int track )
 
 void Track::insertStone( musicEvent event )
 {
-	Stone *newStone = new Stone(driver, this->sceneManager, event, speed, getStoneXPos(event.button), this->posy, posz-0.1); //x,y,z
+	Stone *newStone = new Stone(driver, this->sceneManager, event, fretColors[event.button], speed, getStoneXPos(event.button), this->posy, posz-0.1); //x,y,z
 	
 	stones[event.button].push_back(newStone);	
 }
@@ -132,7 +132,7 @@ void Track::draw()
 {
 	drawStones();
 	drawTrack();
-	drawQuarters();
+	//drawQuarters();
 }
 
 void Track::processEvent( musicEvent event )

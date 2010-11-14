@@ -29,7 +29,7 @@ class skillTreeNode {
 
 typedef tree<skillTreeNode> skillSearchTree;
 
-
+										
 class Fretting
 {
 	public:
@@ -41,6 +41,7 @@ class Fretting
 		double 	*musicTime;
 		double 	tolerance;
 		int 	frettingState;
+		int		keyState[5];
 
 		void 	setEvents(EKEY_CODE events[NUMBER_OF_FRETS]);
 		int 	verifyEvents(SEvent event, Stone* firstStones[NUMBER_OF_FRETS]);
