@@ -1,31 +1,35 @@
 
-# Takes the fmod library name for your computer =D
+# Finds out if Make has to use the precompiled fmod library for 32 or 64 bits
 MYSYSTEM := $(shell uname -m)
 ifeq ($(MYSYSTEM), x86_64)
-FMODLIB = libfmodex64.so
+FMODFILE = libfmodex64.so
 else
-FMODLIB = libfmodex.so
+FMODFILE = libfmodex.so
 endif
 
 CC = g++
-
 FLAGS = -Wall -I"/usr/include" -I"irrlicht-1.7.1/include" -I"fmod/api/inc" -I"lib/tree-2.65/src" -DHAVE_FMOD
 
+LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf -lpthread -lXxf86vm -lXext -lX11 `pkg-config glib-2.0 --cflags` "irrlicht-1.7.1/lib/Linux/libIrrlicht.a"
+
+FMODLIB = fmod/api/lib/$(FMODFILE)
+
 OBJDIR = obj
-OBJSNAMES = Decoder.o utils.o Stone.o Fretting.o Track.o Player.o Screen.o Skill.o EventReceiver.o CBoltSceneNode.o TrackSceneNode.o
-$OBJS = $(objnames:%.o=$(OBJDIR)/%.o)
+OBJECTS = Decoder.o utils.o Stone.o Fretting.o Track.o Player.o Screen.o Skill.o EventReceiver.o CBoltSceneNode.o TrackSceneNode.o
+OBJS = $(addprefix $(OBJDIR)/,$(OBJECTS))
 
-LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf -lpthread irrlicht-1.7.1/lib/Linux/libIrrlicht.a -lXxf86vm -lXext -lX11 `pkg-config glib-2.0 --cflags` fmod/api/lib/$(FMODLIB)
+BIN = musa
+
+$(OBJDIR)/%.o: %.cpp %.h $(OBJDIR)
+	$(CC) $(FLAGS) -c $< -o $@ $(FLAGS) $(LIBS) 
 
 
-%.o: %.cpp %.h
-	$(CC) $(FLAGS) $< -c $(FLAGS) $(LIBS)
+all: main.cpp $(OBJS) $(FMODLIB)
+	$(CC) $(FLAGS) $^ -o $(BIN) $(FLAGS) $(LIBS)
 
-all: musa
-
-musa: main.cpp $(OBJSNAMES)
-	$(CC) $(FLAGS) $^ -o $@ $(FLAGS) $(LIBS)
+$(OBJDIR):
+	mkdir $(OBJDIR) -p
 
 clean:
 	rm -f musa
-	rm -f *.o
+	rm -f -r $(OBJDIR)
