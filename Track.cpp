@@ -103,33 +103,36 @@ void Track::drawQuarters()
 {
 	#define debug(x) cout<<#x<<" = "<<x<<endl
 
-	double spqn = theMusic->at(musicPos).mspqn/1000000.0; // seconds per quarter note
-	debug(spqn);
+	double spqn; // seconds per quarter note
+	if( theMusic->size() < (unsigned int)musicPos-1)
+		spqn = theMusic->back().mspqn/1000000.0;
+	else
+		spqn = theMusic->at(musicPos).mspqn/1000000.0;
 
 	double trackTime = sizey/speed;
 	
 	double howManyLines = trackTime/spqn;
 	
 	double offset = fmod(*musicTime,spqn);
-
 	
-	// draw a line for fret
+
+	// draw one line for each quarter note that fits in the track
 	SMaterial m;
 	m.Lighting = 0;
 	m.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 	driver->setMaterial(m);
 	driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4());  //global positioning
-	for(int i=0; i<howManyLines; i++)
-		driver->draw3DLine( vector3df(posx-sizex/2, posy - ( ((i+1)*(spqn) + offset)*speed ),0),
-							vector3df(posx+sizex/2, posy - ( ((i+1)*(spqn) + offset)*speed ),0),
-							SColor(100,255,255,255) ); 
+	for(int i=0; i<(int)howManyLines; i++)
+		driver->draw3DLine( vector3df(posx-sizex/2, posy - ( trackTime - (i+1)*spqn + offset )*speed,posz-1),
+							vector3df(posx+sizex/2, posy - ( trackTime - (i+1)*spqn + offset )*speed,posz-1),
+							SColor(70,255,255,255) ); 
 } 
 
 void Track::draw()
 {
 	drawStones();
 	drawTrack();
-	//drawQuarters();
+	drawQuarters();
 }
 
 void Track::processEvent( musicEvent event )

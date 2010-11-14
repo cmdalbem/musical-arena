@@ -2,6 +2,7 @@
 //
 
 #include "Stone.h"
+#include "utils.h"
 #include "limits.h"
 
 using irr::scene::ISceneManager;
@@ -29,10 +30,10 @@ void Stone::initialize( IVideoDriver *driver, ISceneManager* sceneManager, music
 	this->destroyTime = INT_MAX;
 	this->initPos = irr::core::vector3df(x,y,z);
 	this->trailEndPos = initPos;
-
+ 
 	speed = _speed;
 
-	node = sceneManager->addSphereSceneNode(1);
+	node = sceneManager->addSphereSceneNode(STONE_RADIUS);
 	node->setPosition( initPos );
 	
 	switch(event.button) {
