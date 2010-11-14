@@ -52,15 +52,15 @@ std::string defaultFile = "music/example.mid",
 
 static void *updater(void *argument) 
 {
-	struct timeval start;
+	struct timeval start; 
 	
 	// get the time before starting the music (so we can know how much time passed in each note)
 	gettimeofday(&start, NULL);
+	  
+	 while( !endOfMusic ) {
 	
-	while( !endOfMusic ) {
-		
 		musicTime = time_diff(start);// + 20;
-
+ 
 		// spawning on track1
 		while( (unsigned int)player1.track->musicPos < theMusic.size() &&
 			   (musicTime + player1.track->spawnDelay) > theMusic[player1.track->musicPos].time ) {
@@ -74,25 +74,16 @@ static void *updater(void *argument)
 			
 			player2.track->processEvent(theMusic[player2.track->musicPos]);
 		}
-		
-		//sem_wait(&semaphore);
+		 
+		sem_wait(&semaphore);
 		player1.track->update(musicTime);
 		player2.track->update(musicTime);
-		//sem_post(&semaphore);
+		sem_post(&semaphore);
 	}
 	
 	return NULL;
 }
 
-void* fretting (void *arg)
-// Poll the keyboard testing if the player has pressed the right notes.
-{	
-
-	//double	tolerance = 1;
-
-
-	return NULL;
-}
 
 void musa_init()
 {
@@ -227,13 +218,12 @@ int main(int argc, char *argv[])
 	 */
 	sem_init(&semaphore, 0, 1);
 	
-	pthread_t thread[3];
+	pthread_t thread[2];
 	int arg = 1;
-	//pthread_create(&thread[0], NULL, drawer, (void *) arg);
-	//pthread_create(&thread[1], NULL, fretting, (void *) arg);
-	pthread_create(&thread[2], NULL, updater, (void *) arg);
+	pthread_create(&thread[0], NULL, updater, (void *) arg);
+	//pthread_create(&thread[1], NULL, drawer, (void *) arg);
 	
-	/*
+	/* 
 	 * Irrlicht Main Loop
 	 */	
 	while(device->run()) {
@@ -267,9 +257,7 @@ int main(int argc, char *argv[])
 	 * End the game gracefully =D
 	 */
 	// wait for threads to complete
-	//pthread_join(thread[0], NULL); //drawer
-	//pthread_join(thread[1], NULL);
-	pthread_join(thread[2], NULL);
+	pthread_join(thread[0], NULL);
 	
 	return 0;
 }
