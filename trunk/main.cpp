@@ -21,33 +21,29 @@ using irr::core::vector3df;
 #include "Skill.h"
 
 
-// Irrlicht-related globals
+// Irrlicht globals
 IrrlichtDevice 				*device=NULL;
 video::IVideoDriver 		*driver=NULL;
 scene::ISceneManager 		*smgr=NULL;
 scene::ICameraSceneNode 	*camera=NULL;
 EventReceiver 				receiver;
 
+// MusA globals
+Decoder 					decoder;
+Screen						*screen;
+vector<musicEvent> 			theMusic;
+Player 						player1, player2;
 
-Decoder decoder; 
-Screen *screen;
+bool 						endOfMusic =false; // indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
+double 						musicTime =0;
 
-vector<musicEvent> theMusic;
-
-// indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
-bool endOfMusic=false;
-
-double musicTime = 0;
-
-Player player1, player2;
-
+// Other globals
 sem_t semaphore;
 
 std::string defaultFile = "music/example.mid",
 			songFile = "music/example.ogg",
 			guitarFile = "";
-			
-//note theScreen[SCREEN_Y][NUMBER_OF_FRETS];
+
 
 
 static void *updater(void *argument) 
@@ -79,6 +75,9 @@ static void *updater(void *argument)
 		player1.track->update();
 		player2.track->update();
 		sem_post(&semaphore);
+		
+		screen->update(player1.fretting,player2.fretting);
+		
 	}
 	
 	return NULL;
@@ -105,9 +104,9 @@ void musa_init()
 	skills.push_back(s3);
 	
 	player1.fretting = new Fretting(&skills);	
-	player1.track = new Track(&theMusic,&musicTime,smgr,driver,15, -20);
+	player1.track = new Track(&theMusic,&musicTime,smgr,driver,23, -20);
 	player2.fretting = new Fretting();
-	player2.track = new Track(&theMusic,&musicTime,smgr,driver,5, 20);
+	player2.track = new Track(&theMusic,&musicTime,smgr,driver,10, 20);
 	
 	player1.fretting->tolerance = 1;
 	player2.fretting->tolerance = 1;
@@ -126,13 +125,7 @@ void musa_init()
 	
 	theMusic = decoder.decodeMidi(defaultFile, EXPERT);
 	//decoder.printMusic(theMusic);
-		
-	/*
-	//initializes the matrix (for drawer)
-	for(int lin=0; lin<SCREEN_Y; lin++)
-		for(int col=0; col<5; col++)
-			theScreen[lin][col] = NOTHING;*/
-			
+					
 	// start getting signals, baby
 	receiver.enabled = true;
 }
@@ -180,39 +173,33 @@ int main(int argc, char *argv[])
 	/*
 	 * initializing the sound engine
 	 */
-
 	FMOD_RESULT result;
 	FMOD::System *system;
-	
 	result = FMOD::System_Create(&system);		// Create the main system object.
 	ERRCHECK(result)
-	
 	result = system->init(100, FMOD_INIT_NORMAL, 0);	// Initialize FMOD.
 	ERRCHECK(result)
 
-	// loads the sound file on the memory
+	// load the sound files
 	FMOD::Sound *song, *guitar;
 	result = system->createSound(songFile.c_str(), FMOD_DEFAULT, 0, &song);
 	if(guitarFile.size()>0)
 		system->createSound(guitarFile.c_str(), FMOD_DEFAULT, 0, &guitar);
 	ERRCHECK(result);
 	
+	
 	/*
 	 * initializing the graphics engine
 	 */
 	initializeIrrlicht();
+	
+	
 	/*
 	 * initializing game engine
 	 */
 	musa_init();
 	
-	FMOD::Channel *channel;
-	// plays the ogg (TREMENDOUSLY REDUCES FPS D=) (seriously?) (actually, not)
-	result = system->playSound(FMOD_CHANNEL_FREE, song, false, &channel);
-	if(guitarFile.size()>0)
-		system->playSound(FMOD_CHANNEL_FREE, guitar, false, &channel);
-	ERRCHECK(result);
-
+	
 	/*
 	 * initializing threads
 	 */
@@ -223,6 +210,18 @@ int main(int argc, char *argv[])
 	pthread_create(&thread[0], NULL, updater, (void *) arg);
 	//pthread_create(&thread[1], NULL, drawer, (void *) arg);
 	
+	
+	/*
+	 * start playing the music
+	 */
+	FMOD::Channel *channel;
+	// plays the ogg (TREMENDOUSLY REDUCES FPS D=) (seriously?) (actually, not)
+	result = system->playSound(FMOD_CHANNEL_FREE, song, false, &channel);
+	if(guitarFile.size()>0)
+		system->playSound(FMOD_CHANNEL_FREE, guitar, false, &channel);
+	ERRCHECK(result);	
+	
+	
 	/* 
 	 * Irrlicht Main Loop
 	 */	
@@ -230,14 +229,12 @@ int main(int argc, char *argv[])
 		
 		driver->beginScene(true, true, video::SColor(255,113,113,133));
 
-		// mutex must be 2
 		sem_wait(&semaphore);
 		smgr->drawAll(); // draw the stones sceneNodes
 		player1.track->draw();
 		player2.track->draw();
 		sem_post(&semaphore);
 		
-		screen->update();
 		device->getGUIEnvironment()->drawAll(); // draw the gui environment
 
 		driver->endScene();
@@ -253,12 +250,10 @@ int main(int argc, char *argv[])
 		}
 	}
 	
+	
 	/*
 	 * End the game gracefully =D
-	 */
-	// wait for threads to complete
-	pthread_join(thread[0], NULL);
-	
+	 */	
 	return 0;
 }
 
@@ -275,6 +270,11 @@ static void* drawer(void *argument)
 	//  apparent reason need for them to be synchronized.
 	vector<musicEvent> theMusicCopied = theMusic;
 
+
+	//initializes the matrix
+	for(int lin=0; lin<SCREEN_Y; lin++)
+		for(int col=0; col<5; col++)
+			theScreen[lin][col] = NOTHING;
 
 	// get the time before starting the music (so we can know how much time passed in each note)
 	gettimeofday(&start, NULL);

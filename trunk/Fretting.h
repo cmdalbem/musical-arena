@@ -33,21 +33,16 @@ typedef tree<skillTreeNode> skillSearchTree;
 class Fretting
 {
 	public:
-		double *musicTime;
-		double tolerance;
-		
-		int _acertadas; // temp
-		int _erradas;	// temp
-		int _neutras;	// temp
-	
 		Fretting();
 		Fretting( vector<Skill> *skills );
 		Fretting(EKEY_CODE events[NUMBER_OF_FRETS]);
-
 		~Fretting();
+		
+		double 	*musicTime;
+		double 	tolerance;
+		int 	frettingState;
 
 		void 	setEvents(EKEY_CODE events[NUMBER_OF_FRETS]);
-
 		int 	verifyEvents(SEvent event, Stone* firstStones[NUMBER_OF_FRETS]);
 
 	private:
