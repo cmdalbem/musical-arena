@@ -20,13 +20,15 @@ bool EventReceiver::OnEvent(const SEvent& event)
 
 		if (enabled)
 		{
+			// Creates an vector with only the interesting stones on the screen
 			Stone* firstStones[NUMBER_OF_FRETS];
 			for(unsigned int i=0; i<NUMBER_OF_FRETS; i++)
 				if(player1->track->stones[i].size()>0)
 					firstStones[i] = player1->track->stones[i].front();
 				else
 					firstStones[i] = NULL;
-
+			
+			// passes the vector to the verifyEvents function
 			player1->fretting->verifyEvents(event, firstStones);
 		}
 	}

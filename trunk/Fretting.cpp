@@ -143,28 +143,12 @@ void Fretting::generateSkillsTree( vector<Skill> *skills )
 
 int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 {
-	// vejo quais botões estão apertados;
-	// se algum foi apertado agora;
-	// // // se tem alguma nota nova pra ele;
-	// // // // se tem uma outra nota com início no mesmo momento;
-	// // // // // se tem alguma nota apertada já errada
-	// // // // // // errou
-	// // // // // se nao tem alguma nota apertada errada
-	// // // // // // não faz nada (espera que o jogador ainda pode apertar as outras)
-	// // // // se não tem outra nota com o início no mesmo momento;
-	// // // // // acertou
-	// // // se não tem alguma nota nova pra ele
-	// // // // errou
-	// se ninguém foi apertado agora
-	// // se tem nota tocando agora & acertei (last frame)
-	// // // "dá ponto"
-	// // se nao tem nota tocando agora
-	// // // nao faz nada
-	// O caso de o jogador deixar um nota passar será tratado pela track =D
-					
 	double 	noteCreationTime;
 	double 	noteDestructionTime;
 	int		usefulButton = -1;
+	int		lastState;
+	int		nextFrettingState = -3;
+	
 	
 	// verifies which button has been pressed
 	for (int i = 0; i < NUMBER_OF_FRETS; i++)
@@ -192,9 +176,10 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 	 * But if you do try, increment the counter below with the time you
 	 * lost on it.
 	 * 
-	 * Total time lost: 3 minutes.
+	 * Total time lost: 113 minutes
+	 * 19h30
 	 */
-	
+	lastState = _hitting[usefulButton];	// stores the old value of the actual pressed button
 	if (event.KeyInput.PressedDown) // key was pressed down
 	{
 		switch (_hitting[usefulButton])
@@ -235,60 +220,83 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 	}
 	else // key was released
 		_hitting[usefulButton] = 0; // it's not being pressed
-
-
-	// final stage of decision
-	// here we will combine the state of this fret with the others to
-	//  decide de final fretting state.
-	switch( _hitting[usefulButton] )
+	
+	// tests if I am pressing a chord in this moment
+	if (lastState == 0 && _hitting[usefulButton] == 1)	// i.e., I hit a note NOW
+	// find out if the note belongs to a chord
 	{
-		case 0:
-		case 2:
-			//	if you ain't doing nothing, nothing happens
-			frettingState = 0;
-			break;
-		case -1:
-			//	if your are missing you are missing
-			frettingState = -1;
-			break;
-		case 1:
-		{
-			// if you are hitting one track we check if you should be
-			//  hitting other too
-			double hitTime[NUMBER_OF_FRETS];
-			for(int i=0; i<NUMBER_OF_FRETS; i++)
-				if( stones[i]!= NULL )
-					hitTime[i] = stones[i]->event.time;
+		int 	notesOnChord = 0;
+		int 	hitNotes;
+		double	stonesCreationTime[NUMBER_OF_FRETS];
+		bool	wrongNote = false;
+		
+		for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			if (_hitting[i] == 2 || _hitting[i] == -1)
+				wrongNote = true;
+
+		stones[usefulButton]->pressed = true;
+
+		if (!wrongNote)
+		{		
+			// CHORD DETECTION
+			// takes the times of the chord
+			for (int i = 0; i < NUMBER_OF_FRETS; i++)
+				if (stones[i] != NULL)
+					stonesCreationTime[i] = stones[i]->event.time;
 				else
-					noteCreationTime = INT_MAX;
-			
-			int hasSimultaneous = false;
-			
-			for(int i=0; i<NUMBER_OF_FRETS; i++) {
-					if( i != usefulButton &&
-						*musicTime > hitTime[i] && 	// if there's another note that should be hitting
-						*musicTime < hitTime[i] + tolerance)
-					{
-						hasSimultaneous=true;
-						
-						switch(_hitting[i]) //check the state of the simultaneous fret
-						{
-							case 1: frettingState = 1; break;
-							case 0:
-							case 2: frettingState = 0; break;
-							case -1: frettingState = -1; break;
-						}
-					}
-			}
-			
-			if(!hasSimultaneous)
-				frettingState = 1;
-		}	
+					stonesCreationTime[i] = INT_MAX;
+			// finds out how many notes we have on the chord
+			for (int i = 0; i < NUMBER_OF_FRETS; i++)
+				if (stonesCreationTime[usefulButton] == stonesCreationTime[i])
+					notesOnChord++;
+
+			hitNotes = notesOnChord;
+			// counts how many pressed notes we have on the chord
+			for (int i = 0; i < NUMBER_OF_FRETS; i++)
+				if (_hitting[i] == 1)
+					hitNotes--;
+		
+			if (hitNotes == 0)
+				nextFrettingState = notesOnChord;	// nextFrettingState <- how many notes are right
+			else
+				nextFrettingState = -2;	// waiting for the next notes to be pressed
+		}
+		else
+		{
+			_hitting[usefulButton] = 2;
+			nextFrettingState = -1;
+		}
 	}
 	
-	keyState[usefulButton] = frettingState;
+	if (nextFrettingState == -3)
+	{
+		switch( _hitting[usefulButton] )
+		{
+		case 0:
+			nextFrettingState = 0;
+			break;
+		case 1:
+			nextFrettingState = frettingState;	// continues hitting
+			break;
+		case 2:
+			nextFrettingState = 0;
+			break;
+		case -1:
+		{
+			nextFrettingState = -1;
+			for (int i = 0; i < NUMBER_OF_FRETS; i++)	// If I missed a note, everyone goes to the
+				if (_hitting[i] == 0)					// "do_nothing" state.
+					_hitting[i] = 0;
+				else
+					_hitting[i] = 2;
+
+			break;
+		}
+		}
+	}
 	
-	
+	frettingState = nextFrettingState;
+
 	// printing-time!
 	for(int i=0; i<NUMBER_OF_FRETS; i++)
 		cout<<_hitting[i]<<"\t";
@@ -296,3 +304,4 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 
 	return 1;
 }
+

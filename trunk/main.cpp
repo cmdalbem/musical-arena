@@ -61,14 +61,14 @@ static void *updater(void *argument)
 		while( (unsigned int)player1.track->musicPos < theMusic.size() &&
 			   (musicTime + player1.track->spawnDelay) > theMusic[player1.track->musicPos].time ) {
 			
-			player1.track->processEvent(theMusic[player1.track->musicPos]);
+			player1.processEvent(theMusic[player1.track->musicPos]);
 		}
 		
 		// spawning on track2
 		while( (unsigned int)player2.track->musicPos < theMusic.size() &&
 			   (musicTime + player2.track->spawnDelay) > theMusic[player2.track->musicPos].time ) {
 			
-			player2.track->processEvent(theMusic[player2.track->musicPos]);
+			player2.processEvent(theMusic[player2.track->musicPos]);
 		}
 		 
 		sem_wait(&semaphore);
@@ -106,15 +106,19 @@ void musa_init()
 	player2.fretting = new Fretting();
 	player2.track = new Track(&theMusic,&musicTime,smgr,driver,10, 20);
 	
-	player1.fretting->tolerance = 0.1;
-	player2.fretting->tolerance = 1;
+	double tolerance = 0.1;
+	
+	player1.track->tolerance = tolerance;
+	player2.track->tolerance = tolerance;
+	player1.fretting->tolerance = tolerance;
+	player2.fretting->tolerance = tolerance;
 	player1.fretting->musicTime = &musicTime;
 	player2.fretting->musicTime = &musicTime;
 	
 	receiver.player1 = &player1;
 	receiver.player2 = &player2;
 	
-	EKEY_CODE eventos[NUMBER_OF_FRETS] = { irr::KEY_F1, irr::KEY_F2, irr::KEY_F3, irr::KEY_F4, irr::KEY_F5 };
+	EKEY_CODE eventos[NUMBER_OF_FRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
 	player1.fretting->setEvents(eventos);
 	
 	screen = new Screen(device);

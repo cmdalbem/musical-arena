@@ -39,6 +39,10 @@ Track::~Track() {}
 
 void Track::update()
 {
+	nonPressedChord		= false;
+	notesOnChord		= 0;
+	chordCreationTime	= INT_MAX;
+
 	// update stones 
 	for (int i = 0; i < NUMBER_OF_FRETS; i++) {
 	
@@ -53,11 +57,34 @@ void Track::update()
 				stones[i].erase(stones[i].begin()); //remove reference (should call stone's destructor, but sometimes it doesn't work)
 		}
 	
-		// hiding stones
+		// hiding stones and non-pressed-notes treatment
 		for(unsigned int k = 0; k < stones[i].size(); k++)
+		{
 			if( *musicTime > stones[i][k]->event.time )
 				stones[i][k]->node->setVisible(false);
+			
+			// warns the player that there's a non-pressed chord to deal with
+			if( (*musicTime > stones[i][k]->event.time + tolerance) &&
+				(stones[i][k]->pressed == false) &&
+				(stones[i][k]->countedChord == false) )
+			{
+				nonPressedChord = true;
+				chordCreationTime = stones[i][k]->event.time;
+			}	
+		}
 	}
+	
+	// chord detection (done because, even some notes of the chord were pressed, we have to make them cause damage if
+	// the entire chords wasn't)
+	for (unsigned int i = 0; i < NUMBER_OF_FRETS; i++)
+		for (unsigned int k = 0; k < stones[i].size(); k++)
+			if ( stones[i][k]->event.time == chordCreationTime )
+			{
+				stones[i][k]->countedChord = true;
+				notesOnChord++;
+				cout << "teste teste" << endl;
+				break;
+			}
 	
 	// update texture position
 	node->getMaterial(0).getTextureMatrix(0).setTextureTranslate( 0, //translate on x
@@ -125,7 +152,7 @@ void Track::drawQuarters()
 	for(int i=0; i<(int)howManyLines; i++)
 		driver->draw3DLine( vector3df(posx-sizex/2, posy - ( trackTime - (i+1)*spqn + offset )*speed,posz-1),
 							vector3df(posx+sizex/2, posy - ( trackTime - (i+1)*spqn + offset )*speed,posz-1),
-							SColor(70,255,255,255) ); 
+							SColor(70,255,255,255) );
 } 
 
 void Track::draw()

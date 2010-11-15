@@ -9,6 +9,7 @@ using namespace std;
 #include "Stone.h"
 #include "TrackSceneNode.h"
 #include "utils.h"
+#include <limits.h>
 
 using irr::scene::ISceneManager;
 using irr::video::IVideoDriver;
@@ -38,7 +39,13 @@ class Track
 		double 			speed;
 		int				musicPos;
 		double 			*musicTime;
-		music			*theMusic;	
+		music			*theMusic;
+		
+		// used for update()
+		int				tolerance;		// to warn when the balls passed their time without being pressed
+		int				chordCreationTime;
+		bool			nonPressedChord;	// indicates if the player didn't press a chord
+		int				notesOnChord;		// how many notes did we have on the chord??
 			
 		void			update();
 		void			draw();		

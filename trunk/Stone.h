@@ -27,6 +27,9 @@ class Stone
 		double					destroyTime;
 		double		 			creationTime;
 		
+		bool					pressed;
+		bool					countedChord;
+		
 		irr::scene::ISceneNode 	*node;
 		irr::core::vector3df	trailEndPos;
 				
