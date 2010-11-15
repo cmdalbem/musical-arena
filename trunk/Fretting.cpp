@@ -141,6 +141,15 @@ void Fretting::generateSkillsTree( vector<Skill> *skills )
 	actualSkillNode = top;
 }
 
+int	Fretting::getFrettingState()
+{
+	switch( frettingState )
+	{
+		case -2: return 0; 				break;
+		default: return frettingState;	break;
+	}
+}
+
 int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 {
 	double 	noteCreationTime;
@@ -297,11 +306,13 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 	
 	frettingState = nextFrettingState;
 
+	return 1;
+}
+
+void Fretting::printHitFret()
+{
 	// printing-time!
 	for(int i=0; i<NUMBER_OF_FRETS; i++)
 		cout<<_hitting[i]<<"\t";
 	cout << "  =[" << frettingState << "]" << endl;
-
-	return 1;
 }
-

@@ -8,6 +8,7 @@ using namespace std;
 
 #include "Stone.h"
 #include "TrackSceneNode.h"
+#include "Fretting.h"
 #include "utils.h"
 #include <limits.h>
 
@@ -40,10 +41,11 @@ class Track
 		int				musicPos;
 		double 			*musicTime;
 		music			*theMusic;
+		Fretting		*fretting;
 		
 		// used for update()
 		int				tolerance;		// to warn when the balls passed their time without being pressed
-		int				chordCreationTime;
+		double			chordCreationTime;
 		bool			nonPressedChord;	// indicates if the player didn't press a chord
 		int				notesOnChord;		// how many notes did we have on the chord??
 			

@@ -42,14 +42,7 @@ void Player::processEvent( musicEvent event )
 	// tests if the player left behind some notes
 	if (track->nonPressedChord)
 	{
-		// causes some damage on the player, to be defined yet
-		// HP = HP - ( ((algum_valor) * notesOnChord) - alguma_defesa), etc...
-		
-		for (int i = 0; i < NUMBER_OF_FRETS; i++)
-			if (fretting->_hitting[i] != 0)
-				fretting->_hitting[i] = 2;	// even some buttons are pressed, it's like if it were pressed wrong
-			else
-				fretting->_hitting[i] = 0;
+		// causes some damage on the player, related to the number of wrong notes on track;
 	}
 }
 

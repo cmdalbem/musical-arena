@@ -42,10 +42,12 @@ class Fretting
 		double 	tolerance;
 		int 	frettingState;
 		int		keyState[5];
+		int		_hitting[NUMBER_OF_FRETS];
 
 		void 	setEvents(EKEY_CODE events[NUMBER_OF_FRETS]);
 		int 	verifyEvents(SEvent event, Stone* firstStones[NUMBER_OF_FRETS]);
-		int		_hitting[NUMBER_OF_FRETS];
+		int		getFrettingState();
+		void	printHitFret();
 
 	private:
 		skillSearchTree 			skillsTree;

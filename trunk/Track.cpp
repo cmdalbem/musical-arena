@@ -52,39 +52,39 @@ void Track::update()
 	
 		// deleting stones
 		while ( (stones[i].size() > 0) && (*musicTime > stones[i][0]->destroyTime)) {
-				
-				delete stones[i][0]; //call class destructor
-				stones[i].erase(stones[i].begin()); //remove reference (should call stone's destructor, but sometimes it doesn't work)
+			delete stones[i][0]; //call class destructor
+			stones[i].erase(stones[i].begin()); //remove reference (should call stone's destructor, but sometimes it doesn't work)
 		}
 	
-		// hiding stones and non-pressed-notes treatment
-		for(unsigned int k = 0; k < stones[i].size(); k++)
+		// warns the player that there's a non-pressed chord to deal with
+		if (stones[i].size() > 0)
 		{
-			if( *musicTime > stones[i][k]->event.time )
-				stones[i][k]->node->setVisible(false);
-			
-			// warns the player that there's a non-pressed chord to deal with
-			if( (*musicTime > stones[i][k]->event.time + tolerance) &&
-				(stones[i][k]->pressed == false) &&
-				(stones[i][k]->countedChord == false) )
+			if( (*musicTime > stones[i][0]->event.time + tolerance) &&
+				(stones[i][0]->pressed == false) &&
+				(stones[i][0]->countedChord == false) )
 			{
 				nonPressedChord = true;
-				chordCreationTime = stones[i][k]->event.time;
+				chordCreationTime = stones[i][0]->event.time;
+				cout << "nota perdida: " << stones[i][0]->event.button << "\t chordCreationTime: " << chordCreationTime << endl;
 			}	
 		}
+		// hiding stones and non-pressed-notes treatment
+		for(unsigned int k = 0; k < stones[i].size(); k++)
+			if( *musicTime > stones[i][k]->event.time )
+				stones[i][k]->node->setVisible(false);
 	}
 	
 	// chord detection (done because, even some notes of the chord were pressed, we have to make them cause damage if
 	// the entire chords wasn't)
 	for (unsigned int i = 0; i < NUMBER_OF_FRETS; i++)
-		for (unsigned int k = 0; k < stones[i].size(); k++)
-			if ( stones[i][k]->event.time == chordCreationTime )
-			{
-				stones[i][k]->countedChord = true;
-				notesOnChord++;
-				cout << "teste teste" << endl;
-				break;
-			}
+		if ((stones[i].size() > 0) &&
+			(stones[i][0]->event.time == chordCreationTime ) )
+		{
+			stones[i][0]->countedChord = true;
+			notesOnChord++;
+			cout << "teste teste" << endl;
+			break;
+		}
 	
 	// update texture position
 	node->getMaterial(0).getTextureMatrix(0).setTextureTranslate( 0, //translate on x
