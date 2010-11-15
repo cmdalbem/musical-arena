@@ -45,13 +45,13 @@ class Fretting
 
 		void 	setEvents(EKEY_CODE events[NUMBER_OF_FRETS]);
 		int 	verifyEvents(SEvent event, Stone* firstStones[NUMBER_OF_FRETS]);
+		int		_hitting[NUMBER_OF_FRETS];
 
 	private:
 		skillSearchTree 			skillsTree;
 		skillSearchTree::iterator 	actualSkillNode;
 		
 		vector<EKEY_CODE> 	_events;
-		int					_hitting[5];
 		
 		bool 				_trackPressed[NUMBER_OF_FRETS];		// tell us the state of the tracks on the last
 		bool 				_rightPressed[NUMBER_OF_FRETS];		// frame		
