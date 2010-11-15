@@ -70,6 +70,8 @@ static void *updater(void *argument)
 			
 			player2.processEvent(theMusic[player2.track->musicPos]);
 		}
+		
+		//player1.fretting->printHitFret();
 		 
 		sem_wait(&semaphore);
 		player1.track->update();
@@ -106,8 +108,10 @@ void musa_init()
 	player2.fretting = new Fretting();
 	player2.track = new Track(&theMusic,&musicTime,smgr,driver,10, 20);
 	
-	double tolerance = 0.1;
+	double tolerance = 1;
 	
+	player1.track->fretting = player1.fretting;
+	player2.track->fretting = player2.fretting;
 	player1.track->tolerance = tolerance;
 	player2.track->tolerance = tolerance;
 	player1.fretting->tolerance = tolerance;
