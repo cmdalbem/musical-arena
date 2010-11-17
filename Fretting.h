@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "tree.hh"
 #include "Skill.h"
+#include "EventReceiver.h"
 
 #include <irrlicht.h>
 using namespace irr;
@@ -43,11 +44,13 @@ class Fretting
 		int 	frettingState;
 		int		keyState[5];
 		int		_hitting[NUMBER_OF_FRETS];
+		EventReceiver *receiver;
 
 		void 	setEvents(EKEY_CODE events[NUMBER_OF_FRETS]);
 		int 	verifyEvents(SEvent event, Stone* firstStones[NUMBER_OF_FRETS]);
 		int		getFrettingState();
 		void	printHitFret();
+		void	lostNote();
 
 	private:
 		skillSearchTree 			skillsTree;

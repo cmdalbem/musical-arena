@@ -31,6 +31,7 @@ void Stone::initialize( IVideoDriver *driver, ISceneManager* sceneManager, music
 	this->destroyTime = INT_MAX;
 	this->initPos = irr::core::vector3df(x,y,z);
 	this->trailEndPos = initPos;
+	
 	this->pressed = false;
 	this->countedChord = false;
  

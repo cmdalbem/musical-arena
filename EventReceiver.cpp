@@ -11,13 +11,19 @@ EventReceiver::EventReceiver()
 	enabled = false;
 }
 	
-bool EventReceiver::OnEvent(const SEvent& event)
+bool EventReceiver::OnEvent(const SEvent& _event)
 {
-	
-	if (event.EventType == irr::EET_KEY_INPUT_EVENT) {
-		// Remember whether each key is down or up
-		KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
 
+	if (enabled)
+	{
+		event = _event;
+
+		if (_event.EventType == irr::EET_KEY_INPUT_EVENT) {
+			// Remember whether each key is down or up
+			KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+		}
+		
+		/*
 		if (enabled)
 		{
 			// Creates an vector with only the interesting stones on the screen
@@ -31,6 +37,7 @@ bool EventReceiver::OnEvent(const SEvent& event)
 			// passes the vector to the verifyEvents function
 			player1->fretting->verifyEvents(event, firstStones);
 		}
+		*/
 	}
 	
 	return false;
