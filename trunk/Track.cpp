@@ -43,6 +43,34 @@ void Track::update()
 	notesOnChord		= 0;
 	chordCreationTime	= INT_MAX;
 
+	// warns the player that there's a non-pressed chord to deal with
+	for (int i = 0; i < NUMBER_OF_FRETS; i++)
+		if (stones[i].size() > 0)
+		{
+			if( ((*musicTime > stones[i][0]->event.time + tolerance) || *musicTime > stones[i][0]->destroyTime) &&
+				(stones[i][0]->pressed == false) &&
+				(stones[i][0]->countedChord == false) )
+			{
+				nonPressedChord = true;
+				chordCreationTime = stones[i][0]->event.time;
+				cout << "nota perdida: " << stones[i][0]->event.button << "\t chordCreationTime: " << chordCreationTime << endl;
+			}	
+		}
+
+	// chord detection (done because, even some notes of the chord were pressed, we have to make them cause damage if
+	// the entire chords wasn't)
+	if (nonPressedChord)
+		for (unsigned int i = 0; i < NUMBER_OF_FRETS; i++)
+			if ((stones[i].size() > 0) &&
+				(stones[i][0]->event.time == chordCreationTime ) )
+			{
+				stones[i][0]->countedChord = true;
+				notesOnChord++;
+				cout << "nota: " << stones[i][0]->event.button << "\tcountedChord: " << stones[i][0]->countedChord
+				     << "\tpressed: " << stones[i][0]->pressed << endl;
+			}
+
+
 	// update stones 
 	for (int i = 0; i < NUMBER_OF_FRETS; i++) {
 	
@@ -56,35 +84,11 @@ void Track::update()
 			stones[i].erase(stones[i].begin()); //remove reference (should call stone's destructor, but sometimes it doesn't work)
 		}
 	
-		// warns the player that there's a non-pressed chord to deal with
-		if (stones[i].size() > 0)
-		{
-			if( (*musicTime > stones[i][0]->event.time + tolerance) &&
-				(stones[i][0]->pressed == false) &&
-				(stones[i][0]->countedChord == false) )
-			{
-				nonPressedChord = true;
-				chordCreationTime = stones[i][0]->event.time;
-				cout << "nota perdida: " << stones[i][0]->event.button << "\t chordCreationTime: " << chordCreationTime << endl;
-			}	
-		}
 		// hiding stones and non-pressed-notes treatment
 		for(unsigned int k = 0; k < stones[i].size(); k++)
 			if( *musicTime > stones[i][k]->event.time )
 				stones[i][k]->node->setVisible(false);
 	}
-	
-	// chord detection (done because, even some notes of the chord were pressed, we have to make them cause damage if
-	// the entire chords wasn't)
-	for (unsigned int i = 0; i < NUMBER_OF_FRETS; i++)
-		if ((stones[i].size() > 0) &&
-			(stones[i][0]->event.time == chordCreationTime ) )
-		{
-			stones[i][0]->countedChord = true;
-			notesOnChord++;
-			cout << "teste teste" << endl;
-			break;
-		}
 	
 	// update texture position
 	node->getMaterial(0).getTextureMatrix(0).setTextureTranslate( 0, //translate on x

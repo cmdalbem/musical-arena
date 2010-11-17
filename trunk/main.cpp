@@ -61,21 +61,19 @@ static void *updater(void *argument)
 		while( (unsigned int)player1.track->musicPos < theMusic.size() &&
 			   (musicTime + player1.track->spawnDelay) > theMusic[player1.track->musicPos].time ) {
 			
-			player1.processEvent(theMusic[player1.track->musicPos]);
+			player1.track->processEvent(theMusic[player1.track->musicPos]);
 		}
 		
 		// spawning on track2
 		while( (unsigned int)player2.track->musicPos < theMusic.size() &&
 			   (musicTime + player2.track->spawnDelay) > theMusic[player2.track->musicPos].time ) {
 			
-			player2.processEvent(theMusic[player2.track->musicPos]);
+			player2.track->processEvent(theMusic[player2.track->musicPos]);
 		}
-		
-		//player1.fretting->printHitFret();
-		 
+				 
 		sem_wait(&semaphore);
-		player1.track->update();
-		player2.track->update();
+		player1.update(); //track->update();
+		player2.update(); //track->update();
 		sem_post(&semaphore);
 		
 	}
@@ -108,10 +106,11 @@ void musa_init()
 	player2.fretting = new Fretting();
 	player2.track = new Track(&theMusic,&musicTime,smgr,driver,10, 20);
 	
-	double tolerance = 1;
+	double tolerance = 0.5;
 	
 	player1.track->fretting = player1.fretting;
 	player2.track->fretting = player2.fretting;
+	
 	player1.track->tolerance = tolerance;
 	player2.track->tolerance = tolerance;
 	player1.fretting->tolerance = tolerance;
@@ -119,11 +118,14 @@ void musa_init()
 	player1.fretting->musicTime = &musicTime;
 	player2.fretting->musicTime = &musicTime;
 	
-	receiver.player1 = &player1;
-	receiver.player2 = &player2;
+	player1.fretting->receiver = &receiver;
+	player2.fretting->receiver = &receiver;
 	
-	EKEY_CODE eventos[NUMBER_OF_FRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
-	player1.fretting->setEvents(eventos);
+	EKEY_CODE eventos1[NUMBER_OF_FRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
+	EKEY_CODE eventos2[NUMBER_OF_FRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
+	player1.fretting->setEvents(eventos1);
+	player2.fretting->setEvents(eventos2);
+	cout << "vetor de eventos" << endl;
 	
 	screen = new Screen(device);
 	screen->players[0] = &player1;
@@ -222,7 +224,7 @@ int main(int argc, char *argv[])
 	 */
 	FMOD::Channel *channel;
 	// plays the ogg (TREMENDOUSLY REDUCES FPS D=) (seriously?) (actually, not)
-	result = system->playSound(FMOD_CHANNEL_FREE, song, false, &channel);
+	//result = system->playSound(FMOD_CHANNEL_FREE, song, false, &channel);
 	if(guitarFile.size()>0)
 		system->playSound(FMOD_CHANNEL_FREE, guitar, false, &channel);
 	ERRCHECK(result);	

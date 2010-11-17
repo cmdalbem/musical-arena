@@ -44,7 +44,7 @@ class Track
 		Fretting		*fretting;
 		
 		// used for update()
-		int				tolerance;		// to warn when the balls passed their time without being pressed
+		double			tolerance;		// to warn when the balls passed their time without being pressed
 		double			chordCreationTime;
 		bool			nonPressedChord;	// indicates if the player didn't press a chord
 		int				notesOnChord;		// how many notes did we have on the chord??

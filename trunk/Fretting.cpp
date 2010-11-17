@@ -150,6 +150,15 @@ int	Fretting::getFrettingState()
 	}
 }
 
+void Fretting::lostNote()
+{
+	for (int i = 0; i < NUMBER_OF_FRETS; i++)
+		if (_hitting[i] == 0)
+			_hitting[i] = 0;
+		else
+			_hitting[i] = 2;
+}
+
 int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 {
 	double 	noteCreationTime;
@@ -157,16 +166,27 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 	int		usefulButton = -1;
 	int		lastState;
 	int		nextFrettingState = -3;
-	
+	//cout << "0" << endl;
 	
 	// verifies which button has been pressed
 	for (int i = 0; i < NUMBER_OF_FRETS; i++)
+	{
+		//cout << "a" << endl;
+		EKEY_CODE key = event.KeyInput.Key;
+		//cout << "b" << endl;
+		EKEY_CODE evento = _events[i];
+		//cout << "c" << endl;
 		if (event.KeyInput.Key == _events[i])
 			usefulButton = i;
-	
+	}
+
 	if (usefulButton == -1)
+	{
+		//cout << "0 -> if" << endl;
 		return 1;
-		
+	}
+	
+	//cout << "1" << endl;
 	//findSkill( (buttonType)usefulButton );
 	
 	if( stones[usefulButton]!= NULL ) {
@@ -185,7 +205,7 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 	 * But if you do try, increment the counter below with the time you
 	 * lost on it.
 	 * 
-	 * Total time lost: 113 minutes
+	 * Total time lost: 6h23 minutes
 	 * 19h30
 	 */
 	lastState = _hitting[usefulButton];	// stores the old value of the actual pressed button
@@ -229,6 +249,7 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 	}
 	else // key was released
 		_hitting[usefulButton] = 0; // it's not being pressed
+	//cout << "2" << endl;
 	
 	// tests if I am pressing a chord in this moment
 	if (lastState == 0 && _hitting[usefulButton] == 1)	// i.e., I hit a note NOW
@@ -243,10 +264,10 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 			if (_hitting[i] == 2 || _hitting[i] == -1)
 				wrongNote = true;
 
-		stones[usefulButton]->pressed = true;
-
-		if (!wrongNote)
+		if ((!wrongNote) && (stones[usefulButton]->pressed == false))
 		{		
+			stones[usefulButton]->pressed = true;
+			
 			// CHORD DETECTION
 			// takes the times of the chord
 			for (int i = 0; i < NUMBER_OF_FRETS; i++)
@@ -276,7 +297,7 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 			nextFrettingState = -1;
 		}
 	}
-	
+	//cout << "3" << endl;	
 	if (nextFrettingState == -3)
 	{
 		switch( _hitting[usefulButton] )
@@ -305,7 +326,7 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 	}
 	
 	frettingState = nextFrettingState;
-
+	// printHitFret();
 	return 1;
 }
 

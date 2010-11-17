@@ -12,7 +12,7 @@ class Player
 		~Player();
 		
 		Fretting*		getFretting();
-		void			processEvent( musicEvent event );
+		void			update();
 		
 		void 			initialize();
 		
