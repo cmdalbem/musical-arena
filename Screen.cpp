@@ -2,6 +2,7 @@
 #include "utils.h"
 
 #include "CBoltSceneNode.h"
+#include "CBloodEffect.h"
 
 using irr::core::vector3df;
 using irr::video::SColor;
@@ -22,6 +23,11 @@ Screen::Screen( IrrlichtDevice *_device )
 	bad[1] = device->getGUIEnvironment()->addImage( driver->getTexture("img/bad.png"), core::position2d<s32>(600,500), true );
 	neutral[1] = device->getGUIEnvironment()->addImage( driver->getTexture("img/neutral.png"), core::position2d<s32>(600,500), true );
 	
+	
+	// external scenenodes playground
+	
+	//new CBloodEffect(device->getSceneManager(), EGL_MEDIUM, vector3df(0, 0, 0), vector3df(0, 0.0f, -1.0f));
+	
 	//irr::scene::CBoltSceneNode* beam = new irr::scene::CBoltSceneNode(device->getSceneManager()->getRootSceneNode(), device->getSceneManager(), -1,"img/laser3.bmp"); 
 	//beam->setLine(irr::core::vector3df(-20,0,0), irr::core::vector3df(60,-50,5), 50, 10, 10,3, false,10.0f, irr::video::SColor(255,0,0,255)); 
 }
@@ -31,22 +37,9 @@ Screen::~Screen()
 
 }
 
-void Screen::update()
+void Screen::drawKeys()
 {
-	/*if( time_diff(lastEventTime)>SHOW_DELAY ) {
-		good->setVisible(false);
-		good->setVisible(false);
-	}*/
-	
-	for(int i=0; i<NPLAYERS; i++) 
-	{
-		switch( players[i]->fretting->frettingState )
-		{
-			case 1: showGood(i); break;
-			case -1: showBad(i); break;
-			case 0: showNeutral(i); break;
-		}
-		
+	for(int i=0; i<NPLAYERS; i++)  {
 		SMaterial m;
 		SColor color;
 		
@@ -55,8 +48,7 @@ void Screen::update()
 		m.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 		driver->setMaterial(m);
 		driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4()); //global positioning
-		for(int k=0; k<NUMBER_OF_FRETS; k++)
-		{
+		for(int k=0; k<NUMBER_OF_FRETS; k++) {
 			int zvar = 0;
 			
 			switch(players[i]->fretting->keyState[k])
@@ -81,6 +73,21 @@ void Screen::update()
 								color );			
 		}
 	}
+}	
+
+void Screen::update()
+{
+	for(int i=0; i<NPLAYERS; i++) 
+	{
+		switch( players[i]->fretting->frettingState )
+		{
+			case 1: showGood(i); break;
+			case -1: showBad(i); break;
+			case 0: showNeutral(i); break;
+		}
+	}
+	
+	drawKeys();
 }
 
 void Screen::showGood( int i )
