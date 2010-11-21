@@ -41,7 +41,6 @@ void TrackSceneNode::OnRegisterSceneNode()
 }
 void TrackSceneNode::render()
 {
-
 	u16 indices[] = {      0,1,3, 0,3,2      };
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
 

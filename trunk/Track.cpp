@@ -109,6 +109,7 @@ void Track::insertStone( musicEvent event )
 
 void Track::drawTrack()
 {
+	driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4()); //global positioning
 	node->render();
 
 	// draw a line for fret

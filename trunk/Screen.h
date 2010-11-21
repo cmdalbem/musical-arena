@@ -33,5 +33,7 @@ class Screen
 		IrrlichtDevice				*device;
 		video::IVideoDriver			*driver;
 		
+		void						drawKeys();
+		
 
 };
