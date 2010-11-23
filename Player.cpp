@@ -37,6 +37,8 @@ void Player::initialize()
 
 void Player::update()
 {
+	SEvent *anEvent;
+
 	track->update();
 	
 	if ( track->nonPressedChord ) // the player left behind a chord he should have played
@@ -44,16 +46,24 @@ void Player::update()
 		fretting->lostNote();
 		//cout << "the player left " << track->notesOnChord << " behind" << endl;
 	}
+	else
+	{
+		// Creates an vector with only the interesting stones on the screen
+		Stone* firstStones[NUMBER_OF_FRETS];
+		for(unsigned int i=0; i<NUMBER_OF_FRETS; i++)
+			if(track->stones[i].size() > 0)
+				firstStones[i] = track->stones[i].front();
+			else
+				firstStones[i] = NULL;
+		if (fretting->receiver->enabled)
+		{
+			while(anEvent = (fretting->receiver->getEvent()))
+				fretting->verifyEvents( anEvent, firstStones );
+			//cout << "vai verificar eventos" << endl;
+			//cout << "terminou de verificar eventos" << endl;
+		}
+	}
 	
-	// Creates an vector with only the interesting stones on the screen
-	Stone* firstStones[NUMBER_OF_FRETS];
-	for(unsigned int i=0; i<NUMBER_OF_FRETS; i++)
-		if(track->stones[i].size()>0)
-			firstStones[i] = track->stones[i].front();
-		else
-			firstStones[i] = NULL;
-	if (fretting->receiver->enabled)
-		fretting->verifyEvents( fretting->receiver->event, firstStones );
 }
 
 

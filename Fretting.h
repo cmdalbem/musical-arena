@@ -10,6 +10,7 @@
 #include "EventReceiver.h"
 
 #include <irrlicht.h>
+//#include <semaphore.h>
 using namespace irr;
 
 #define ERROR 0
@@ -44,10 +45,11 @@ class Fretting
 		int 	frettingState;
 		int		keyState[5];
 		int		_hitting[NUMBER_OF_FRETS];
+		//sem_t	semaphore;
 		EventReceiver *receiver;
 
 		void 	setEvents(EKEY_CODE events[NUMBER_OF_FRETS]);
-		int 	verifyEvents(SEvent event, Stone* firstStones[NUMBER_OF_FRETS]);
+		int 	verifyEvents(SEvent *event, Stone* firstStones[NUMBER_OF_FRETS]);
 		int		getFrettingState();
 		void	printHitFret();
 		void	lostNote();
