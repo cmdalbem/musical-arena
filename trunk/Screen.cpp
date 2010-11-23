@@ -39,6 +39,7 @@ Screen::~Screen()
 
 void Screen::drawKeys()
 {
+
 	for(int i=0; i<NPLAYERS; i++)  {
 		SMaterial m;
 		SColor color;

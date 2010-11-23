@@ -53,7 +53,7 @@ void Track::update()
 			{
 				nonPressedChord = true;
 				chordCreationTime = stones[i][0]->event.time;
-				cout << "nota perdida: " << stones[i][0]->event.button << "\t chordCreationTime: " << chordCreationTime << endl;
+				//cout << "nota perdida: " << stones[i][0]->event.button << "\t chordCreationTime: " << chordCreationTime << endl;
 			}	
 		}
 
@@ -66,8 +66,8 @@ void Track::update()
 			{
 				stones[i][0]->countedChord = true;
 				notesOnChord++;
-				cout << "nota: " << stones[i][0]->event.button << "\tcountedChord: " << stones[i][0]->countedChord
-				     << "\tpressed: " << stones[i][0]->pressed << endl;
+				//cout << "nota: " << stones[i][0]->event.button << "\tcountedChord: " << stones[i][0]->countedChord
+				//     << "\tpressed: " << stones[i][0]->pressed << endl;
 			}
 
 

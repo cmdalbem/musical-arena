@@ -47,6 +47,8 @@ void Fretting::initialize()
 	}
 	
 	frettingState = 0;
+	
+	//sem_init(&semaphore, 0, 1);
 }
 
 Fretting::Fretting(EKEY_CODE events[NUMBER_OF_FRETS])
@@ -159,7 +161,7 @@ void Fretting::lostNote()
 			_hitting[i] = 2;
 }
 
-int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
+int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
 {
 	double 	noteCreationTime;
 	double 	noteDestructionTime;
@@ -169,22 +171,27 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 	//cout << "0" << endl;
 	
 	// verifies which button has been pressed
-	for (int i = 0; i < NUMBER_OF_FRETS; i++)
+	if (event != NULL)
 	{
-		//cout << "a" << endl;
-		EKEY_CODE key = event.KeyInput.Key;
-		//cout << "b" << endl;
-		EKEY_CODE evento = _events[i];
-		//cout << "c" << endl;
-		if (event.KeyInput.Key == _events[i])
-			usefulButton = i;
+		for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			if (event->KeyInput.Key == _events[i])
+				usefulButton = i;
 	}
+	else
+		return 1;
+
+	// removes the first event of the events vector (so we can deal with the others =D)
+	receiver->removeEvent();
+	
+	// make the consistence between the keys on the Fretting and the keys on the EventReceiver
+	// DIDN'T WORK - THIS WAS SUPPOSED TO SOLVE THE PROBLEM WITH THE UNPRESSED BUTTONS WHICH
+	// INSIST TO WARN THEY ARE PRESSED D=
+	//for (int i = 0; i < NUMBER_OF_FRETS; i++)
+	//	if (!(receiver->IsKeyDown(_events[i])))
+	//		_hitting[i] = 0;
 
 	if (usefulButton == -1)
-	{
-		//cout << "0 -> if" << endl;
 		return 1;
-	}
 	
 	//cout << "1" << endl;
 	//findSkill( (buttonType)usefulButton );
@@ -206,10 +213,10 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 	 * lost on it.
 	 * 
 	 * Total time lost: 6h23 minutes
-	 * 19h30
+	 * 14h02
 	 */
 	lastState = _hitting[usefulButton];	// stores the old value of the actual pressed button
-	if (event.KeyInput.PressedDown) // key was pressed down
+	if (event->KeyInput.PressedDown) // key was pressed down
 	{
 		switch (_hitting[usefulButton])
 		{
@@ -285,7 +292,7 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 			for (int i = 0; i < NUMBER_OF_FRETS; i++)
 				if (_hitting[i] == 1)
 					hitNotes--;
-		
+
 			if (hitNotes == 0)
 				nextFrettingState = notesOnChord;	// nextFrettingState <- how many notes are right
 			else
@@ -293,7 +300,7 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 		}
 		else
 		{
-			_hitting[usefulButton] = 2;
+			lostNote();
 			nextFrettingState = -1;
 		}
 	}
@@ -312,21 +319,13 @@ int Fretting::verifyEvents(SEvent event, Stone* stones[NUMBER_OF_FRETS])
 			nextFrettingState = 0;
 			break;
 		case -1:
-		{
 			nextFrettingState = -1;
-			for (int i = 0; i < NUMBER_OF_FRETS; i++)	// If I missed a note, everyone goes to the
-				if (_hitting[i] == 0)					// "do_nothing" state.
-					_hitting[i] = 0;
-				else
-					_hitting[i] = 2;
-
+			lostNote();
 			break;
-		}
 		}
 	}
 	
 	frettingState = nextFrettingState;
-	// printHitFret();
 	return 1;
 }
 
@@ -335,5 +334,5 @@ void Fretting::printHitFret()
 	// printing-time!
 	for(int i=0; i<NUMBER_OF_FRETS; i++)
 		cout<<_hitting[i]<<"\t";
-	cout << "  =[" << frettingState << "]" << endl;
+	cout << "  =[" << frettingState << "]" << "  tolerance: " << tolerance << endl;
 }

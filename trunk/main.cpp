@@ -106,7 +106,7 @@ void musa_init()
 	player2.fretting = new Fretting();
 	player2.track = new Track(&theMusic,&musicTime,smgr,driver,10, 20);
 	
-	double tolerance = 0.5;
+	double tolerance = 1;
 	
 	player1.track->fretting = player1.fretting;
 	player2.track->fretting = player2.fretting;
@@ -120,6 +120,9 @@ void musa_init()
 	
 	player1.fretting->receiver = &receiver;
 	player2.fretting->receiver = &receiver;
+	
+//	player1.fretting->receiver->semaphore = player1.fretting->semaphore;
+//	player2.fretting->receiver->semaphore = player2.fretting->semaphore;
 	
 	EKEY_CODE eventos1[NUMBER_OF_FRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
 	EKEY_CODE eventos2[NUMBER_OF_FRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
@@ -176,6 +179,16 @@ void initializeIrrlicht()
 
 }
 
+static void *debugger (void *argument)
+{
+	while(1)
+	{
+		player1.fretting->printHitFret();
+		usleep(80000);
+	}
+	
+}
+
 int main(int argc, char *argv[])
 {
 	/*
@@ -213,10 +226,11 @@ int main(int argc, char *argv[])
 	 */
 	sem_init(&semaphore, 0, 1);
 	
-	pthread_t thread[2];
+	pthread_t thread[3];
 	int arg = 1;
 	pthread_create(&thread[0], NULL, updater, (void *) arg);
-	//pthread_create(&thread[1], NULL, drawer, (void *) arg);
+	pthread_create(&thread[1], NULL, debugger, (void *) arg);
+	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
 	
 	
 	/*
