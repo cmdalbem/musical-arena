@@ -15,19 +15,24 @@ EventReceiver::EventReceiver()
 	
 bool EventReceiver::OnEvent(const SEvent& _event)
 {
-	if (enabled)
-		events.push_back(_event);
 
-	refreshArray(_event);
-	
+	if (enabled)
+	{
+		events.push_back(_event);
+		refreshArray(_event);
+		//sem_post(semaphore);
+	}
 	return false;
 }
 
 bool EventReceiver::refreshArray(const SEvent& _event)
 {
 	if (_event.EventType == irr::EET_KEY_INPUT_EVENT)
+	{
 		// Remember whether each key is down or up
 		KeyIsDown[_event.KeyInput.Key] = _event.KeyInput.PressedDown;
+		//cout << "recebeu evento: " << _event.KeyInput.Key << "\tpressionou: " << _event.KeyInput.PressedDown << endl;
+	}
 	else
 		return false;
 	
@@ -45,5 +50,8 @@ SEvent* EventReceiver::getEvent()
 void EventReceiver::removeEvent()
 {
 	if (events.size() > 0)
+	{
+		//sem_wait(semaphore);
 		events.erase(events.begin());
+	}
 }

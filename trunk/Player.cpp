@@ -58,12 +58,18 @@ void Player::update()
 		if (fretting->receiver->enabled)
 		{
 			while(anEvent = (fretting->receiver->getEvent()))
+			{
+				//sem_wait(fretting->receiver->semaphore);
 				fretting->verifyEvents( anEvent, firstStones );
+				
+				// removes the first event of the events vector (so we can deal with the others =D)
+				fretting->receiver->removeEvent();
+				//sem_post(fretting->receiver->semaphore);
+			}
 			//cout << "vai verificar eventos" << endl;
 			//cout << "terminou de verificar eventos" << endl;
 		}
 	}
-	
 }
 
 

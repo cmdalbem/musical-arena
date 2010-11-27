@@ -1,5 +1,5 @@
 #include <irrlicht.h>
-//#include <semaphore.h>
+#include <semaphore.h>
 #include <vector>
 
 #pragma once
