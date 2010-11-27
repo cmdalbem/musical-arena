@@ -168,11 +168,10 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
 	int		usefulButton = -1;
 	int		lastState;
 	int		nextFrettingState = -3;
-	//cout << "0" << endl;
 	
-	// verifies which button has been pressed
 	if (event != NULL)
-	{
+	{	
+		// verifies which button has been pressed -- TEM ALGUMA COISA ERRADA AQUI!!!
 		for (int i = 0; i < NUMBER_OF_FRETS; i++)
 			if (event->KeyInput.Key == _events[i])
 				usefulButton = i;
@@ -180,18 +179,12 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
 	else
 		return 1;
 
-	// removes the first event of the events vector (so we can deal with the others =D)
-	receiver->removeEvent();
-	
-	// make the consistence between the keys on the Fretting and the keys on the EventReceiver
-	// DIDN'T WORK - THIS WAS SUPPOSED TO SOLVE THE PROBLEM WITH THE UNPRESSED BUTTONS WHICH
-	// INSIST TO WARN THEY ARE PRESSED D=
-	//for (int i = 0; i < NUMBER_OF_FRETS; i++)
-	//	if (!(receiver->IsKeyDown(_events[i])))
-	//		_hitting[i] = 0;
-
 	if (usefulButton == -1)
+	{
+//		cout << "useless button: " << event->KeyInput.Key
+//			 << "  1: " << _events[0] << " 2: " << _events[1] << " 3: " << _events[2] << " 4: " << _events[3] << " 5: " << _events[4] << endl;
 		return 1;
+	}
 	
 	//cout << "1" << endl;
 	//findSkill( (buttonType)usefulButton );
@@ -213,7 +206,7 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
 	 * lost on it.
 	 * 
 	 * Total time lost: 6h23 minutes
-	 * 14h02
+	 * 9h10
 	 */
 	lastState = _hitting[usefulButton];	// stores the old value of the actual pressed button
 	if (event->KeyInput.PressedDown) // key was pressed down
@@ -255,7 +248,10 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
 		}
 	}
 	else // key was released
+	{
 		_hitting[usefulButton] = 0; // it's not being pressed
+		//cout << "setou pra 0\t" << endl;
+	}
 	//cout << "2" << endl;
 	
 	// tests if I am pressing a chord in this moment
@@ -334,5 +330,7 @@ void Fretting::printHitFret()
 	// printing-time!
 	for(int i=0; i<NUMBER_OF_FRETS; i++)
 		cout<<_hitting[i]<<"\t";
-	cout << "  =[" << frettingState << "]" << "  tolerance: " << tolerance << endl;
+	cout << "  =[" << frettingState << "]" << "  vector_size: "  << receiver->events.size() << endl;
+		// << "  1: " << _events[0] << " 2: " << _events[1] << " 3: " << _events[2] << " 4: " << _events[3] << " 5: " << _events[4] << endl;
+	//<< "  tolerance: " << tolerance << endl;
 }

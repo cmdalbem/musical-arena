@@ -39,6 +39,7 @@ double 						musicTime =0;
 
 // Other globals
 sem_t semaphore;
+sem_t receiverSemaphore;
 
 std::string defaultFile = "music/example.mid",
 			songFile = "music/example.ogg",
@@ -73,7 +74,7 @@ static void *updater(void *argument)
 				 
 		sem_wait(&semaphore);
 		player1.update(); //track->update();
-		player2.update(); //track->update();
+		//player2.update(); //track->update();
 		sem_post(&semaphore);
 		
 	}
@@ -106,7 +107,7 @@ void musa_init()
 	player2.fretting = new Fretting();
 	player2.track = new Track(&theMusic,&musicTime,smgr,driver,10, 20);
 	
-	double tolerance = 1;
+	double tolerance = 0.2;
 	
 	player1.track->fretting = player1.fretting;
 	player2.track->fretting = player2.fretting;
@@ -121,8 +122,10 @@ void musa_init()
 	player1.fretting->receiver = &receiver;
 	player2.fretting->receiver = &receiver;
 	
-//	player1.fretting->receiver->semaphore = player1.fretting->semaphore;
-//	player2.fretting->receiver->semaphore = player2.fretting->semaphore;
+	//cout << "vai passar" << endl;
+	//receiver.semaphore = &receiverSemaphore;
+	//cout << "passou" << endl;
+	//sem_init(&receiverSemaphore, 0, 1);
 	
 	EKEY_CODE eventos1[NUMBER_OF_FRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
 	EKEY_CODE eventos2[NUMBER_OF_FRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
