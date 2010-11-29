@@ -19,6 +19,8 @@ class Player
 		//Instrument		instrument;
 		Fretting		*fretting;
 		Track			*track;
+		int				gotAnEvent;
+		
 		
 		int				HP;
 		int				maxHP;
