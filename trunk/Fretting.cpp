@@ -177,13 +177,13 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
 				usefulButton = i;
 	}
 	else
-		return 1;
+		return -1;
 
 	if (usefulButton == -1)
 	{
 //		cout << "useless button: " << event->KeyInput.Key
 //			 << "  1: " << _events[0] << " 2: " << _events[1] << " 3: " << _events[2] << " 4: " << _events[3] << " 5: " << _events[4] << endl;
-		return 1;
+		return 0;
 	}
 	
 	//cout << "1" << endl;

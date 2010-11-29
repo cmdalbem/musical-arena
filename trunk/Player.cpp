@@ -33,6 +33,7 @@ void Player::initialize()
 	XP = 0;
 	level = 1;
 	gold = 0;
+	gotAnEvent = 0;
 }
 
 void Player::update()
@@ -50,6 +51,7 @@ void Player::update()
 	{
 		// Creates an vector with only the interesting stones on the screen
 		Stone* firstStones[NUMBER_OF_FRETS];
+		gotAnEvent = 1;
 		for(unsigned int i=0; i<NUMBER_OF_FRETS; i++)
 			if(track->stones[i].size() > 0)
 				firstStones[i] = track->stones[i].front();
@@ -57,14 +59,15 @@ void Player::update()
 				firstStones[i] = NULL;
 		if (fretting->receiver->enabled)
 		{
-			while(anEvent = (fretting->receiver->getEvent()))
+			while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
 			{
 				//sem_wait(fretting->receiver->semaphore);
-				fretting->verifyEvents( anEvent, firstStones );
+				gotAnEvent = fretting->verifyEvents( anEvent, firstStones );
 				
-				// removes the first event of the events vector (so we can deal with the others =D)
-				fretting->receiver->removeEvent();
-				//sem_post(fretting->receiver->semaphore);
+				if (gotAnEvent != 0)
+					// removes the first event of the events vector (so we can deal with the others =D)
+					fretting->receiver->removeEvent();
+					
 			}
 			//cout << "vai verificar eventos" << endl;
 			//cout << "terminou de verificar eventos" << endl;

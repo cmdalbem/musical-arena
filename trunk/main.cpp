@@ -74,7 +74,9 @@ static void *updater(void *argument)
 				 
 		sem_wait(&semaphore);
 		player1.update(); //track->update();
-		//player2.update(); //track->update();
+		player2.update(); //track->update();
+		if ((player1.gotAnEvent == 0) && (player2.gotAnEvent == 0))
+			receiver.removeEvent();
 		sem_post(&semaphore);
 		
 	}
