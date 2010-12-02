@@ -6,7 +6,11 @@ using namespace irr;
 
 #include "Fretting.h"
 #include "Player.h"
+
+#include "CBoltSceneNode.h"
+#include "CBloodEffect.h"
 #include "VxHealthSceneNode.h"
+#include "CShieldManager.h"
 
 #define SHOW_DELAY 1 //seconds
 
@@ -22,12 +26,14 @@ class Screen
 		~Screen();
 		
 		Player*						players[NPLAYERS];
+		CShieldManager 				*shieldmanager;
 
 		void						update();
 		
 		void						showGood( int i );
 		void						showBad( int i );
 		void						showNeutral( int i );
+		void 						attack( int p1, int p2 );
 		void						setFps( int fps );
 	
 	private:
@@ -38,6 +44,7 @@ class Screen
 		ISceneNode					*glow[NPLAYERS][NFRETS];
 		IGUIStaticText 				*fpsText, *hpTxt[NPLAYERS];
 		VxHealthSceneNode			*healthBars[NPLAYERS];
+		IMeshSceneNode 				*shields[NPLAYERS];
 		
 		void						drawKeys();
 		void 						drawHittingState();

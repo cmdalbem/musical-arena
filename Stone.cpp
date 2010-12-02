@@ -52,7 +52,7 @@ void Stone::initialize( IrrlichtDevice *device, musicEvent event, SColor stoneCo
 
 Stone::~Stone()
 {
-	//node->remove();
+	node->remove();
 }
 
 double Stone::howLongActive( double musicTime )

@@ -16,6 +16,9 @@ void CBloodShader::OnSetConstants(irr::video::IMaterialRendererServices* service
           mWorldViewProjection *= driver->getTransform(ETS_VIEW);
           mWorldViewProjection *= driver->getTransform(ETS_WORLD);
   services->setVertexShaderConstant("mWorldViewProj", mWorldViewProjection.pointer(), 16);
+  
+  int bloodAdress=0;
+	services->setPixelShaderConstant("blood", (float*)&bloodAdress, 1); 
 
   f32 time = (f32)timer->getTime();
   services->setPixelShaderConstant("time", &time, 1);
@@ -36,7 +39,7 @@ const irr::s32 CBloodShader::createMaterial(irr::IrrlichtDevice *pDevice)
     (
       matBloodShader, "vertexMain", EVST_VS_2_0,
       matBloodShader, "pixelMain",  EPST_PS_2_0,
-      this, EMT_TRANSPARENT_ALPHA_CHANNEL
+      this, EMT_LIGHTMAP
     );
   }
 

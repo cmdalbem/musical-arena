@@ -1,7 +1,7 @@
 #ifndef CLASS_WATER_SHADER_H_INC
 #define CLASS_WATER_SHADER_H_INC
 
-#include <Irrlicht.h>
+#include <irrlicht.h>
 
 class CWaterShader : public irr::video::IShaderConstantSetCallBack
 {

@@ -1,10 +1,6 @@
 #include "Screen.h"
 #include "utils.h"
 
-#include "CBoltSceneNode.h"
-#include "CBloodEffect.h"
-#include "VxHealthSceneNode.h"
-
 using namespace irr::core;
 using namespace irr::video;
 
@@ -22,13 +18,29 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	ITexture *badTex = driver->getTexture("img/bad.png");
 	ITexture *neutralTex = driver->getTexture("img/neutral.png");
 	
-	
 	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::rect<int>(0, 0, 100, 10));
+	
+	scene::IMeshManipulator *manipulator = smgr->getMeshManipulator();
+	shieldmanager = new CShieldManager(smgr,device->getTimer()); 
 	
 	for(int i=0;i<NPLAYERS;i++) {
 		int xpos = SCREENX/4 + i*SCREENX/2;
 		
 		hpTxt[i] = device->getGUIEnvironment()->addStaticText(L"", rect<int>(xpos, 50, xpos+50, 100));
+		
+		// shields
+		shields[i] = smgr->addSphereSceneNode(5,10,smgr->getRootSceneNode());
+		shields[i]->setPosition(vector3df(30*i-15,-80,0));
+		//shields[i]->setPosition(vector3df(players[i]->track->posx,-TRACK_SIZE_Y/2,players[i]->track->posz));
+		shields[i]->setMaterialFlag(video::EMF_BACK_FACE_CULLING,false);
+		manipulator->scaleTCoords(shields[i]->getMesh(),core::vector2df(6,6),1);
+		shields[i]->setMaterialTexture(0,driver->getTexture("img/shield_tex.png"));
+		shields[i]->setMaterialTexture(1,driver->getTexture("img/gradient.png"));
+		shields[i]->setVisible(false);
+		ITriangleSelector *selector = smgr->createTriangleSelector(shields[i]->getMesh(),shields[i]);
+		shields[i]->setTriangleSelector(selector);
+		selector->drop();
+		shieldmanager->addShield(shields[i]);
 		
 		// smileys
 		good[i] = device->getGUIEnvironment()->addImage( goodTex, core::position2d<s32>(xpos,500), true );
@@ -46,7 +58,6 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 							video::SColor(255,0,200,0), // bar color
 							video::SColor(255,220,0,0), // background color
 							video::SColor(128,255,255,255) ); // border color
-		healthBars[i]->setProgress( 100 );		
 		
 		// keys hitting glows
 		for(int k=0;k<NFRETS;k++) {
@@ -69,17 +80,16 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 			((IBillboardSceneNode*)glow[i][k])->setColor(fretColors[k]);
 			glow[i][k]->setMaterialTexture(0, glowTex);
 			//glow[i][k]->addAnimator( smgr->createTextureAnimator(textures, 70) );
-		}										
+		}							
 	}		
 	
 	
 	
 	//// Special Effects Playground below! :D
-	//
+	//    
 	
 	// blood effect
-	//new CBloodEffect(device->getSceneManager(), EGL_MEDIUM, vector3df(0, 0, 0), vector3df(0, 0.0f, -1.0f));
-	
+	new CBloodEffect(device->getSceneManager(), EGL_MEDIUM, vector3df(0, 0, 0), vector3df(0, 0.0f, -1.0f));
 	
 	// spell casting effect	
 	IVolumeLightSceneNode * n = smgr->addVolumeLightSceneNode(0, -1,
@@ -99,7 +109,6 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	textures.push_back( driver->getTexture("img/portal2.bmp") );
 	textures.push_back( driver->getTexture("img/portal1.bmp") );
 	n->addAnimator( smgr->createTextureAnimator(textures, 150) );
-	
 	
 	// lighning bolt
 	/*irr::scene::CBoltSceneNode* beam = new CBoltSceneNode(smgr->getRootSceneNode(), smgr, -1,"img/laser3.bmp"); 
@@ -153,7 +162,7 @@ void Screen::drawKeys()
 			// draw the colored bar for this fret
 			driver->draw3DLine( vector3df(players[i]->track->getStoneXPos(k) -1, -TRACK_SIZE_Y, players[i]->track->posz - zdisplace),
 								vector3df(players[i]->track->getStoneXPos(k) +1, -TRACK_SIZE_Y, players[i]->track->posz - zdisplace),
-								color );			
+								color );
 		}
 	}
 }	
@@ -162,7 +171,7 @@ void Screen::update()
 // Here we check everything about the game that has to be drawn.
 // It's all about HUDs and special effects!
 {
-	//new CBloodEffect(device->getSceneManager(), EGL_MEDIUM, vector3df(0, 0, 0), vector3df(0, 0.0f, -1.0f));
+	//new CBloodEffect(device->getSceneManager(), EGL_MILD, vector3df(0, 0, 0), vector3df(0, 0.0f, -1.0f));
 	
 	for(int i=0; i<NPLAYERS; i++) {
 		healthBars[i]->setProgress( players[i]->HP*100/players[i]->maxHP );
@@ -190,7 +199,8 @@ void Screen::drawHittingState()
 }
 
 void Screen::showGood( int i )
-{
+{	
+	attack(0,1);
 	good[i]->setVisible(true);
 	bad[i]->setVisible(false);
 	neutral[i]->setVisible(false);
@@ -198,6 +208,7 @@ void Screen::showGood( int i )
 
 void Screen::showBad( int i )
 {	
+	attack(1,0);
 	bad[i]->setVisible(true);	
 	good[i]->setVisible(false);
 	neutral[i]->setVisible(false);
@@ -215,4 +226,13 @@ void Screen::setFps( int fps )
 	core::stringw tmp(L"fps: ");
 	tmp += fps;
 	fpsText->setText(tmp.c_str());
+}
+
+void Screen::attack( int p1, int p2 )
+{
+	vector3df source = vector3df(shields[p1]->getPosition());
+	vector3df dest = vector3df(shields[p2]->getPosition());
+	
+	vector3df collision = shieldmanager->addImpact(shields[p2], line3df(source,dest), 1000);
+	//driver->draw3DLine(source,collision);
 }

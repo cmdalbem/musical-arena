@@ -257,6 +257,7 @@ int main(int argc, char *argv[])
 
 		sem_wait(&semaphore);
 		smgr->drawAll();
+		screen->shieldmanager->drawAll();
 		player1.track->draw();
 		player2.track->draw();
 		sem_post(&semaphore);

@@ -1,7 +1,7 @@
 #ifndef CLASS_WATER_SURFACE_H_INC
 #define CLASS_WATER_SURFACE_H_INC
 
-#include <Irrlicht.h>
+#include <irrlicht.h>
 
 #define CLIP_PLANE_OFFSET 2.0f
 
