@@ -7,19 +7,18 @@
 
 #include "Decoder.h"
 
-using irr::scene::ISceneManager;
-using irr::scene::ISceneNode;
-using irr::video::IVideoDriver;
-using irr::video::IVideoDriver;
-using irr::video::SColor;
+using namespace irr::core;
+using namespace irr::video;
+using namespace irr::scene;
+using namespace irr;
 
 class Stone
 {
 	public:
-		Stone( IVideoDriver *driver, ISceneManager* sceneManager, musicEvent event, SColor stoneColor, double speed, float x, float y, float z );
-		Stone( IVideoDriver *driver, ISceneManager* sceneManager, musicEvent event, SColor stoneColor, double speed, ISceneNode* sceneNode, float x, float y, float z );
+		Stone( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double speed, float x, float y, float z );
+		Stone( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double speed, ISceneNode* sceneNode, float x, float y, float z );
 
-		void initialize( IVideoDriver *driver, ISceneManager* sceneManager, musicEvent event, SColor stoneColor, double _speed, float x, float y, float z );
+		void initialize( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double _speed, float x, float y, float z );
 
 		~Stone();
 
@@ -30,8 +29,10 @@ class Stone
 		bool					pressed;
 		bool					countedChord;
 		
-		irr::scene::ISceneNode 	*node;
-		irr::core::vector3df	trailEndPos;
+		ISceneNode 				*node;
+		ISceneNode 				*glow;
+		
+		vector3df				trailEndPos;
 				
 		double 					howLongActive( double musicTime );
 		void 					update( double musicTime );	
@@ -40,5 +41,7 @@ class Stone
 	private:
 		irr::core::vector3df 	initPos;
 		double					speed;
+		
+		void					drawTrail( IVideoDriver* driver );
 		
 };

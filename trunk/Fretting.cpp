@@ -38,7 +38,7 @@ Fretting::Fretting( vector<Skill> *skills )
 
 void Fretting::initialize()
 {
-	for (int i = 0; i < NUMBER_OF_FRETS; i++) {
+	for (int i = 0; i < NFRETS; i++) {
 		_trackPressed[i] = false;
 		_rightPressed[i] = false;
 		
@@ -51,9 +51,9 @@ void Fretting::initialize()
 	//sem_init(&semaphore, 0, 1);
 }
 
-Fretting::Fretting(EKEY_CODE events[NUMBER_OF_FRETS])
+Fretting::Fretting(EKEY_CODE events[NFRETS])
 {
-	setEvents( &(events[NUMBER_OF_FRETS]) );
+	setEvents( &(events[NFRETS]) );
 	initialize();
 }
 
@@ -62,9 +62,9 @@ Fretting::~Fretting()
 {	}
 
 ////////////////////////////////////////////////////////////// GETTERS & SETTERS
-void Fretting::setEvents(EKEY_CODE events[NUMBER_OF_FRETS])
+void Fretting::setEvents(EKEY_CODE events[NFRETS])
 {
-	for (int i = 0; i < NUMBER_OF_FRETS; i++)
+	for (int i = 0; i < NFRETS; i++)
 		_events.push_back(events[i]);
 }
 
@@ -83,23 +83,27 @@ Skill* Fretting::findSkill( buttonType buttonPressed )
 		}
 		
 	if(found) {
-		if( (*actualSkillNode).skill!=NULL ) { // node is a leaf!
+		if( (*actualSkillNode).skill!=NULL ) {
+			// node is a leaf!
 			tree<skillTreeNode>::sibling_iterator temp = actualSkillNode;
 			actualSkillNode = skillsTree.begin();
 			
 			cout << "Player casted " << (*temp).skill->name << "!!!" << endl;
 			
-			return (*temp).skill; // return Skill found
+			// return Skill found
+			return (*temp).skill;
 		}
 		else {
 			// will continue searching in next call
 		}
 	}
 	else
-		actualSkillNode = skillsTree.begin(); // didn't find any keys here, going back to the root!
+		// didn't find any keys here, going back to the root node!
+		actualSkillNode = skillsTree.begin();
 	
 	
-	return NULL; // didn't find any Skills.
+	// didn't find any Skills.
+	return NULL;
 }
 
 void Fretting::generateSkillsTree( vector<Skill> *skills )
@@ -154,14 +158,14 @@ int	Fretting::getFrettingState()
 
 void Fretting::lostNote()
 {
-	for (int i = 0; i < NUMBER_OF_FRETS; i++)
+	for (int i = 0; i < NFRETS; i++)
 		if (_hitting[i] == 0)
 			_hitting[i] = 0;
 		else
 			_hitting[i] = 2;
 }
 
-int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
+int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
 {
 	double 	noteCreationTime;
 	double 	noteDestructionTime;
@@ -172,7 +176,7 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
 	if (event != NULL)
 	{	
 		// verifies which button has been pressed -- TEM ALGUMA COISA ERRADA AQUI!!!
-		for (int i = 0; i < NUMBER_OF_FRETS; i++)
+		for (int i = 0; i < NFRETS; i++)
 			if (event->KeyInput.Key == _events[i])
 				usefulButton = i;
 	}
@@ -187,7 +191,7 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
 	}
 	
 	//cout << "1" << endl;
-	//findSkill( (buttonType)usefulButton );
+	findSkill( (buttonType)usefulButton );
 	
 	if( stones[usefulButton]!= NULL ) {
 		noteCreationTime = stones[usefulButton]->event.time;
@@ -260,10 +264,10 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
 	{
 		int 	notesOnChord = 0;
 		int 	hitNotes;
-		double	stonesCreationTime[NUMBER_OF_FRETS];
+		double	stonesCreationTime[NFRETS];
 		bool	wrongNote = false;
 		
-		for (int i = 0; i < NUMBER_OF_FRETS; i++)
+		for (int i = 0; i < NFRETS; i++)
 			if (_hitting[i] == 2 || _hitting[i] == -1)
 				wrongNote = true;
 
@@ -273,19 +277,19 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
 			
 			// CHORD DETECTION
 			// takes the times of the chord
-			for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			for (int i = 0; i < NFRETS; i++)
 				if (stones[i] != NULL)
 					stonesCreationTime[i] = stones[i]->event.time;
 				else
 					stonesCreationTime[i] = INT_MAX;
 			// finds out how many notes we have on the chord
-			for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			for (int i = 0; i < NFRETS; i++)
 				if (stonesCreationTime[usefulButton] == stonesCreationTime[i])
 					notesOnChord++;
 
 			hitNotes = notesOnChord;
 			// counts how many pressed notes we have on the chord
-			for (int i = 0; i < NUMBER_OF_FRETS; i++)
+			for (int i = 0; i < NFRETS; i++)
 				if (_hitting[i] == 1)
 					hitNotes--;
 
@@ -328,7 +332,7 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NUMBER_OF_FRETS])
 void Fretting::printHitFret()
 {
 	// printing-time!
-	for(int i=0; i<NUMBER_OF_FRETS; i++)
+	for(int i=0; i<NFRETS; i++)
 		cout<<_hitting[i]<<"\t";
 	cout << "  =[" << frettingState << "]" << "  vector_size: "  << receiver->events.size() << endl;
 		// << "  1: " << _events[0] << " 2: " << _events[1] << " 3: " << _events[2] << " 4: " << _events[3] << " 5: " << _events[4] << endl;

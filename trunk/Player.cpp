@@ -50,9 +50,9 @@ void Player::update()
 	else
 	{
 		// Creates an vector with only the interesting stones on the screen
-		Stone* firstStones[NUMBER_OF_FRETS];
+		Stone* firstStones[NFRETS];
 		gotAnEvent = 1;
-		for(unsigned int i=0; i<NUMBER_OF_FRETS; i++)
+		for(unsigned int i=0; i<NFRETS; i++)
 			if(track->stones[i].size() > 0)
 				firstStones[i] = track->stones[i].front();
 			else

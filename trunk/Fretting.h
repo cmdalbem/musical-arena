@@ -36,30 +36,31 @@ class Fretting
 	public:
 		Fretting();
 		Fretting( vector<Skill> *skills );
-		Fretting(EKEY_CODE events[NUMBER_OF_FRETS]);
+		Fretting(EKEY_CODE events[NFRETS]);
 		~Fretting();
 		
-		double 	*musicTime;
-		double 	tolerance;
-		int 	frettingState;
-		int		keyState[5];
-		int		_hitting[NUMBER_OF_FRETS];
-		EventReceiver *receiver;
+		double 			*musicTime;
+		double 			tolerance;
+		int 			frettingState;
+		int				keyState[5];
+		int				_hitting[NFRETS];
+		EventReceiver 	*receiver;
 
-		void 	setEvents(EKEY_CODE events[NUMBER_OF_FRETS]);
-		int 	verifyEvents(SEvent *event, Stone* firstStones[NUMBER_OF_FRETS]);
-		int		getFrettingState();
-		void	printHitFret();
-		void	lostNote();
+		void 			setEvents(EKEY_CODE events[NFRETS]);
+		int 			verifyEvents(SEvent *event, Stone* firstStones[NFRETS]);
+		int				getFrettingState();
+		void			printHitFret();
+		void			lostNote();
 
 	private:
+	
 		skillSearchTree 			skillsTree;
 		skillSearchTree::iterator 	actualSkillNode;
 		
 		vector<EKEY_CODE> 	_events;
 		
-		bool 				_trackPressed[NUMBER_OF_FRETS];		// tell us the state of the tracks on the last
-		bool 				_rightPressed[NUMBER_OF_FRETS];		// frame		
+		bool 				_trackPressed[NFRETS];		// tell us the state of the tracks on the last
+		bool 				_rightPressed[NFRETS];		// frame		
 		
 		Skill* 				findSkill( buttonType buttonPressed );
 		void				generateSkillsTree( vector<Skill> *skills );

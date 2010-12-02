@@ -51,13 +51,13 @@ class Skill
 		~Skill();
 		
 		vector<buttonType>	keysSequence;
-		string				name;
+		std::string			name;
 		double				cooldown;
 		
 		skillType			type;
 		effectType			effect;
 	
-		string				getType();
+		std::string			getType();
 		
 	private:
 		

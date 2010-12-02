@@ -28,6 +28,8 @@ scene::ISceneManager 		*smgr=NULL;
 scene::ICameraSceneNode 	*camera=NULL;
 EventReceiver 				receiver;
 
+ITexture					*glowTex;
+
 // MusA globals
 Decoder 					decoder;
 Screen						*screen;
@@ -73,8 +75,8 @@ static void *updater(void *argument)
 		}
 				 
 		sem_wait(&semaphore);
-		player1.update(); //track->update();
-		player2.update(); //track->update();
+		player1.update();
+		player2.update();
 		if ((player1.gotAnEvent == 0) && (player2.gotAnEvent == 0))
 			receiver.removeEvent();
 		sem_post(&semaphore);
@@ -105,9 +107,9 @@ void musa_init()
 	skills.push_back(s3);
 	
 	player1.fretting = new Fretting(&skills);	
-	player1.track = new Track(&theMusic,&musicTime,smgr,driver,23, -20);
+	player1.track = new Track(&theMusic,&musicTime,device,23, -20);
 	player2.fretting = new Fretting();
-	player2.track = new Track(&theMusic,&musicTime,smgr,driver,10, 20);
+	player2.track = new Track(&theMusic,&musicTime,device,10, 20);
 	
 	double tolerance = 0.2;
 	
@@ -129,15 +131,13 @@ void musa_init()
 	//cout << "passou" << endl;
 	//sem_init(&receiverSemaphore, 0, 1);
 	
-	EKEY_CODE eventos1[NUMBER_OF_FRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
-	EKEY_CODE eventos2[NUMBER_OF_FRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
+	EKEY_CODE eventos1[NFRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
+	EKEY_CODE eventos2[NFRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
 	player1.fretting->setEvents(eventos1);
 	player2.fretting->setEvents(eventos2);
 	cout << "vetor de eventos" << endl;
 	
-	screen = new Screen(device);
-	screen->players[0] = &player1;
-	screen->players[1] = &player2;
+	screen = new Screen(device,&player1,&player2);
 	
 	theMusic = decoder.decodeMidi(defaultFile, EXPERT);
 	//decoder.printMusic(theMusic);
@@ -149,7 +149,7 @@ void musa_init()
 void initializeIrrlicht()
 {
 // Graphical engine initializing
-	device = createDevice( video::EDT_OPENGL, core::dimension2d<u32>(800,600), 32,
+	device = createDevice( video::EDT_OPENGL, core::dimension2d<u32>(SCREENX,SCREENY), 32,
 							false, //fullscreen?
 							false, //used stencil buffer?
 							false, //use vsync?
@@ -181,7 +181,6 @@ void initializeIrrlicht()
 				vector3df(0, -150, 1), // Look to
 				1);						  // Camera ID				
 				*/
-
 }
 
 static void *debugger (void *argument)
@@ -191,7 +190,8 @@ static void *debugger (void *argument)
 		player1.fretting->printHitFret();
 		usleep(80000);
 	}
-	
+
+	return 0;
 }
 
 int main(int argc, char *argv[])
@@ -237,13 +237,12 @@ int main(int argc, char *argv[])
 	pthread_create(&thread[1], NULL, debugger, (void *) arg);
 	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
 	
-	
+
 	/*
 	 * start playing the music
 	 */
 	FMOD::Channel *channel;
-	// plays the ogg (TREMENDOUSLY REDUCES FPS D=) (seriously?) (actually, not)
-	//result = system->playSound(FMOD_CHANNEL_FREE, song, false, &channel);
+	result = system->playSound(FMOD_CHANNEL_FREE, song, false, &channel);
 	if(guitarFile.size()>0)
 		system->playSound(FMOD_CHANNEL_FREE, guitar, false, &channel);
 	ERRCHECK(result);	
@@ -257,14 +256,14 @@ int main(int argc, char *argv[])
 		driver->beginScene(true, true, video::SColor(255,113,113,133));
 
 		sem_wait(&semaphore);
-		smgr->drawAll(); // draw the stones sceneNodes
+		smgr->drawAll();
 		player1.track->draw();
 		player2.track->draw();
 		sem_post(&semaphore);
 		
 		screen->update();
 		
-		device->getGUIEnvironment()->drawAll(); // draw the gui environment
+		device->getGUIEnvironment()->drawAll();
 
 		driver->endScene();
 
@@ -272,9 +271,7 @@ int main(int argc, char *argv[])
 		int fps = driver->getFPS();
 		static int lastFPS = 0;
 		if (lastFPS != fps) {
-			core::stringw tmp(L"fps: ");
-			tmp += fps;
-			screen->fpsText->setText(tmp.c_str());
+			screen->setFps(fps);
 			lastFPS = fps;
 		}
 	}
@@ -318,7 +315,7 @@ static void* drawer(void *argument)
  
 		// propagates the lines of the matrix	
 		for(int lin=SCREEN_Y-1; lin>0; lin--)
-			for(int col=0; col<NUMBER_OF_FRETS; col++)
+			for(int col=0; col<NFRETS; col++)
 				theScreen[lin][col] = theScreen[lin-1][col];
 
 		while( ((musicTime + STONE_DELAY) > theMusicCopied[0].time) && !endOfMusic) {
@@ -343,7 +340,7 @@ static void* drawer(void *argument)
 		//prints the matrix	
 		for(int lin=0; lin<SCREEN_Y; lin++)
 		{
-			for(int col=0; col<NUMBER_OF_FRETS; col++)
+			for(int col=0; col<NFRETS; col++)
 			{
 				switch(theScreen[lin][col])
 				{
