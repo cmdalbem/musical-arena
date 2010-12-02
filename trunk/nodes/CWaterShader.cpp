@@ -43,6 +43,11 @@ void CWaterShader::OnSetConstants(irr::video::IMaterialRendererServices* service
 
   f32 seaLevel = currentMaterial->MaterialTypeParam2;
   services->setPixelShaderConstant ("seaLevel", &seaLevel, 1);
+  
+  int ReflectionTextureAdress=0, NormalMapAdress=1, DUDVMapAdress=2;
+  services->setPixelShaderConstant ("ReflectionTexture", (float*)&ReflectionTextureAdress, 1);
+  services->setPixelShaderConstant ("NormalMap", (float*)&NormalMapAdress, 1);
+  services->setPixelShaderConstant ("DUDVMap", (float*)&DUDVMapAdress, 1);
 }
 
 const irr::s32 CWaterShader::createMaterial(irr::IrrlichtDevice *pDevice)
@@ -59,11 +64,12 @@ const irr::s32 CWaterShader::createMaterial(irr::IrrlichtDevice *pDevice)
   {
     matWater = gpu->addHighLevelShaderMaterialFromFiles
     (
-      matWaterShader, "vertexMain", EVST_VS_2_a,
-      matWaterShader, "pixelMain",  EPST_PS_2_a,
+      "water_vs.glsl", "vertexMain", EVST_VS_2_a,
+      "water_ps.glsl", "pixelMain",  EPST_PS_2_a,
       this, EMT_TRANSPARENT_ALPHA_CHANNEL
     );
   }
 
   return matWater;
 }
+

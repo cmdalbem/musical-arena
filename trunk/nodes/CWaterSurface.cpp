@@ -26,8 +26,8 @@ CWaterSurface::CWaterSurface(irr::scene::ISceneManager* smgr, irr::core::vector3
   waterNode = SceneManager->addMeshSceneNode(waterMesh, this);
   waterNode->getMaterial(0).MaterialType = (E_MATERIAL_TYPE)matWater;
   waterNode->getMaterial(0).setTexture(0, refRTT);
-  waterNode->getMaterial(0).setTexture(1, driver->getTexture("waterNormal.png"));
-  waterNode->getMaterial(0).setTexture(2, driver->getTexture("waterDUDV.png"));
+  waterNode->getMaterial(0).setTexture(1, driver->getTexture("img/waterNormal.png"));
+  waterNode->getMaterial(0).setTexture(2, driver->getTexture("img/waterDUDV.png"));
 
   setPosition(position);
   setSinWaveEnabled(SinWave);
