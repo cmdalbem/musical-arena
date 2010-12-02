@@ -14,12 +14,18 @@
 
 #define ONE_BILLION 1000000000
 #define ONE_MILLION 1000000
-#define NUMBER_OF_FRETS 5
+#define NFRETS 5
 #define NPLAYERS 2
 #define DEBUG 0
 #define MAX_STONE_PER_TRACK 30
 #define STONE_RADIUS 1
 #define NECK_TEXTURE_PROPORTION 2 //how many texture copies fit on a neck
+
+#define SCREENX 800 
+#define SCREENY 600
+
+#define TRACK_SIZE_X 30
+#define TRACK_SIZE_Y 70
 
 #ifdef HAVE_FMOD
   #include <fmod.hpp>

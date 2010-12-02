@@ -7,6 +7,7 @@ class TrackSceneNode : public scene::ISceneNode
 		core::aabbox3d<f32> Box;
         video::S3DVertex 	Vertices[4];
         video::SMaterial 	Material;
+        
 	        		
 		public:
 			TrackSceneNode(scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, int sizex, int sizey, int posx, int posy, int posz);

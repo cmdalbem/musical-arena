@@ -12,17 +12,19 @@ using irr::core::rect;
 using irr::core::position2d;
 using irr::core::dimension2d;
 
-Track::Track( music* _theMusic, double *_musicTime, ISceneManager* _sceneManager, IVideoDriver* _driver, double _speed, double _posx, double _posy, double _posz )
+Track::Track( music* _theMusic, double *_musicTime, IrrlichtDevice *_device, double _speed, double _posx, double _posy, double _posz )
 {
 	theMusic = _theMusic;
 	musicTime = _musicTime;
 	
 	speed = _speed;
-	sceneManager = _sceneManager;
-	driver = _driver;
 	
-	sizex = 30;
-	sizey = 70;
+	device = _device;
+	sceneManager = device->getSceneManager();
+	driver = device->getVideoDriver();
+	
+	sizex = TRACK_SIZE_X;
+	sizey = TRACK_SIZE_Y;
 	posx = _posx;
 	posy = _posy;
 	posz = _posz;
@@ -31,7 +33,9 @@ Track::Track( music* _theMusic, double *_musicTime, ISceneManager* _sceneManager
 	
 	spawnDelay = sizey/speed;
 	
-	node = new TrackSceneNode(NULL, _sceneManager, 0, sizex, sizey, posx, posy, posz);
+	glowTex = driver->getTexture("img/glow.png");
+	
+	node = new TrackSceneNode(sceneManager->getRootSceneNode(), sceneManager, 0, sizex, sizey, posx, posy, posz);
 }
 
 Track::~Track() {}
@@ -44,7 +48,7 @@ void Track::update()
 	chordCreationTime	= INT_MAX;
 
 	// warns the player that there's a non-pressed chord to deal with
-	for (int i = 0; i < NUMBER_OF_FRETS; i++)
+	for (int i = 0; i < NFRETS; i++)
 		if (stones[i].size() > 0)
 		{
 			if( ((*musicTime > stones[i][0]->event.time + tolerance) || *musicTime > stones[i][0]->destroyTime) &&
@@ -60,7 +64,7 @@ void Track::update()
 	// chord detection (done because, even some notes of the chord were pressed, we have to make them cause damage if
 	// the entire chords wasn't)
 	if (nonPressedChord)
-		for (unsigned int i = 0; i < NUMBER_OF_FRETS; i++)
+		for (unsigned int i = 0; i < NFRETS; i++)
 			if ((stones[i].size() > 0) &&
 				(stones[i][0]->event.time == chordCreationTime ) )
 			{
@@ -72,7 +76,7 @@ void Track::update()
 
 
 	// update stones 
-	for (int i = 0; i < NUMBER_OF_FRETS; i++) {
+	for (int i = 0; i < NFRETS; i++) {
 	
 		// calculates stones positions
 		for(unsigned int j=0; j < stones[i].size(); j++) 
@@ -97,39 +101,29 @@ void Track::update()
 
 double Track::getStoneXPos( int track )
 {
-	return (track+0.5)*(sizex/NUMBER_OF_FRETS) - sizex/2 + this->posx;
+	return (track+0.5)*(sizex/NFRETS) - sizex/2 + this->posx;
 }
 
 void Track::insertStone( musicEvent event )
 {
-	Stone *newStone = new Stone(driver, this->sceneManager, event, fretColors[event.button], speed, getStoneXPos(event.button), this->posy, posz-0.1); //x,y,z
+	Stone *newStone = new Stone(device, event, fretColors[event.button], glowTex, speed, getStoneXPos(event.button), this->posy, posz-0.1); //x,y,z
 	
 	stones[event.button].push_back(newStone);	
 }
 
-void Track::drawTrack()
+void Track::drawFretLines()
 {
-	driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4()); //global positioning
-	node->render();
-
-	// draw a line for fret
+	// draw a line for every fret
 	SMaterial m;
 	m.Lighting = 0;
 	m.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 	driver->setMaterial(m);
 	driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4());  //global positioning
-	for(int i=0; i<NUMBER_OF_FRETS; i++)
+	for(int i=0; i<NFRETS; i++)
 		driver->draw3DLine( vector3df(getStoneXPos(i),posy,posz),
 							vector3df(getStoneXPos(i),posy-sizey,posz),
 							SColor(170,0,0,0) );
 }	
-
-void Track::drawStones()
-{
-	for (int i = 0; i < NUMBER_OF_FRETS; i++)
-		for(unsigned int k = 0; k < stones[i].size(); k++)
-			stones[i][k]->draw(driver);
-}
 
 void Track::drawQuarters()
 {
@@ -158,12 +152,19 @@ void Track::drawQuarters()
 		driver->draw3DLine( vector3df(posx-sizex/2, posy - ( trackTime - (i+1)*spqn + offset )*speed,posz-1),
 							vector3df(posx+sizex/2, posy - ( trackTime - (i+1)*spqn + offset )*speed,posz-1),
 							SColor(70,255,255,255) );
-} 
+}
+
+void Track::drawStones()
+{
+	for (int i = 0; i < NFRETS; i++)
+		for(unsigned int k = 0; k < stones[i].size(); k++)
+			stones[i][k]->draw(driver);
+}
 
 void Track::draw()
 {
 	drawStones();
-	drawTrack();
+	drawFretLines();
 	//drawQuarters();
 }
 

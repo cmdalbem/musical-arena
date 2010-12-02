@@ -21,7 +21,6 @@ class Player
 		Track			*track;
 		int				gotAnEvent;
 		
-		
 		int				HP;
 		int				maxHP;
 		int				stamina;
@@ -31,5 +30,5 @@ class Player
 		int				level;
 		vector<Skill>	skills;
 		
-		int			gold;
+		int				gold;
 };

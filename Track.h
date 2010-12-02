@@ -26,14 +26,12 @@ static const irr::video::SColor fretColors[] = { SColor(255,0,255,0),
 class Track
 {
 	public:
-		Track( music* theMusic, double *musicTime, ISceneManager* sceneManager, IVideoDriver* driver, double speed, double posx=0, double posy=0, double posz=2 );
+		Track( music* theMusic, double *musicTime, IrrlichtDevice *device, double speed, double posx=0, double posy=0, double posz=2 );
 		~Track();
 	
-		vector<Stone*> 	stones[NUMBER_OF_FRETS];
+		vector<Stone*> 	stones[NFRETS];
 		scene::ISceneNode *node;
 				
-		ISceneManager	*sceneManager;
-		IVideoDriver	*driver;
 		int				sizex, sizey;
 		int				posx, posy, posz;
 		double 			spawnDelay;
@@ -56,10 +54,14 @@ class Track
 		double 			getStoneXPos( int track );
 	
 	private:
+		IrrlichtDevice 	*device;
+		ISceneManager	*sceneManager;
+		IVideoDriver	*driver;
+		ITexture		*glowTex;
 		
 		void			insertStone( musicEvent event );
-		void			drawTrack();
-		void			drawStones();
+		void			drawFretLines();
 		void			drawQuarters();
+		void			drawStones();
 
 };
