@@ -18,11 +18,13 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	//    
 	
 	// fireball
-	for(int i=0; i<4; i++)
+	for(int i=0; i<10; i++)
 		createFireball(1,true);
 	
 	// blood effect
-	new CBloodEffect(device->getSceneManager(), EGL_INSANE, players[1]->track->getCentroid(), vector3df(0, 0.0f, -1.0f), 1000);
+	//   EGL_MILD, EGL_MEDIUM, EGL_BRUTAL, EGL_INSANE
+	new CBloodEffect(device->getSceneManager(), EGL_BLOOD, EGL_INSANE, players[1]->track->getCentroid(), vector3df(0, 0.0f, -1.0f), 5000);
+	new CBloodEffect(device->getSceneManager(), EGL_WATER, EGL_MILD, players[0]->track->getCentroid(), vector3df(0, 0.0f, -1.0f), 5000);
 	
 	// spell casting effect	
 	//showSpellEffect(0);
