@@ -56,6 +56,7 @@ class Screen
 		void						drawKeys();
 		void 						drawHittingState();
 		void 						drawHP();
+		void						initializeEffects();
 		
 
 };

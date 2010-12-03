@@ -163,8 +163,18 @@ void initializeIrrlicht()
 	//light->setLightType(video::ELT_DIRECTIONAL);
 	//light->setRotation(vector3df(-90,0,0));
 	
-	//smgr->addSkyDomeSceneNode( driver->getTexture("img/rockwall.jpg") );
+	ISceneNode *sky = smgr->addSkyDomeSceneNode( driver->getTexture("img/stars.tga"));
+	sky->setMaterialFlag(video::EMF_TEXTURE_WRAP, video::ETC_REPEAT);
+	sky->getMaterial(0).getTextureMatrix(0).setTextureScale(5,5);
 	
+    // lol quake scenario
+    /*device->getFileSystem()->addZipFileArchive("map-20kdm2.pk3");
+    IAnimatedMesh* mesh = smgr->getMesh("20kdm2.bsp");
+    ISceneNode* node = smgr->addOctreeSceneNode(mesh->getMesh(0), 0, -1, 1024);
+    node->setRotation( vector3df(280,0,0) );
+    node->setPosition( vector3df(-1900,-500,400) );*/
+
+    
     // like the real game camera
     camera = smgr->addCameraSceneNode (
 				0,					  // Camera parent
@@ -172,14 +182,8 @@ void initializeIrrlicht()
 				vector3df(0, -30, 20), // Look to
 				1);						  // Camera ID
 	
-	/*
-	// debug camera
-	camera = smgr->addCameraSceneNode (
-				0,					  // Camera parent
-				vector3df(0, -150, -300), // Look from
-				vector3df(0, -150, 1), // Look to
-				1);						  // Camera ID				
-				*/
+	// a FPS camera for debugging
+	//camera = smgr->addCameraSceneNodeFPS(); device->getCursorControl()->setVisible(false);
 }
 
 static void *debugger (void *argument)
