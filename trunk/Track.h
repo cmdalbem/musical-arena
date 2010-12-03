@@ -52,6 +52,7 @@ class Track
 		void 	 	 	processEvent( musicEvent event );
 		
 		double 			getStoneXPos( int track );
+		vector3df		getCentroid();
 	
 	private:
 		IrrlichtDevice 	*device;

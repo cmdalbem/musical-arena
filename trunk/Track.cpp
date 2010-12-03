@@ -104,6 +104,12 @@ double Track::getStoneXPos( int track )
 	return (track+0.5)*(sizex/NFRETS) - sizex/2 + this->posx;
 }
 
+vector3df Track::getCentroid()
+{
+	return vector3df(posx,-TRACK_SIZE_Y/2,posz);
+	
+}
+
 void Track::insertStone( musicEvent event )
 {
 	Stone *newStone = new Stone(device, event, fretColors[event.button], glowTex, speed, getStoneXPos(event.button), this->posy, posz-0.1); //x,y,z
