@@ -19,6 +19,7 @@ using irr::core::vector3df;
 #include "Player.h"
 #include "Screen.h"
 #include "Skill.h"
+#include "SkillBank.h"
 
 
 // Irrlicht globals
@@ -35,6 +36,7 @@ Decoder 					decoder;
 Screen						*screen;
 vector<musicEvent> 			theMusic;
 Player 						player1, player2;
+SkillBank					skillBank;
 
 bool 						endOfMusic =false; // indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
 double 						musicTime =0;
@@ -88,25 +90,10 @@ static void *updater(void *argument)
 
 
 void musa_init()
-{
-	static vector<Skill> skills;
-	Skill s1, s2, s3;
-	s1.keysSequence.push_back(B1);
-	s1.keysSequence.push_back(B4);
-	s1.name = "Meduse";
-	s2.keysSequence.push_back(B1);
-	s2.keysSequence.push_back(B2);
-	s2.keysSequence.push_back(B4);
-	s2.name = "Stick with it";
-	s3.keysSequence.push_back(B1);
-	s3.keysSequence.push_back(B2);
-	s3.keysSequence.push_back(B3);
-	s3.name = "People = Shit";
-	skills.push_back(s1);
-	skills.push_back(s2);
-	skills.push_back(s3);
-	
-	player1.fretting = new Fretting(&skills);	
+{	
+	player1.addSkill( skillBank.skills[FIREBALL] );
+
+	player1.fretting = new Fretting( &player1.skills );
 	player1.track = new Track(&theMusic,&musicTime,device,23, -20);
 	player2.fretting = new Fretting();
 	player2.track = new Track(&theMusic,&musicTime,device,10, 20);
@@ -163,9 +150,9 @@ void initializeIrrlicht()
 	//light->setLightType(video::ELT_DIRECTIONAL);
 	//light->setRotation(vector3df(-90,0,0));
 	
-	ISceneNode *sky = smgr->addSkyDomeSceneNode( driver->getTexture("img/stars.tga"));
+	/*ISceneNode *sky = smgr->addSkyDomeSceneNode( driver->getTexture("img/stars.tga"));
 	sky->setMaterialFlag(video::EMF_TEXTURE_WRAP, video::ETC_REPEAT);
-	sky->getMaterial(0).getTextureMatrix(0).setTextureScale(5,5);
+	sky->getMaterial(0).getTextureMatrix(0).setTextureScale(5,5);*/
 	
     // lol quake scenario
     /*device->getFileSystem()->addZipFileArchive("map-20kdm2.pk3");

@@ -10,6 +10,11 @@ enum skillType
 	ATTACK, DEFENSE //etc...
 };
 
+enum statusType
+{
+	NORMAL, POISON, FIRE, BARRIER
+};
+
 enum effectType
 {
 	//* SKILLS DE DEFESA*
@@ -22,7 +27,7 @@ enum effectType
 	//* SKILLS DE ATAQUE*
 	DAMAGE,					// decrease enemy's HP
 	DEFENSE_DOWN,			// decrease enemy's defense
-	POISON,					// enemy takes damage per time
+	POISONOUS,				// enemy takes damage per time
 	STAMINA_DOWN,			// decrease enemy's stamina
 	FEEDBACK,				// decrease enemy's stamina and decrease this amount of his HP
 	MIRROR,					// casts the last casted speel by the enemy on him	
@@ -48,11 +53,13 @@ class Skill
 {
 	public:
 		Skill();
+		Skill( std::string name, double cooldown, double cost, skillType type, effectType effect );
 		~Skill();
 		
 		vector<buttonType>	keysSequence;
 		std::string			name;
 		double				cooldown;
+		double 				cost;
 		
 		skillType			type;
 		effectType			effect;

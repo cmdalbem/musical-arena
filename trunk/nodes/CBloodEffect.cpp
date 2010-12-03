@@ -9,6 +9,7 @@ using namespace scene;
 using namespace io;
 
 CBloodEffect::CBloodEffect( irr::scene::ISceneManager* smgr,
+				E_ELEMENT				   element,
 				E_GORE_LEVEL               goreLevel,
 				irr::core::vector3df       sprayFrom,
 				irr::core::vector3df       sprayDirection,
@@ -87,7 +88,6 @@ CBloodEffect::CBloodEffect( irr::scene::ISceneManager* smgr,
 		IParticleSystemSceneNode* ps1;
 		ps1 = SceneManager->addParticleSystemSceneNode(false, parent, -1, sprayFrom);
 		ps1->setMaterialType((E_MATERIAL_TYPE) matBlood );
-		ps1->setMaterialTexture(0, driver->getTexture("img/blood1.png"));
 		ps1->setMaterialFlag(EMF_LIGHTING,      false);
 		ps1->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 		ps1->setMaterialFlag(EMF_ZBUFFER,       true);
@@ -95,7 +95,6 @@ CBloodEffect::CBloodEffect( irr::scene::ISceneManager* smgr,
 		IParticleSystemSceneNode* ps2;
 		ps2 = SceneManager->addParticleSystemSceneNode(false, parent, -1, sprayFrom);
 		ps2->setMaterialType((E_MATERIAL_TYPE) matBlood );
-		ps2->setMaterialTexture(0, driver->getTexture("img/blood2.png"));
 		ps2->setMaterialFlag(EMF_LIGHTING,      false);
 		ps2->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 		ps2->setMaterialFlag(EMF_ZBUFFER,       true);
@@ -103,7 +102,6 @@ CBloodEffect::CBloodEffect( irr::scene::ISceneManager* smgr,
 		IParticleSystemSceneNode* ps3;
 		ps3 = SceneManager->addParticleSystemSceneNode(false, parent, -1, sprayFrom);
 		ps3->setMaterialType((E_MATERIAL_TYPE) matBlood );
-		ps3->setMaterialTexture(0, driver->getTexture("img/blood3.png"));
 		ps3->setMaterialFlag(EMF_LIGHTING,      false);
 		ps3->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 		ps3->setMaterialFlag(EMF_ZBUFFER,       true);
@@ -111,7 +109,6 @@ CBloodEffect::CBloodEffect( irr::scene::ISceneManager* smgr,
 		IParticleSystemSceneNode* ps4;
 		ps4 = SceneManager->addParticleSystemSceneNode(false, parent, -1, sprayFrom);
 		ps4->setMaterialType((E_MATERIAL_TYPE) matBlood );
-		ps4->setMaterialTexture(0, driver->getTexture("img/blood4.png"));
 		ps4->setMaterialFlag(EMF_LIGHTING,      false);
 		ps4->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 		ps4->setMaterialFlag(EMF_ZBUFFER,       true);
@@ -119,11 +116,25 @@ CBloodEffect::CBloodEffect( irr::scene::ISceneManager* smgr,
 		IParticleSystemSceneNode* ps5;
 		ps5 = SceneManager->addParticleSystemSceneNode(false, parent, -1, sprayFrom);
 		ps5->setMaterialType((E_MATERIAL_TYPE) matBlood );
-		ps5->setMaterialTexture(0, driver->getTexture("img/blood5.png"));
 		ps5->setMaterialFlag(EMF_LIGHTING,      false);
 		ps5->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 		ps5->setMaterialFlag(EMF_ZBUFFER,       true);
-
+		
+		if( element == EGL_BLOOD ) {
+			ps1->setMaterialTexture(0, driver->getTexture("img/blood1.png"));
+			ps2->setMaterialTexture(0, driver->getTexture("img/blood2.png"));
+			ps3->setMaterialTexture(0, driver->getTexture("img/blood3.png"));
+			ps4->setMaterialTexture(0, driver->getTexture("img/blood4.png"));
+			ps5->setMaterialTexture(0, driver->getTexture("img/blood5.png"));
+		}
+		else if( element == EGL_WATER ) {
+			ps1->setMaterialTexture(0, driver->getTexture("img/water1.png"));
+			ps2->setMaterialTexture(0, driver->getTexture("img/water2.png"));
+			ps3->setMaterialTexture(0, driver->getTexture("img/water3.png"));
+			ps4->setMaterialTexture(0, driver->getTexture("img/water4.png"));
+			ps5->setMaterialTexture(0, driver->getTexture("img/water5.png"));
+		}
+		
 		particleSystems.push_back(ps1);
 		particleSystems.push_back(ps2);
 		particleSystems.push_back(ps3);

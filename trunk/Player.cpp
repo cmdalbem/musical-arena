@@ -16,8 +16,6 @@ Player::~Player()
 {	}
 
 ////////////////////////////////////////////////////////////// GETTERS & SETTERS
-Fretting* Player::getFretting()
-{	return fretting;	}
 
 
 ////////////////////////////////////////////////////////////////// OTHER METHODS
@@ -34,6 +32,8 @@ void Player::initialize()
 	level = 1;
 	gold = 0;
 	gotAnEvent = 0;
+	
+	status = NORMAL;
 }
 
 void Player::update()
@@ -75,4 +75,8 @@ void Player::update()
 	}
 }
 
+void Player::addSkill( Skill s )
+{
+	skills.push_back(s);	
+}
 

@@ -13,6 +13,12 @@ enum E_GORE_LEVEL
   EGL_INSANE
 };
 
+enum E_ELEMENT
+{
+  EGL_BLOOD,
+  EGL_WATER
+};
+
 class CBloodEffect : public irr::scene::ISceneNode
 {
 private :
@@ -23,6 +29,7 @@ private :
 public :
 
   CBloodEffect( irr::scene::ISceneManager* smgr,
+                E_ELEMENT				   element		   = EGL_BLOOD,
                 E_GORE_LEVEL               goreLevel       = EGL_MEDIUM,
                 irr::core::vector3df       sprayFrom       = irr::core::vector3df(0, 0, 0),
                 irr::core::vector3df       sprayDirection  = irr::core::vector3df(0, 0, 1.0f),

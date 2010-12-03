@@ -11,11 +11,6 @@ class Player
 		Player();
 		~Player();
 		
-		Fretting*		getFretting();
-		void			update();
-		
-		void 			initialize();
-		
 		//Instrument		instrument;
 		Fretting		*fretting;
 		Track			*track;
@@ -25,10 +20,15 @@ class Player
 		int				maxHP;
 		int				stamina;
 		int				maxStamina;
-		
 		int				XP;
 		int				level;
+		int				gold;
+		statusType		status;
 		vector<Skill>	skills;
 		
-		int				gold;
+		void			update();
+		void			addSkill( Skill s );
+		
+	private:
+		void 			initialize();
 };
