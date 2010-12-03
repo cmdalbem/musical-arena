@@ -14,7 +14,6 @@ private :
   irr::video::IVideoDriver *driver;
   irr::ITimer              *timer;
 
-  const irr::io::path      matBloodShader;
   irr::s32                 matBlood;
 
   void OnSetConstants(irr::video::IMaterialRendererServices* services, irr::s32 userData);

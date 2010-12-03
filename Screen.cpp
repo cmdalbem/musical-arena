@@ -8,7 +8,7 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 {
 	this->device = _device;
 	this->driver = device->getVideoDriver();
-	ISceneManager* smgr = device->getSceneManager();
+	this->smgr = device->getSceneManager();
 	
 	players[0] = player1;
 	players[1] = player2;
@@ -17,6 +17,17 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	ITexture *goodTex = driver->getTexture("img/good.png");
 	ITexture *badTex = driver->getTexture("img/bad.png");
 	ITexture *neutralTex = driver->getTexture("img/neutral.png");
+	ITexture *shielTex0 = driver->getTexture("img/blanktex.png");
+	ITexture *shielTex1 = driver->getTexture("img/gradient_two.png");
+	CBloodShader::instance().createMaterial(device);
+	spellEffectTex.push_back( driver->getTexture("img/portal7.bmp") );
+	spellEffectTex.push_back( driver->getTexture("img/portal6.bmp") );
+	spellEffectTex.push_back( driver->getTexture("img/portal5.bmp") );
+	spellEffectTex.push_back( driver->getTexture("img/portal4.bmp") );
+	spellEffectTex.push_back( driver->getTexture("img/portal3.bmp") );
+	spellEffectTex.push_back( driver->getTexture("img/portal2.bmp") );
+	spellEffectTex.push_back( driver->getTexture("img/portal1.bmp") );
+	this->fireballTex = driver->getTexture("img/fireball.bmp");
 	
 	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::rect<int>(0, 0, 100, 10));
 	
@@ -29,17 +40,20 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 		hpTxt[i] = device->getGUIEnvironment()->addStaticText(L"", rect<int>(xpos, 50, xpos+50, 100));
 		
 		// shields
-		shields[i] = smgr->addSphereSceneNode(5,10,smgr->getRootSceneNode());
-		shields[i]->setPosition(vector3df(30*i-15,-80,0));
-		//shields[i]->setPosition(vector3df(players[i]->track->posx,-TRACK_SIZE_Y/2,players[i]->track->posz));
+		//spherical shield
+		shields[i] = smgr->addSphereSceneNode(1,50,smgr->getRootSceneNode());
+		shields[i]->setScale( vector3df(TRACK_SIZE_X*0.7,TRACK_SIZE_Y*0.7,20) );
+		
+		//rectangular shield
+		//shields[i] = smgr->addCubeSceneNode(1,smgr->getRootSceneNode());
+		//shields[i]->setScale( vector3df(TRACK_SIZE_X,TRACK_SIZE_Y,7) );
+		
+		shields[i]->setPosition(vector3df(players[i]->track->posx,-TRACK_SIZE_Y/2,players[i]->track->posz));
 		shields[i]->setMaterialFlag(video::EMF_BACK_FACE_CULLING,false);
+		shields[i]->setMaterialTexture(0,shielTex0);
+		shields[i]->setMaterialTexture(1,shielTex1);
 		manipulator->scaleTCoords(shields[i]->getMesh(),core::vector2df(6,6),1);
-		shields[i]->setMaterialTexture(0,driver->getTexture("img/shield_tex.png"));
-		shields[i]->setMaterialTexture(1,driver->getTexture("img/gradient.png"));
 		shields[i]->setVisible(false);
-		ITriangleSelector *selector = smgr->createTriangleSelector(shields[i]->getMesh(),shields[i]);
-		shields[i]->setTriangleSelector(selector);
-		selector->drop();
 		shieldmanager->addShield(shields[i]);
 		
 		// smileys
@@ -88,27 +102,15 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	//// Special Effects Playground below! :D
 	//    
 	
+	// fireball
+	for(int i=0; i<4; i++)
+		createFireball(1,true);
+	
 	// blood effect
-	new CBloodEffect(device->getSceneManager(), EGL_MEDIUM, vector3df(0, 0, 0), vector3df(0, 0.0f, -1.0f));
+	new CBloodEffect(device->getSceneManager(), EGL_INSANE, players[1]->track->getCentroid(), vector3df(0, 0.0f, -1.0f), 1000);
 	
 	// spell casting effect	
-	IVolumeLightSceneNode * n = smgr->addVolumeLightSceneNode(0, -1,
-                                128,                              // Subdivisions on U axis
-                                128,                              // Subdivisions on V axis
-                                SColor(0, 50, 50, 80), 		// foot color
-                                SColor(0, 0, 0, 0),      		// tail color
-                                vector3df(players[0]->track->posx,-TRACK_SIZE_Y/2,players[0]->track->posz),
-                                vector3df(-90,0,0),
-                                vector3df(60,30,60));
-	array<video::ITexture*> textures;
-	textures.push_back( driver->getTexture("img/portal7.bmp") );
-	textures.push_back( driver->getTexture("img/portal6.bmp") );
-	textures.push_back( driver->getTexture("img/portal5.bmp") );
-	textures.push_back( driver->getTexture("img/portal4.bmp") );
-	textures.push_back( driver->getTexture("img/portal3.bmp") );
-	textures.push_back( driver->getTexture("img/portal2.bmp") );
-	textures.push_back( driver->getTexture("img/portal1.bmp") );
-	n->addAnimator( smgr->createTextureAnimator(textures, 150) );
+	//showSpellEffect(0);
 	
 	// lighning bolt
 	/*irr::scene::CBoltSceneNode* beam = new CBoltSceneNode(smgr->getRootSceneNode(), smgr, -1,"img/laser3.bmp"); 
@@ -171,8 +173,13 @@ void Screen::update()
 // Here we check everything about the game that has to be drawn.
 // It's all about HUDs and special effects!
 {
-	//new CBloodEffect(device->getSceneManager(), EGL_MILD, vector3df(0, 0, 0), vector3df(0, 0.0f, -1.0f));
-	
+	drawHP();
+	drawKeys();
+	drawHittingState();
+}
+
+void Screen::drawHP()
+{
 	for(int i=0; i<NPLAYERS; i++) {
 		healthBars[i]->setProgress( players[i]->HP*100/players[i]->maxHP );
 			
@@ -180,9 +187,6 @@ void Screen::update()
 		sprintf(str,"%i/%i",players[i]->HP,players[i]->maxHP);
 		hpTxt[i]->setText( stringw(str).c_str() );
 	}
-	
-	drawKeys();
-	drawHittingState();
 }
 
 void Screen::drawHittingState()
@@ -191,16 +195,23 @@ void Screen::drawHittingState()
 	{
 		switch( players[i]->fretting->frettingState )
 		{
-			case  1: showGood(i);    break;
-			case -1: showBad(i); 	 break;
-			case  0: showNeutral(i); break;
+			case  1:
+				showGood(i);
+				showShield(i);  //temp! just for demonstration
+				break;
+			case -1:
+				showBad(i);
+				showShield(!i); //temp! just for demonstration
+				break;
+			case 0:
+				showNeutral(i);
+				break;
 		}
 	}
 }
 
 void Screen::showGood( int i )
 {	
-	attack(0,1);
 	good[i]->setVisible(true);
 	bad[i]->setVisible(false);
 	neutral[i]->setVisible(false);
@@ -208,7 +219,7 @@ void Screen::showGood( int i )
 
 void Screen::showBad( int i )
 {	
-	attack(1,0);
+	
 	bad[i]->setVisible(true);	
 	good[i]->setVisible(false);
 	neutral[i]->setVisible(false);
@@ -228,11 +239,72 @@ void Screen::setFps( int fps )
 	fpsText->setText(tmp.c_str());
 }
 
-void Screen::attack( int p1, int p2 )
+void Screen::showSpellEffect( int i )
 {
-	vector3df source = vector3df(shields[p1]->getPosition());
-	vector3df dest = vector3df(shields[p2]->getPosition());
+	IVolumeLightSceneNode * spellEffect = smgr->addVolumeLightSceneNode(0, -1,
+                                128,                              // Subdivisions on U axis
+                                128,                              // Subdivisions on V axis
+                                SColor(0, 50, 50, 80), 		// foot color
+                                SColor(0, 0, 0, 0),      		// tail color
+                                players[i]->track->getCentroid(),
+                                vector3df(-90,0,0),
+                                vector3df(60,30,60));
+	spellEffect->addAnimator( smgr->createTextureAnimator(spellEffectTex, 125) );
+	spellEffect->addAnimator( smgr->createDeleteAnimator(5000) );
+}
+
+void Screen::showShield( int player )
+{
+	shieldmanager->addLocalImpact(shields[player], vector3df(0,0,-1), 20);
+}
+
+void Screen::createFireball( int attacked, bool randomize )
+{
+	float speed = 1;
+	vector3df p1,p2,p3;
 	
-	vector3df collision = shieldmanager->addImpact(shields[p2], line3df(source,dest), 1000);
-	//driver->draw3DLine(source,collision);
+	scene::ISceneNode* ball = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), core::dimension2d<f32>(10, 10));
+	ball->setMaterialFlag(video::EMF_LIGHTING, false);
+	ball->setMaterialTexture(0, fireballTex);
+	ball->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+	
+	// set points of movement
+	p1 = players[!attacked]->track->getCentroid();
+	p3 = players[attacked]->track->getCentroid();
+	if(randomize)
+		p3 = vector3df(p3.X + rand()%TRACK_SIZE_X - TRACK_SIZE_X/2, p3.Y + rand()%TRACK_SIZE_Y - TRACK_SIZE_Y/2, p3.Z);
+	p2 = vector3df( (p1.X+p3.X)/2, (p1.Y+p3.Y)/2, -10 );
+	
+	// fill points on vector
+	array<vector3df> points;
+	points.push_back( p1 );
+	points.push_back( p2 );
+	points.push_back( p3 );
+	
+	// set animators
+	ball->addAnimator( smgr->createFollowSplineAnimator( device->getTimer()->getTime(),points,speed,1,false) );
+	ball->addAnimator( smgr->createDeleteAnimator((2/speed)*1000 + 800) );
+	
+	// add particle system
+	scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false, ball);
+
+	// create and set emitter
+	scene::IParticleEmitter* em = ps->createBoxEmitter(
+			core::aabbox3d<f32>(-3,0,-3,3,1,3),
+			core::vector3df(0.0f,0.03f,0.0f),
+			80,100,
+			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
+			400,1100);
+	em->setMinStartSize(core::dimension2d<f32>(5.0f, 7.0f));
+	em->setMaxStartSize(core::dimension2d<f32>(5.0f, 7.0f));
+	ps->setEmitter(em);
+	em->drop();
+
+	ps->addAffector( ps->createFadeOutParticleAffector() );
+
+	// adjust some material settings
+	ps->setMaterialFlag(video::EMF_LIGHTING, false);
+	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialTexture(0, fireballTex);
+	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
 }

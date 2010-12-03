@@ -135,7 +135,6 @@ void musa_init()
 	EKEY_CODE eventos2[NFRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
 	player1.fretting->setEvents(eventos1);
 	player2.fretting->setEvents(eventos2);
-	cout << "vetor de eventos" << endl;
 	
 	screen = new Screen(device,&player1,&player2);
 	

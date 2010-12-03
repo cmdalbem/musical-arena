@@ -1,12 +1,15 @@
 #include "CBloodShader.h"
 
+#include <iostream>
+using namespace std;
+
 using namespace irr;
 using namespace video;
 using namespace core;
 using namespace scene;
 using namespace io;
 
-CBloodShader::CBloodShader() : driver(0), timer(0), matBloodShader("BloodShader.hlsl"), matBlood(-1)
+CBloodShader::CBloodShader() : driver(0), timer(0), matBlood(-1)
 {
 }
 
@@ -37,9 +40,9 @@ const irr::s32 CBloodShader::createMaterial(irr::IrrlichtDevice *pDevice)
   {
     matBlood = gpu->addHighLevelShaderMaterialFromFiles
     (
-      matBloodShader, "vertexMain", EVST_VS_2_0,
-      matBloodShader, "pixelMain",  EPST_PS_2_0,
-      this, EMT_LIGHTMAP
+      "nodes/shaders/blood_vs.glsl", "main", EVST_VS_2_0,
+      "nodes/shaders/blood_ps.glsl", "main",  EPST_PS_2_0,
+      this, EMT_TRANSPARENT_ALPHA_CHANNEL
     );
   }
 

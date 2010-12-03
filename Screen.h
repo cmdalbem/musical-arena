@@ -9,6 +9,7 @@ using namespace irr;
 
 #include "CBoltSceneNode.h"
 #include "CBloodEffect.h"
+#include "CBloodShader.h"
 #include "VxHealthSceneNode.h"
 #include "CShieldManager.h"
 
@@ -30,24 +31,31 @@ class Screen
 
 		void						update();
 		
+		void						setFps( int fps );
 		void						showGood( int i );
 		void						showBad( int i );
 		void						showNeutral( int i );
-		void 						attack( int p1, int p2 );
-		void						setFps( int fps );
+		void 						showShield( int player );
+		void 						showSpellEffect( int player );
+		void						createFireball( int attackedPlayer, bool randomize=false );
 	
 	private:
 		IrrlichtDevice				*device;
 		IVideoDriver				*driver;
+		ISceneManager				*smgr;
 		
 		IGUIImage 					*good[NPLAYERS], *bad[NPLAYERS], *neutral[NPLAYERS];
 		ISceneNode					*glow[NPLAYERS][NFRETS];
 		IGUIStaticText 				*fpsText, *hpTxt[NPLAYERS];
 		VxHealthSceneNode			*healthBars[NPLAYERS];
 		IMeshSceneNode 				*shields[NPLAYERS];
+		IVolumeLightSceneNode 		*spellEffect;
+		ITexture 					*fireballTex;
+		array<video::ITexture*> 	spellEffectTex;
 		
 		void						drawKeys();
 		void 						drawHittingState();
+		void 						drawHP();
 		
 
 };
