@@ -3,14 +3,15 @@
 
 #pragma once
 
+#include "tree.hh"
+#include <irrlicht.h>
+using namespace irr;
+
 #include "Stone.h"
 #include "utils.h"
-#include "tree.hh"
 #include "Skill.h"
 #include "EventReceiver.h"
 
-#include <irrlicht.h>
-using namespace irr;
 
 #define ERROR 0
 enum {
@@ -27,7 +28,6 @@ class skillTreeNode {
 		Skill *skill;
 				
 };
-
 typedef tree<skillTreeNode> skillSearchTree;
 
 										

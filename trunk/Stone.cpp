@@ -15,14 +15,6 @@ Stone::Stone( IrrlichtDevice *device, musicEvent event, SColor stoneColor, IText
 	initialize( device, event, stoneColor, glowTex, _speed, x, y, z );
 }
 
-Stone::Stone( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double _speed, ISceneNode* sceneNode,
-		float x, float y, float z)
-{
-	initialize( device, event, stoneColor, glowTex, _speed, x, y, z );
-
-	sceneNode->addChild( node );
-}
-
 void Stone::initialize( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double _speed, float x, float y, float z )
 {
 	ISceneManager *sceneManager = device->getSceneManager();
@@ -31,6 +23,7 @@ void Stone::initialize( IrrlichtDevice *device, musicEvent event, SColor stoneCo
 	this->destroyTime = INT_MAX;
 	this->initPos = vector3df(x,y,z);
 	this->trailEndPos = initPos;
+	this->displace = vector3df(0,0,0);
 	
 	this->pressed = false;
 	this->countedChord = false;
@@ -55,6 +48,11 @@ Stone::~Stone()
 	node->remove();
 }
 
+vector3df Stone::getPosition()
+{
+	return node->getPosition();
+}
+
 double Stone::howLongActive( double musicTime )
 {
 	return musicTime - event.time;
@@ -65,12 +63,15 @@ void Stone::update( double musicTime )
 	// utilizes MRU equation to determine position of the stone
 	vector3df pos = node->getPosition();
 	pos.Y = initPos.Y - howLongActive(musicTime)*speed;
-	node->setPosition(pos);
+	node->setPosition(pos+displace);
 	
+	trailEndPos.X = pos.X + displace.X;
 	trailEndPos.Y = pos.Y + (destroyTime - event.time)*speed;
 	// culling of the ending of the line
 	if( trailEndPos.Y > initPos.Y )
 		trailEndPos.Y = initPos.Y;
+		
+	displace = vector3df(0,0,0);
 }
 
 void Stone::drawTrail( IVideoDriver* driver )

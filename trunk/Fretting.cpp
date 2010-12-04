@@ -88,8 +88,6 @@ Skill* Fretting::findSkill( buttonType buttonPressed )
 			tree<skillTreeNode>::sibling_iterator temp = actualSkillNode;
 			actualSkillNode = skillsTree.begin();
 			
-			cout << "Player casted " << (*temp).skill->name << "!!!" << endl;
-			
 			// return Skill found
 			return (*temp).skill;
 		}
@@ -191,7 +189,10 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
 	}
 	
 	//cout << "1" << endl;
-	findSkill( (buttonType)usefulButton );
+	Skill *cast =0;
+	cast = findSkill( (buttonType)usefulButton );
+	if(cast)
+		cout << "Player casted " << cast->name << "!!!" << endl;
 	
 	if( stones[usefulButton]!= NULL ) {
 		noteCreationTime = stones[usefulButton]->event.time;

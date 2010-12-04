@@ -26,19 +26,15 @@ class EffectFactory
 		
 		CShieldManager 				*shieldmanager;
 	
+		void						queueEffect( int msecondsAhead, visualEffectFunction functionToCall, int targetPlayer );
+		void						handleEffectsQueue();
 		
-		void 						createShield( int targetPlayer );
-		void 						createSpellEffect( int targetPlayer );
-		void						createFireRain( int targetPlayer );
-		void						createFireball( int targetPlayer, bool randomizeTarget );
-		void						createFireball( array<vector3df> path );
-		void						createAreaEffect(int player, ITexture *tex );
-		void						createElectricEffect( int targetPlayer );
-		void						createWaterBeam( int targetPlayer );
 		void						splitBlood( int targetPlayer );
+		
 	
 	private:
 		vector<Player*>				players;
+		set<effectEvent>			effectsQueue;
 		
 		IrrlichtDevice				*device;
 		IVideoDriver				*driver;
@@ -46,9 +42,21 @@ class EffectFactory
 		
 		CBloodEffect				*blood;
 		IMeshSceneNode 				*shields[NPLAYERS];
-		IVolumeLightSceneNode 		*spellEffect;
 		ITexture 					*fireballTex, *glowTex, *laserTex, *bloodTex[5], *waterTex[5];
-		array<video::ITexture*> 	spellEffectTex;
+		array<ITexture*> 			feedbackTex, explosion;
 		
+		
+		void 						createShield( int targetPlayer );
+		void 						createFeedback( int targetPlayer );
+		void						createExplosion( vector3df pos );
+		void						createFireRain( int targetPlayer );
+		void						createFireball( int targetPlayer, bool randomizeTarget );
+		void						createFireball( array<vector3df> path );
+		void						createAreaEffect(int player, ITexture *tex, int timeMs=700 );
+		void						createBolt( int targetPlayer );
+		void						createEletrifiedGround( int targetPlayer );
+		void						createWaterBeam( int targetPlayer );
+		void						createDrunkEffect ( int targetPlayer, int times );
+		void						createParticlesExplosion( vector3df pos, ITexture *tex );
 
 };

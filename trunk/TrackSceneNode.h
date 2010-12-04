@@ -14,6 +14,7 @@ class TrackSceneNode : public scene::ISceneNode
 
 			virtual void 						OnRegisterSceneNode();
 			virtual void 						render();
+			double 								getStoneXPos( int track );
 			virtual const core::aabbox3d<f32>& 	getBoundingBox() const;
 			virtual u32 						getMaterialCount() const;
 			virtual video::SMaterial& 			getMaterial(u32 i);

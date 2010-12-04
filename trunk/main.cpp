@@ -21,6 +21,9 @@ using irr::core::vector3df;
 #include "Skill.h"
 #include "SkillBank.h"
 
+#include "PostProcessBloom.h"
+#include "PostProcessRadialBlur.h"
+#include "PostProcessInvert.h"
 
 // Irrlicht globals
 IrrlichtDevice 				*device=0;
@@ -30,6 +33,12 @@ IGUIEnvironment				*env=0;
 scene::ICameraSceneNode 	*camera=0;
 scene::ICameraSceneNode		*aboxCam=0;
 EventReceiver 				receiver;
+
+// Post process effects
+IPostProcessBloom 			*bloom;
+IPostProcessRadialBlur 		*blur;
+IPostProcessInvert 			*invert;
+bool						bloomEffect=false, blurEffect=false, invertEffect=false;
 
 ITexture					*glowTex;
 
@@ -47,9 +56,17 @@ double 						musicTime =0;
 sem_t semaphore;
 sem_t receiverSemaphore;
 
-std::string defaultFile = "music/example.mid",
-			songFile = "music/example.ogg",
-			guitarFile = "";
+struct musicLibEntry
+{
+	std::string notes, song, guitar;
+	difficultyType difficulty;
+};
+
+const musicLibEntry musicLib[] = { {"music/api/notes.mid", "music/api/song.ogg", "music/api/guitar.ogg", HARD},
+							       {"music/example/notes.mid", "music/example/song.ogg", "", EXPERT},
+							       {"music/roundabout/notes.mid", "music/roundabout/song.ogg", "", HARD}
+							  };
+const musicLibEntry selectedSong = musicLib[0];
 
 
 
@@ -94,6 +111,7 @@ static void *updater(void *argument)
 void musa_init()
 {	
 	player1.addSkill( skillBank.skills[FIREBALL] );
+	player1.addSkill( skillBank.skills[CURE] );
 
 	player1.fretting = new Fretting( &player1.skills );
 	player1.track = new Track(&theMusic,&musicTime,device,23, -20);
@@ -127,14 +145,31 @@ void musa_init()
 	
 	screen = new Screen(device,&player1,&player2);
 	
-	theMusic = decoder.decodeMidi(defaultFile, EXPERT);
+	theMusic = decoder.decodeMidi(selectedSong.notes, selectedSong.difficulty);
 	//decoder.printMusic(theMusic);
 					
 	// start getting signals, baby
 	receiver.enabled = true;	
 }
 
-
+void initializePostProcessEffects()
+{
+	// "dream" effect
+	bloom = new IPostProcessBloom(smgr->getRootSceneNode(), smgr, 666);
+    PPE_Bloom_Setup setup;
+    setup.sampleDist=0.008;
+    setup.strength=3;
+    setup.multiplier=1;
+    bloom->initiate(1024,512,setup,smgr);
+    
+    // radial blur ("speed" effect)
+    blur = new IPostProcessRadialBlur(smgr->getRootSceneNode(), smgr, 666);
+    blur->initiate(1024,512,0.8,2,smgr);	
+    
+    // invert colors
+    invert = new IPostProcessInvert(smgr->getRootSceneNode(), smgr, 666);
+    invert->initiate(1024,512,smgr);
+}
 
 void initializeIrrlicht()
 {
@@ -183,7 +218,9 @@ void initializeIrrlicht()
 	//camera = smgr->addCameraSceneNodeFPS(); device->getCursorControl()->setVisible(false);
 	
 	aboxCam = smgr->addCameraSceneNode(0, core::vector3df(0,0,-120), core::vector3df(0,0,1));
+	smgr->setActiveCamera(camera);
 
+	initializePostProcessEffects();
 }
 
 static void *debugger (void *argument)
@@ -195,6 +232,16 @@ static void *debugger (void *argument)
 	}
 
 	return 0;
+}
+
+void renderPostProcessEffects()
+{
+	if(bloomEffect)
+		bloom->render();
+	if(blurEffect)
+		blur->render();
+	if(invertEffect)
+		invert->render();
 }
 
 int main(int argc, char *argv[])
@@ -210,10 +257,10 @@ int main(int argc, char *argv[])
 	ERRCHECK(result)
 
 	// load the sound files
-	FMOD::Sound *song, *guitar;
-	result = system->createSound(songFile.c_str(), FMOD_DEFAULT, 0, &song);
-	if(guitarFile.size()>0)
-		system->createSound(guitarFile.c_str(), FMOD_DEFAULT, 0, &guitar);
+	FMOD::Sound *song, *guitar=0;
+	result = system->createSound(selectedSong.song.c_str(), FMOD_DEFAULT, 0, &song);
+	if(selectedSong.guitar.size()>0)
+		system->createSound(selectedSong.guitar.c_str(), FMOD_DEFAULT, 0, &guitar);
 	ERRCHECK(result);
 	
 	
@@ -246,31 +293,45 @@ int main(int argc, char *argv[])
 	 */
 	FMOD::Channel *channel;
 	result = system->playSound(FMOD_CHANNEL_FREE, song, false, &channel);
-	if(guitarFile.size()>0)
+	if(guitar)
 		system->playSound(FMOD_CHANNEL_FREE, guitar, false, &channel);
 	ERRCHECK(result);	
 	
-	
+	SColor bgColor = SColor(255,113,113,133);
 	/* 
 	 * Irrlicht Main Loop
 	 */	
 	while(device->run()) {
 		
-		driver->beginScene(true, true, SColor(255,113,113,133));
+		driver->beginScene(true, true, bgColor);
 
-		sem_wait(&semaphore);
-			// set render target texture
-		driver->setRenderTarget(screen->bloodSplit[0], true, true, 0);
+		//sem_wait(&semaphore);
+		
+		/*driver->setRenderTarget(screen->bloodSplit[0], true, true, 0);
 			smgr->setActiveCamera(aboxCam);
 			screen->abox->setVisible(true);
 			screen->abox->render();
 			screen->abox->setVisible(false);
-			smgr->setActiveCamera(camera);
-		driver->setRenderTarget(0, true, true, SColor(255,113,113,133));
-		smgr->drawAll();
-		player1.track->draw();
-		player2.track->draw();
-		sem_post(&semaphore);
+			smgr->setActiveCamera(camera);*/
+		if(bloomEffect) {
+			driver->setRenderTarget(bloom->rt0, true, true, bgColor); 
+				smgr->drawAll();
+		}
+		if(blurEffect) {
+			driver->setRenderTarget(blur->rt0, true, true, bgColor);
+				smgr->drawAll();
+		}
+		if(invertEffect) {
+			driver->setRenderTarget(invert->rt0, true, true, bgColor);
+				smgr->drawAll();
+		}
+		driver->setRenderTarget(0, true, true, bgColor);
+			renderPostProcessEffects();
+			smgr->drawAll();
+			player1.track->drawStoneTrails();
+			player2.track->drawStoneTrails();
+		
+		//sem_post(&semaphore);
 		
 		screen->update();
 		

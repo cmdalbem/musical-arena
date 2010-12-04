@@ -1,12 +1,5 @@
 #include "Skill.h"
-
-
-enum skillId
-{
-	FIREBALL,
-	
-	SKILLS_TOTAL
-};
+#include "types.h"
 
 class SkillBank
 {

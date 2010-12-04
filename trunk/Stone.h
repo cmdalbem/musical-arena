@@ -16,7 +16,6 @@ class Stone
 {
 	public:
 		Stone( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double speed, float x, float y, float z );
-		Stone( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double speed, ISceneNode* sceneNode, float x, float y, float z );
 
 		void initialize( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double _speed, float x, float y, float z );
 
@@ -33,7 +32,9 @@ class Stone
 		ISceneNode 				*glow;
 		
 		vector3df				trailEndPos;
-				
+		vector3df				displace;
+
+		vector3df				getPosition();
 		double 					howLongActive( double musicTime );
 		void 					update( double musicTime );	
 		void					draw( IVideoDriver* driver );
