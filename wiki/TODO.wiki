@@ -13,7 +13,7 @@ vector<event> aMusic;
  * <font color="orange">*sistema de fretting*</font> _(70%)_
    Sistema responsável por captar os botões pressionados pelo usuário e determinar se acertou as notas ou não.
  * <font color="green">*joystick*</font> _(90%)_
-   Tem só um bug, que por enquanto ta sendo resolvido p
+   Tem só um bug, que por enquanto ta sendo resolvido com uma gambiarrazinha
 
  * <font color="green">*estudar Engines pra decidirmos uma pra nós!*</font> _(100%)_
 
