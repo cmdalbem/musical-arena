@@ -28,6 +28,9 @@ class EventReceiver : public IEventReceiver
 		
 		bool refreshArray(const SEvent& _event);
 		SEvent* getEvent();
+		SEvent* getEvent(int i);
+		int getEventsSize();
 		void removeEvent();
+		void clearEvents();
 };
 

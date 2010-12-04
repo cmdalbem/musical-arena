@@ -59,13 +59,15 @@ void Player::update()
 				firstStones[i] = NULL;
 		if (fretting->receiver->enabled)
 		{
+			//for (int i=0; i<fretting->receiver->getEventsSize(); i++)
+				//fretting->verifyEvents(fretting->receiver->getEvent(i), firstStones);
 			while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
 			{
 				//sem_wait(fretting->receiver->semaphore);
 				gotAnEvent = fretting->verifyEvents( anEvent, firstStones );
 				
 				if (gotAnEvent != 0)
-					// removes the first event of the events vector (so we can deal with the others =D)
+					//removes the first event of the events vector (so we can deal with the others =D)
 					fretting->receiver->removeEvent();
 					
 			}

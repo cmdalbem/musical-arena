@@ -21,9 +21,14 @@ using irr::core::vector3df;
 #include "Skill.h"
 #include "SkillBank.h"
 
+<<<<<<< .mine
+core::array<SJoystickInfo> joystickInfo;
+=======
 #include "PostProcessBloom.h"
 #include "PostProcessRadialBlur.h"
 #include "PostProcessInvert.h"
+>>>>>>> .r94
+
 
 // Irrlicht globals
 IrrlichtDevice 				*device=0;
@@ -78,7 +83,7 @@ static void *updater(void *argument)
 	gettimeofday(&start, NULL);
 	  
 	 while( !endOfMusic ) {
-	
+		usleep(1);
 		musicTime = time_diff(start);// + 20;
  
 		// spawning on track1
@@ -100,6 +105,7 @@ static void *updater(void *argument)
 		player2.update();
 		if ((player1.gotAnEvent == 0) && (player2.gotAnEvent == 0))
 			receiver.removeEvent();
+		//receiver.clearEvents();
 		sem_post(&semaphore);
 		
 	}
@@ -132,6 +138,25 @@ void musa_init()
 	
 	player1.fretting->receiver = &receiver;
 	player2.fretting->receiver = &receiver;
+
+
+        if(device->activateJoysticks(joystickInfo))
+        {
+                cout << "Joystick support is enabled and " << joystickInfo.size() << " joystick(s) are present." << endl;
+
+                for(u32 joystick = 0; joystick < joystickInfo.size(); ++joystick)
+                {
+                        cout << "Joystick " << joystick << ":" << endl;
+                        cout << "\tName: '" << joystickInfo[joystick].Name.c_str() << "'" << endl;
+                        cout << "\tAxes: " << joystickInfo[joystick].Axes << endl;
+                        cout << "\tButtons: " << joystickInfo[joystick].Buttons << endl;
+                }
+        }
+        else
+        {
+                cout << "Joystick support is not enabled." << endl;
+        }
+
 	
 	//cout << "vai passar" << endl;
 	//receiver.semaphore = &receiverSemaphore;
@@ -140,7 +165,10 @@ void musa_init()
 	
 	EKEY_CODE eventos1[NFRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
 	EKEY_CODE eventos2[NFRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
+	int events1[NFRETS] = {0,1,2,3,4};
+
 	player1.fretting->setEvents(eventos1);
+	//player1.fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
 	player2.fretting->setEvents(eventos2);
 	
 	screen = new Screen(device,&player1,&player2);
