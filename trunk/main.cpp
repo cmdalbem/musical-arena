@@ -23,11 +23,12 @@ using irr::core::vector3df;
 
 
 // Irrlicht globals
-IrrlichtDevice 				*device=NULL;
-video::IVideoDriver 		*driver=NULL;
-scene::ISceneManager 		*smgr=NULL;
-IGUIEnvironment				*env=NULL;
-scene::ICameraSceneNode 	*camera=NULL;
+IrrlichtDevice 				*device=0;
+video::IVideoDriver 		*driver=0;
+scene::ISceneManager 		*smgr=0;
+IGUIEnvironment				*env=0;
+scene::ICameraSceneNode 	*camera=0;
+scene::ICameraSceneNode		*aboxCam=0;
 EventReceiver 				receiver;
 
 ITexture					*glowTex;
@@ -130,8 +131,10 @@ void musa_init()
 	//decoder.printMusic(theMusic);
 					
 	// start getting signals, baby
-	receiver.enabled = true;
+	receiver.enabled = true;	
 }
+
+
 
 void initializeIrrlicht()
 {
@@ -153,7 +156,6 @@ void initializeIrrlicht()
 	
 	skin->setFont(font);
 
-	
 	/*scene::ILightSceneNode *light = */smgr->addLightSceneNode(0, vector3df(0,-80,-30), video::SColorf(1.0f, 1.0f, 1.0f), 20.0f);
 	//light->setLightType(video::ELT_DIRECTIONAL);
 	//light->setRotation(vector3df(-90,0,0));
@@ -179,6 +181,9 @@ void initializeIrrlicht()
 	
 	// a FPS camera for debugging
 	//camera = smgr->addCameraSceneNodeFPS(); device->getCursorControl()->setVisible(false);
+	
+	aboxCam = smgr->addCameraSceneNode(0, core::vector3df(0,0,-120), core::vector3df(0,0,1));
+
 }
 
 static void *debugger (void *argument)
@@ -251,11 +256,18 @@ int main(int argc, char *argv[])
 	 */	
 	while(device->run()) {
 		
-		driver->beginScene(true, true, video::SColor(255,113,113,133));
+		driver->beginScene(true, true, SColor(255,113,113,133));
 
 		sem_wait(&semaphore);
+			// set render target texture
+		driver->setRenderTarget(screen->bloodSplit[0], true, true, 0);
+			smgr->setActiveCamera(aboxCam);
+			screen->abox->setVisible(true);
+			screen->abox->render();
+			screen->abox->setVisible(false);
+			smgr->setActiveCamera(camera);
+		driver->setRenderTarget(0, true, true, SColor(255,113,113,133));
 		smgr->drawAll();
-		screen->shieldmanager->drawAll();
 		player1.track->draw();
 		player2.track->draw();
 		sem_post(&semaphore);

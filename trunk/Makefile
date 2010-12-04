@@ -15,7 +15,7 @@ LIBS = -lGL -lglut -lGLU -lglib-2.0 -lm -lsmf -lpthread -lXxf86vm -lXext -lX11 `
 FMODLIB = fmod/api/lib/$(FMODFILE)
 
 OBJDIR = obj
-OBJNAMES = Decoder utils Stone Fretting Track Player Screen Skill EventReceiver CBoltSceneNode TrackSceneNode CBloodEffect CBloodShader VxHealthSceneNode CShieldManager SkillBank
+OBJNAMES = Decoder utils Stone Fretting Track Player Screen Skill EventReceiver CBoltSceneNode TrackSceneNode CBloodEffect CBloodShader VxHealthSceneNode CShieldManager SkillBank EffectFactory
 OBJECTS = $(addsuffix .o,$(OBJNAMES))
 OBJS = $(addprefix $(OBJDIR)/,$(OBJECTS))
 
