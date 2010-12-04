@@ -10,7 +10,7 @@ namespace irr
         class CBoltSceneNode : public ISceneNode 
         { 
         public: 
-            CBoltSceneNode( scene::ISceneNode* parent, scene::ISceneManager *mgr, s32 id,char* szBeam ); 
+            CBoltSceneNode( scene::ISceneNode* parent, scene::ISceneManager *mgr, s32 id, video::ITexture* tex ); 
 
             virtual ~CBoltSceneNode(void); 
 

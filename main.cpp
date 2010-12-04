@@ -26,6 +26,7 @@ using irr::core::vector3df;
 IrrlichtDevice 				*device=NULL;
 video::IVideoDriver 		*driver=NULL;
 scene::ISceneManager 		*smgr=NULL;
+IGUIEnvironment				*env=NULL;
 scene::ICameraSceneNode 	*camera=NULL;
 EventReceiver 				receiver;
 
@@ -145,6 +146,13 @@ void initializeIrrlicht()
 
 	driver = device->getVideoDriver();
 	smgr = device->getSceneManager();
+	env = device->getGUIEnvironment();
+	
+	IGUISkin* skin = env->getSkin();
+	IGUIFont* font = env->getFont("img/fonthaettenschweiler.bmp");
+	
+	skin->setFont(font);
+
 	
 	/*scene::ILightSceneNode *light = */smgr->addLightSceneNode(0, vector3df(0,-80,-30), video::SColorf(1.0f, 1.0f, 1.0f), 20.0f);
 	//light->setLightType(video::ELT_DIRECTIONAL);
@@ -254,7 +262,7 @@ int main(int argc, char *argv[])
 		
 		screen->update();
 		
-		device->getGUIEnvironment()->drawAll();
+		env->drawAll();
 
 		driver->endScene();
 

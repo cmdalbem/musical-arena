@@ -18,13 +18,17 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	//    
 	
 	// fireball
-	for(int i=0; i<10; i++)
-		createFireball(1,true);
+	//queueEffect( 2000, CREATE_FIRE_RAIN, 1 );
+	createAreaEffect(0,glowTex);
+	queueEffect( 0, CREATE_ELECTRIC, 1 );
+	for(int i=0;i<10;i++)
+		queueEffect( 1000 + i*100, CREATE_FIREBALL, 0 );
+	queueEffect( 3000, CREATE_WATER_BEAM, 1);
 	
 	// blood effect
 	//   EGL_MILD, EGL_MEDIUM, EGL_BRUTAL, EGL_INSANE
-	new CBloodEffect(device->getSceneManager(), EGL_BLOOD, EGL_INSANE, players[1]->track->getCentroid(), vector3df(0, 0.0f, -1.0f), 5000);
-	new CBloodEffect(device->getSceneManager(), EGL_WATER, EGL_MILD, players[0]->track->getCentroid(), vector3df(0, 0.0f, -1.0f), 5000);
+	//new CBloodEffect(device->getSceneManager(), EGL_BLOOD, EGL_INSANE, players[1]->track->getCentroid(), vector3df(0, -0.5f, -0.5f), 5000);
+	//new CBloodEffect(device->getSceneManager(), EGL_WATER, EGL_MEDIUM, players[0]->track->getCentroid(), vector3df(0, -0.5f, -0.5f), 5000);
 	
 	// spell casting effect	
 	//showSpellEffect(0);
@@ -45,7 +49,6 @@ Screen::~Screen()
 void Screen::initializeEffects()
 {
 	// Pre-load textures
-	ITexture *glowTex = driver->getTexture("img/glow2.bmp");
 	ITexture *goodTex = driver->getTexture("img/good.png");
 	ITexture *badTex = driver->getTexture("img/bad.png");
 	ITexture *neutralTex = driver->getTexture("img/neutral.png");
@@ -60,6 +63,17 @@ void Screen::initializeEffects()
 	spellEffectTex.push_back( driver->getTexture("img/portal2.bmp") );
 	spellEffectTex.push_back( driver->getTexture("img/portal1.bmp") );
 	this->fireballTex = driver->getTexture("img/fireball.bmp");
+	this->glowTex = driver->getTexture("img/glow2.bmp");
+	this->laserTex = driver->getTexture("img/laser3.bmp");
+	this->smokeTex1 = driver->getTexture("img/smoke2.jpg");
+	this->smokeTex2 = driver->getTexture("img/smoke3.jpg");
+	char c[20];
+	for(int i=0; i<5; i++) {
+		sprintf(c,"img/water%i.png", i);
+		waterTex[i] = driver->getTexture(c);
+		sprintf(c,"img/blood%i.png", i);
+		bloodTex[i] = driver->getTexture(c);
+	}
 	
 	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::rect<int>(0, 0, 100, 10));
 	
@@ -180,9 +194,53 @@ void Screen::update()
 // Here we check everything about the game that has to be drawn.
 // It's all about HUDs and special effects!
 {
+	handleEffectsQueue();	
 	drawHP();
 	drawKeys();
 	drawHittingState();
+}
+
+void Screen::handleEffectsQueue()
+{
+	unsigned int time = device->getTimer()->getTime();
+	
+	while( effectsQueue.size()>0  &&  time > effectsQueue.begin()->first.first ) {
+		
+		int target = effectsQueue.begin()->second;
+		
+		switch( effectsQueue.begin()->first.second )
+		{
+			case CREATE_FIREBALL:
+				createFireball(target,true);
+				break;
+			case CREATE_FIRE_RAIN:
+				for(int i=0; i<50; i++)
+					queueEffect( i*150, CREATE_FIREBALL_SKY, target );
+				break;
+			case CREATE_FIREBALL_SKY:
+				createFireRain(target);
+				break;
+			case CREATE_FIRE_AREA:
+				createAreaEffect(target,fireballTex);
+				break;
+			case CREATE_MAGIC_AREA:
+				createAreaEffect(target,glowTex);
+				break;
+			case SPELL_EFFECT:
+				createSpellEffect(target);
+				break;
+			case SHOW_SHIELD:
+				createShield(target);
+				break;
+			case CREATE_ELECTRIC:
+				createElectricEffect(target);
+				break;
+			case CREATE_WATER_BEAM:
+				createWaterBeam(target);
+				break;	
+		}
+		effectsQueue.erase( effectsQueue.begin() );
+	}
 }
 
 void Screen::drawHP()
@@ -204,11 +262,9 @@ void Screen::drawHittingState()
 		{
 			case  1:
 				showGood(i);
-				showShield(i);  //temp! just for demonstration
 				break;
 			case -1:
 				showBad(i);
-				showShield(!i); //temp! just for demonstration
 				break;
 			case 0:
 				showNeutral(i);
@@ -246,7 +302,7 @@ void Screen::setFps( int fps )
 	fpsText->setText(tmp.c_str());
 }
 
-void Screen::showSpellEffect( int i )
+void Screen::createSpellEffect( int i )
 {
 	IVolumeLightSceneNode * spellEffect = smgr->addVolumeLightSceneNode(0, -1,
                                 128,                              // Subdivisions on U axis
@@ -260,37 +316,57 @@ void Screen::showSpellEffect( int i )
 	spellEffect->addAnimator( smgr->createDeleteAnimator(5000) );
 }
 
-void Screen::showShield( int player )
+void Screen::createShield( int player )
 {
 	shieldmanager->addLocalImpact(shields[player], vector3df(0,0,-1), 20);
 }
 
-void Screen::createFireball( int attacked, bool randomize )
+void Screen::queueEffect( int msecondsAhead, effectFunction functionToCall, int targetPlayer )
 {
-	float speed = 1;
+	effectsQueue.insert( effectEvent(pair<unsigned int,effectFunction>(device->getTimer()->getTime()+msecondsAhead,functionToCall),targetPlayer) );	
+}
+
+void Screen::createFireRain( int attacked )
+{
+	array<vector3df> path;
+	vector3df p1,p2;
+	
+	p1 = players[attacked]->track->getCentroid();
+	p1 = vector3df(p1.X + rand()%TRACK_SIZE_X - TRACK_SIZE_X/2, p1.Y + rand()%TRACK_SIZE_Y - TRACK_SIZE_Y/2, p1.Z-20);
+	p2 = p1 + vector3df(0,0,20);
+	
+	path.push_back( p1 );
+	path.push_back( p2 );	
+	
+	createFireball(path);
+}
+
+void Screen::createFireball( int attacked, bool randomizeTarget )
+{
+	array<vector3df> path;
 	vector3df p1,p2,p3;
+	
+	p1 = players[!attacked]->track->getCentroid();
+	p3 = players[attacked]->track->getCentroid();
+	if(randomizeTarget)
+		p3 = vector3df(p3.X + rand()%TRACK_SIZE_X - TRACK_SIZE_X/2, p3.Y + rand()%TRACK_SIZE_Y - TRACK_SIZE_Y/2, p3.Z);
+	p2 = vector3df( (p1.X+p3.X)/2, (p1.Y+p3.Y)/2, -20 ); //generic middle-point	
+	
+	path.push_back( p1 + vector3df(0,0,-20) );
+	path.push_back( p2 );
+	path.push_back( p3 );	
+	
+	createFireball(path);	
+}
+
+void Screen::createFireball( array<vector3df> path )
+{
+	float speed = 1.5;
 	
 	scene::ISceneNode* ball = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), core::dimension2d<f32>(10, 10));
 	ball->setMaterialFlag(video::EMF_LIGHTING, false);
 	ball->setMaterialTexture(0, fireballTex);
 	ball->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
-	
-	// set points of movement
-	p1 = players[!attacked]->track->getCentroid();
-	p3 = players[attacked]->track->getCentroid();
-	if(randomize)
-		p3 = vector3df(p3.X + rand()%TRACK_SIZE_X - TRACK_SIZE_X/2, p3.Y + rand()%TRACK_SIZE_Y - TRACK_SIZE_Y/2, p3.Z);
-	p2 = vector3df( (p1.X+p3.X)/2, (p1.Y+p3.Y)/2, -10 );
-	
-	// fill points on vector
-	array<vector3df> points;
-	points.push_back( p1 );
-	points.push_back( p2 );
-	points.push_back( p3 );
-	
-	// set animators
-	ball->addAnimator( smgr->createFollowSplineAnimator( device->getTimer()->getTime(),points,speed,1,false) );
-	ball->addAnimator( smgr->createDeleteAnimator((2/speed)*1000 + 800) );
 	
 	// add particle system
 	scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false, ball);
@@ -314,4 +390,72 @@ void Screen::createFireball( int attacked, bool randomize )
 	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
 	ps->setMaterialTexture(0, fireballTex);
 	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	
+	// set animators
+	ball->addAnimator( smgr->createFollowSplineAnimator( device->getTimer()->getTime(),path,speed,1,false) );
+	ball->addAnimator( smgr->createDeleteAnimator((2/speed)*1000 + 400) );
+	//new CDeleteParticleAffector(ps, (2/speed)*1000);
+}
+
+void Screen::createAreaEffect( int player, ITexture *tex )
+{
+	vector3df pos = players[player]->track->getCentroid();
+	
+	// add particle system
+	scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false);
+	ps->setPosition( pos );	
+	
+	// create and set emitter
+	scene::IParticleEmitter* em = ps->createBoxEmitter(
+			core::aabbox3d<f32>(-TRACK_SIZE_X/2,-TRACK_SIZE_Y/2,0,TRACK_SIZE_X/2,TRACK_SIZE_Y/2,1), //minx, miny, minz, maxx, maxy, maxz
+			core::vector3df(0.0f,0.03f,0.0f),
+			100,100,
+			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
+			400,2000);
+	em->setMinStartSize(core::dimension2d<f32>(3.0f, 3.0f));
+	em->setMaxStartSize(core::dimension2d<f32>(6.0f, 6.0f));
+	ps->setEmitter(em);
+	em->drop();
+
+	ps->addAffector( ps->createFadeOutParticleAffector() );
+
+	// adjust some material settings
+	ps->setMaterialFlag(video::EMF_LIGHTING, false);
+	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialTexture(0, tex);
+	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	
+	new CDeleteParticleAffector(ps, 700);
+	ps->addAnimator( smgr->createDeleteAnimator(2000) );
+}
+
+void Screen::createElectricEffect( int targetPlayer )
+{
+	vector3df initPos = players[!targetPlayer]->track->getCentroid() + vector3df(0,0,-20);
+	vector3df endPos = players[targetPlayer]->track->getCentroid();
+	
+	IBillboardSceneNode* ball = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), core::dimension2d<f32>(20, 20));
+	ball->setMaterialFlag(video::EMF_LIGHTING, false);
+	ball->setMaterialTexture(0, glowTex);
+	ball->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+	ball->setPosition(initPos);
+	
+	// lighning bolt
+	CBoltSceneNode* beam = new CBoltSceneNode(smgr->getRootSceneNode(), smgr, -1, laserTex); 
+	
+	// start, end, updateTime = 300, height = 10, parts = 10, bolts = 1, steddyend = true, thick=5.0f , color
+	beam->setLine( initPos,
+				   endPos + vector3df(endPos.X,0,0),
+				   70, 20, 5, 4, false, 5, SColor(255,0,0,255)); 
+				   
+	beam->addAnimator( smgr->createDeleteAnimator(3000) );
+	ball->addAnimator( smgr->createDeleteAnimator(3000) );
+}
+
+void Screen::createWaterBeam( int targetPlayer )
+{
+	vector3df initPos = players[!targetPlayer]->track->getCentroid()  + vector3df(0,0,-20);
+	vector3df direction(targetPlayer*2-1,0,1);
+	
+	new CBloodEffect(device->getSceneManager(), waterTex, EGL_BRUTAL, initPos, direction, 5000);
 }

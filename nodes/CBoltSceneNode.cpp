@@ -3,14 +3,14 @@ namespace irr
 { 
     namespace scene 
     { 
-        CBoltSceneNode::CBoltSceneNode( scene::ISceneNode* parent, scene::ISceneManager *mgr, s32 id,char* szBeam ) : ISceneNode( parent, mgr, id ) 
+        CBoltSceneNode::CBoltSceneNode( scene::ISceneNode* parent, scene::ISceneManager *mgr, s32 id, video::ITexture* tex ) : ISceneNode( parent, mgr, id ) 
         { 
             //ctor 
             material.Wireframe = false; 
             material.Lighting = false; 
 			material.ZWriteEnable = false;            
 			material.MaterialType = video::EMT_TRANSPARENT_ADD_COLOR;
-            material.setTexture(0, mgr->getVideoDriver( )->getTexture( szBeam )); 
+            material.setTexture(0, tex); 
 			m_thickness = 5.0f; 
             AutomaticCullingState = EAC_FRUSTUM_SPHERE; 
         } 
