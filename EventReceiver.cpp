@@ -39,10 +39,23 @@ bool EventReceiver::refreshArray(const SEvent& _event)
 	return true;
 }
 
+int EventReceiver::getEventsSize()
+{
+	return events.size();
+}
+
 SEvent* EventReceiver::getEvent()
 {
 	if (events.size() > 0)
 		return &(events[0]);
+	else
+		return NULL;
+}
+
+SEvent* EventReceiver::getEvent(int i)
+{
+	if (events.size() > i)
+		return &(events[i]);
 	else
 		return NULL;
 }
@@ -54,4 +67,9 @@ void EventReceiver::removeEvent()
 		//sem_wait(semaphore);
 		events.erase(events.begin());
 	}
+}
+
+void EventReceiver::clearEvents()
+{
+	events.clear();
 }

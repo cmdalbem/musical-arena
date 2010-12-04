@@ -18,6 +18,10 @@ enum {
 	HIT = 1, DO_NOTHING, NO_BUTTON_PRESSED
 };
 
+enum {
+	KEYBOARD, JOYSTICK, AI
+};
+
 
 class skillTreeNode {
 	
@@ -35,29 +39,39 @@ class Fretting
 {
 	public:
 		Fretting();
-		Fretting( vector<Skill> *skills );
+		Fretting(vector<Skill> *skills);
 		Fretting(EKEY_CODE events[NFRETS]);
+		//Fretting(int buttons[NUMBER_OF_FRETS], core::array<SJoystickInfo> joystickInfo, int joystickNumber);
 		~Fretting();
 		
-		double 			*musicTime;
-		double 			tolerance;
-		int 			frettingState;
-		int				keyState[5];
-		int				_hitting[NFRETS];
-		EventReceiver 	*receiver;
+		int type;
+		double 	*musicTime;
+		double 	tolerance;
+		int 	frettingState;
+		int		keyState[5];
+		int		_hitting[NFRETS];
+		EventReceiver *receiver;
 
-		void 			setEvents(EKEY_CODE events[NFRETS]);
-		int 			verifyEvents(SEvent *event, Stone* firstStones[NFRETS]);
-		int				getFrettingState();
-		void			printHitFret();
-		void			lostNote();
+		void 	setEvents(EKEY_CODE events[NFRETS]);
+		void 	setEvents(int buttons[NFRETS], core::array<SJoystickInfo> 
+			joystickInfo, int joystickNumber);
+
+		int 	verifyEvents(SEvent *event, Stone* firstStones[NFRETS]);
+		int	getFrettingState();
+		void	printHitFret();
+		void	lostNote();
 
 	private:
-	
+		int keyboardPreFretting(SEvent *event);
+		int joystickPreFretting(SEvent *event);
+
 		skillSearchTree 			skillsTree;
 		skillSearchTree::iterator 	actualSkillNode;
 		
 		vector<EKEY_CODE> 	_events;
+		vector<int>		joystickButtons;
+		int			joystickNumber;
+        	SEvent::SJoystickEvent JoystickState;
 		
 		bool 				_trackPressed[NFRETS];		// tell us the state of the tracks on the last
 		bool 				_rightPressed[NFRETS];		// frame		

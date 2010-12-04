@@ -66,8 +66,21 @@ void Fretting::setEvents(EKEY_CODE events[NFRETS])
 {
 	for (int i = 0; i < NFRETS; i++)
 		_events.push_back(events[i]);
+	type = KEYBOARD;
 }
-
+void Fretting::setEvents(int buttons[NFRETS], core::array<SJoystickInfo> 
+			joystickInfo, int number)
+{
+	if (number < joystickInfo.size())
+	{
+		for (int i = 0; i < NFRETS; i++)
+			joystickButtons.push_back(buttons[i]);
+		joystickNumber = number;
+	}
+	else
+		cout << "Não foi encontrado este joystick\n";
+	type = JOYSTICK;
+}
 ////////////////////////////////////////////////////////////////// OTHER METHODS
 
 Skill* Fretting::findSkill( buttonType buttonPressed ) 
@@ -163,23 +176,58 @@ void Fretting::lostNote()
 			_hitting[i] = 2;
 }
 
+int Fretting::joystickPreFretting(SEvent *event)
+{
+	int usefullButton = -1;
+	if (event->EventType == irr::EET_JOYSTICK_INPUT_EVENT && event->JoystickEvent.Joystick == joystickNumber)
+        {
+                JoystickState = event->JoystickEvent;
+		for (int i = 0; i < NFRETS; i++)
+			if (JoystickState.IsButtonPressed(joystickButtons[i]) != _trackPressed[i])
+			{
+				_trackPressed[i] = JoystickState.IsButtonPressed(joystickButtons[i]);
+				usefullButton = i;
+			}
+	}
+	//cout << usefullButton << endl;
+	return usefullButton;
+}
+
+int Fretting::keyboardPreFretting(SEvent *event)
+{
+	int usefullButton = -1;
+	// verifies which button has been pressed -- TEM ALGUMA COISA ERRADA AQUI!!!
+	for (int i = 0; i < NFRETS; i++)
+		if (event->KeyInput.Key == _events[i])
+			usefullButton = i;
+	return usefullButton;
+}
+
 int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
 {
+	if ((event->EventType == irr::EET_JOYSTICK_INPUT_EVENT && type == JOYSTICK) || 
+	(event->EventType == irr::EET_KEY_INPUT_EVENT  && type == KEYBOARD))
+	{
 	double 	noteCreationTime;
 	double 	noteDestructionTime;
 	int		usefulButton = -1;
 	int		lastState;
 	int		nextFrettingState = -3;
 	
+
 	if (event != NULL)
-	{	
-		// verifies which button has been pressed -- TEM ALGUMA COISA ERRADA AQUI!!!
-		for (int i = 0; i < NFRETS; i++)
-			if (event->KeyInput.Key == _events[i])
-				usefulButton = i;
+	{
+		if (type == JOYSTICK)
+			usefulButton = joystickPreFretting(event);
+		else if (type == KEYBOARD)
+			usefulButton = keyboardPreFretting(event);
+		else
+			cout << "no fretting type defined\n";
 	}
 	else
+	{
 		return -1;
+	}
 
 	if (usefulButton == -1)
 	{
@@ -214,7 +262,8 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
 	 * 9h10
 	 */
 	lastState = _hitting[usefulButton];	// stores the old value of the actual pressed button
-	if (event->KeyInput.PressedDown) // key was pressed down
+	if 	((type == KEYBOARD && event->KeyInput.PressedDown) || // key was pressed down
+		(type == JOYSTICK && _trackPressed[usefulButton])) // joystick button was pressed down
 	{
 		switch (_hitting[usefulButton])
 		{
@@ -328,6 +377,8 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
 	
 	frettingState = nextFrettingState;
 	return 1;
+	}
+	return 0;
 }
 
 void Fretting::printHitFret()
