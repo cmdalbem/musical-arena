@@ -20,14 +20,11 @@ using irr::core::vector3df;
 #include "Screen.h"
 #include "Skill.h"
 #include "SkillBank.h"
-
-<<<<<<< .mine
-core::array<SJoystickInfo> joystickInfo;
-=======
 #include "PostProcessBloom.h"
 #include "PostProcessRadialBlur.h"
 #include "PostProcessInvert.h"
->>>>>>> .r94
+
+core::array<SJoystickInfo> joystickInfo;
 
 
 // Irrlicht globals
