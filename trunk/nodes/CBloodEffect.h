@@ -29,7 +29,7 @@ private :
 public :
 
   CBloodEffect( irr::scene::ISceneManager* smgr,
-                E_ELEMENT				   element		   = EGL_BLOOD,
+                irr::video::ITexture*	   tex[5],
                 E_GORE_LEVEL               goreLevel       = EGL_MEDIUM,
                 irr::core::vector3df       sprayFrom       = irr::core::vector3df(0, 0, 0),
                 irr::core::vector3df       sprayDirection  = irr::core::vector3df(0, 0, 1.0f),

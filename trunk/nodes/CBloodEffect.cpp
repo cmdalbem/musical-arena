@@ -9,7 +9,7 @@ using namespace scene;
 using namespace io;
 
 CBloodEffect::CBloodEffect( irr::scene::ISceneManager* smgr,
-				E_ELEMENT				   element,
+				irr::video::ITexture*	   tex[5],
 				E_GORE_LEVEL               goreLevel,
 				irr::core::vector3df       sprayFrom,
 				irr::core::vector3df       sprayDirection,
@@ -120,20 +120,11 @@ CBloodEffect::CBloodEffect( irr::scene::ISceneManager* smgr,
 		ps5->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 		ps5->setMaterialFlag(EMF_ZBUFFER,       true);
 		
-		if( element == EGL_BLOOD ) {
-			ps1->setMaterialTexture(0, driver->getTexture("img/blood1.png"));
-			ps2->setMaterialTexture(0, driver->getTexture("img/blood2.png"));
-			ps3->setMaterialTexture(0, driver->getTexture("img/blood3.png"));
-			ps4->setMaterialTexture(0, driver->getTexture("img/blood4.png"));
-			ps5->setMaterialTexture(0, driver->getTexture("img/blood5.png"));
-		}
-		else if( element == EGL_WATER ) {
-			ps1->setMaterialTexture(0, driver->getTexture("img/water1.png"));
-			ps2->setMaterialTexture(0, driver->getTexture("img/water2.png"));
-			ps3->setMaterialTexture(0, driver->getTexture("img/water3.png"));
-			ps4->setMaterialTexture(0, driver->getTexture("img/water4.png"));
-			ps5->setMaterialTexture(0, driver->getTexture("img/water5.png"));
-		}
+		ps1->setMaterialTexture(0, tex[0]);
+		ps2->setMaterialTexture(0, tex[1]);
+		ps3->setMaterialTexture(0, tex[2]);
+		ps4->setMaterialTexture(0, tex[3]);
+		ps5->setMaterialTexture(0, tex[4]);
 		
 		particleSystems.push_back(ps1);
 		particleSystems.push_back(ps2);
@@ -142,15 +133,15 @@ CBloodEffect::CBloodEffect( irr::scene::ISceneManager* smgr,
 		particleSystems.push_back(ps5);
 
 		IParticleEmitter* em1 = ps1->createPointEmitter(
-						0.9f * direction, minParticles, maxParticles, SColor(255,255,255,255), SColor(255,255,255,255),
+						0.8f * direction, minParticles, maxParticles, SColor(255,255,255,255), SColor(255,255,255,255),
 						minLife, maxLife, maxAngle, minSize, maxSize);
 
 		IParticleEmitter* em2 = ps2->createPointEmitter(
-						1.05f * direction, minParticles, maxParticles, SColor(255,255,255,255), SColor(255,255,255,255),
+						1.15f * direction, minParticles, maxParticles, SColor(255,255,255,255), SColor(255,255,255,255),
 						minLife, maxLife, maxAngle, minSize, maxSize);
 
 		IParticleEmitter* em3 = ps3->createPointEmitter(
-						0.95f * direction, minParticles, maxParticles, SColor(255,255,255,255), SColor(255,255,255,255),
+						0.9f * direction, minParticles, maxParticles, SColor(255,255,255,255), SColor(255,255,255,255),
 						minLife, maxLife, maxAngle, minSize, maxSize);
 
 		IParticleEmitter* em4 = ps4->createPointEmitter(
@@ -158,7 +149,7 @@ CBloodEffect::CBloodEffect( irr::scene::ISceneManager* smgr,
 						minLife, maxLife, maxAngle, minSize, maxSize);
 
 		IParticleEmitter* em5 = ps5->createPointEmitter(
-						1.1f * direction, minParticles, maxParticles, SColor(255,255,255,255), SColor(255,255,255,255),
+						1.2f * direction, minParticles, maxParticles, SColor(255,255,255,255), SColor(255,255,255,255),
 						minLife, maxLife, maxAngle, minSize, maxSize);
 
 		ps1->setEmitter(em1); em1->drop();
