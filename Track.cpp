@@ -84,8 +84,7 @@ void Track::update()
 	
 		// deleting stones
 		while ( (stones[i].size() > 0) && (*musicTime > stones[i][0]->destroyTime)) {
-			delete stones[i][0]; //call class destructor
-			stones[i].erase(stones[i].begin()); //remove reference (should call stone's destructor, but sometimes it doesn't work)
+			destroyStone(i,0);
 		}
 	
 		// hiding stones and non-pressed-notes treatment
@@ -107,7 +106,12 @@ double Track::getStoneXPos( int track )
 vector3df Track::getCentroid()
 {
 	return vector3df(posx,-TRACK_SIZE_Y/2,posz);
-	
+}
+
+vector3df Track::getRandomPos()
+{
+	vector3df p = getCentroid();
+	return vector3df(p.X + rand()%TRACK_SIZE_X - TRACK_SIZE_X/2, p.Y + rand()%TRACK_SIZE_Y - TRACK_SIZE_Y/2, p.Z);
 }
 
 void Track::insertStone( musicEvent event )
@@ -115,20 +119,6 @@ void Track::insertStone( musicEvent event )
 	Stone *newStone = new Stone(device, event, fretColors[event.button], glowTex, speed, getStoneXPos(event.button), this->posy, posz-0.1); //x,y,z
 	
 	stones[event.button].push_back(newStone);	
-}
-
-void Track::drawFretLines()
-{
-	// draw a line for every fret
-	SMaterial m;
-	m.Lighting = 0;
-	m.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-	driver->setMaterial(m);
-	driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4());  //global positioning
-	for(int i=0; i<NFRETS; i++)
-		driver->draw3DLine( vector3df(getStoneXPos(i),posy,posz),
-							vector3df(getStoneXPos(i),posy-sizey,posz),
-							SColor(170,0,0,0) );
 }	
 
 void Track::drawQuarters()
@@ -167,11 +157,16 @@ void Track::drawStones()
 			stones[i][k]->draw(driver);
 }
 
-void Track::draw()
+void Track::destroyStone( int fret, int stone )
+{
+	delete stones[fret][stone]; //call class destructor
+	stones[fret].erase(stones[fret].begin()+stone); //remove reference (should call stone's destructor, but sometimes it doesn't work)
+}
+
+void Track::drawStoneTrails()
 {
 	drawStones();
-	drawFretLines();
-	//drawQuarters();
+	drawQuarters();
 }
 
 void Track::processEvent( musicEvent event )

@@ -30,7 +30,7 @@ class Track
 		~Track();
 	
 		vector<Stone*> 	stones[NFRETS];
-		scene::ISceneNode *node;
+		ISceneNode 		*node;
 				
 		int				sizex, sizey;
 		int				posx, posy, posz;
@@ -48,11 +48,13 @@ class Track
 		int				notesOnChord;		// how many notes did we have on the chord??
 			
 		void			update();
-		void			draw();		
+		void			destroyStone( int fret, int stone );
+		void			drawStoneTrails();		
 		void 	 	 	processEvent( musicEvent event );
 		
 		double 			getStoneXPos( int track );
 		vector3df		getCentroid();
+		vector3df		getRandomPos();
 	
 	private:
 		IrrlichtDevice 	*device;
@@ -61,7 +63,6 @@ class Track
 		ITexture		*glowTex;
 		
 		void			insertStone( musicEvent event );
-		void			drawFretLines();
 		void			drawQuarters();
 		void			drawStones();
 

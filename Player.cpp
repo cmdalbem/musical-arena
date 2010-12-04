@@ -33,7 +33,7 @@ void Player::initialize()
 	gold = 0;
 	gotAnEvent = 0;
 	
-	status = NORMAL;
+	status = ST_NORMAL;
 }
 
 void Player::update()

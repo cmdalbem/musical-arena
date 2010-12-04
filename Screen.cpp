@@ -16,18 +16,26 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	
 	initializeScreenElements();
 	
-	abox = smgr->addCubeSceneNode(5);
-	abox->setPosition(core::vector3df(0,0,-100));
+	//abox = smgr->addCubeSceneNode(5);
+	//abox->setPosition(core::vector3df(0,0,-100));
 	//abox->addAnimator(smgr->createRotationAnimator(core::vector3df(0.3f, 0.3f,0)));
 	
-	// Special Effects Playground below! :D
-		
-	queueEffect( 0, CREATE_GLOW_AREA, 0 );
-	queueEffect( 0, CREATE_ELECTRIC, 1 );
-	for(int i=0;i<10;i++)
-		queueEffect( 1000 + i*100, CREATE_FIREBALL, 0 );
-	queueEffect( 3000, CREATE_WATER_BEAM, 1);
-	queueEffect( 5000, CREATE_FIRE_RAIN, 1 );
+	
+	//effectFactory->queueEffect(0, CREATE_ELETRIC_GROUND, 0);
+	//effectFactory->queueEffect(0, CREATE_BOLT, 1);
+	//effectFactory->queueEffect(1000, CREATE_BOLT, 0);
+	//effectFactory->queueEffect( 0, CREATE_EXPLOSION, 0 );
+	//effectFactory->queueEffect( 0, CREATE_FEEDBACK, 1 );
+	//queueEffect( 2000, CREATE_DRUNK_EFFECT_SINGLE, 0 );
+	//queueEffect( 0, CREATE_EXPLOSION, 1 );
+	//queueEffect( 2000, CREATE_DRUNK_EFFECT, 0 );
+	//queueEffect( 0, CREATE_GLOW_AREA, 0 );
+	//queueEffect( 0, CREATE_ELECTRIC, 1 );
+	//for(int i=0;i<10;i++)
+		//effectFactory->queueEffect( 1000 + i*100, CREATE_FIREBALL, 0 );
+	//queueEffect( 3000, CREATE_WATER_BEAM, 1);
+	//queueEffect( 3000, CREATE_DRUNK_EFFECT, 0 );
+	//queueEffect( 5000, CREATE_FIRE_RAIN, 1 );
 }
 
 Screen::~Screen()
@@ -54,7 +62,7 @@ void Screen::initializeScreenElements()
 			
 			hpTxt[i] = device->getGUIEnvironment()->addStaticText(L"", rect<int>(xpos, 50, xpos+50, 100));
 			
-			bloodSplit[i] = driver->addRenderTargetTexture(core::dimension2d<u32>(256,256), "RTT1");
+			//bloodSplit[i] = driver->addRenderTargetTexture(core::dimension2d<u32>(256,256), "RTT1");
 			//device->getGUIEnvironment()->addImage( bloodSplit[i], core::position2d<s32>(xpos-256/2, 70-256/2) );
 
 			// smileys
@@ -146,55 +154,12 @@ void Screen::update()
 // Here we check everything about the game that has to be drawn.
 // It's all about HUDs and special effects!
 {
-	handleEffectsQueue();	
 	drawHP();
 	drawKeys();
 	drawHittingState();
 	
+	effectFactory->handleEffectsQueue();
 	effectFactory->shieldmanager->drawAll();
-}
-
-void Screen::handleEffectsQueue()
-{
-	unsigned int time = device->getTimer()->getTime();
-	
-	while( effectsQueue.size()>0  &&  time > effectsQueue.begin()->first.first ) {
-		
-		int target = effectsQueue.begin()->second;
-		
-		switch( effectsQueue.begin()->first.second )
-		{
-			case CREATE_FIREBALL:
-				effectFactory->createFireball(target,true);
-				break;
-			case CREATE_FIRE_RAIN:
-				for(int i=0; i<50; i++)
-					queueEffect( i*150, CREATE_FIREBALL_SKY, target );
-				break;
-			case CREATE_FIREBALL_SKY:
-				effectFactory->createFireRain(target);
-				break;
-			case CREATE_FIRE_AREA:
-				//effectFactory->createAreaEffect(target,fireballTex);
-				break;
-			case CREATE_GLOW_AREA:
-				effectFactory->createAreaEffect(target,glowTex);
-				break;
-			case SPELL_EFFECT:
-				effectFactory->createSpellEffect(target);
-				break;
-			case SHOW_SHIELD:
-				effectFactory->createShield(target);
-				break;
-			case CREATE_ELECTRIC:
-				effectFactory->createElectricEffect(target);
-				break;
-			case CREATE_WATER_BEAM:
-				effectFactory->createWaterBeam(target);
-				break;	
-		}
-		effectsQueue.erase( effectsQueue.begin() );
-	}
 }
 
 void Screen::drawHP()
@@ -255,9 +220,4 @@ void Screen::setFps( int fps )
 	core::stringw tmp(L"fps: ");
 	tmp += fps;
 	fpsText->setText(tmp.c_str());
-}
-
-void Screen::queueEffect( int msecondsAhead, effectFunction functionToCall, int targetPlayer )
-{
-	effectsQueue.insert( effectEvent(pair<unsigned int,effectFunction>(device->getTimer()->getTime()+msecondsAhead,functionToCall),targetPlayer) );	
 }

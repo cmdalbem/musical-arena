@@ -20,13 +20,6 @@ using namespace irr::scene;
 using namespace irr::video;
 
 
-enum effectFunction
-{
-	CREATE_FIREBALL, CREATE_FIREBALL_SKY, CREATE_FIRE_RAIN, CREATE_FIRE_AREA, CREATE_GLOW_AREA, SPELL_EFFECT, SHOW_SHIELD, CREATE_ELECTRIC, CREATE_WATER_BEAM
-};
-
-typedef pair<pair<unsigned int,effectFunction>,int> effectEvent;
-
 class Screen
 {
 	public:
@@ -39,15 +32,12 @@ class Screen
 
 		void						update();		
 		void						setFps( int fps );
-		void						queueEffect( int msecondsAhead, effectFunction functionToCall, int targetPlayer );
 	
 	private:
 		IrrlichtDevice				*device;
 		IVideoDriver				*driver;
 		ISceneManager				*smgr;
 		EffectFactory				*effectFactory;
-		
-		set<effectEvent>			effectsQueue;
 		
 		IGUIImage 					*good[NPLAYERS], *bad[NPLAYERS], *neutral[NPLAYERS];
 		ISceneNode					*glow[NPLAYERS][NFRETS];
@@ -61,7 +51,6 @@ class Screen
 		void 						drawHP();
 		
 		// Inner utility functions
-		void						handleEffectsQueue();
 		void						initializeScreenElements();
 		void						showGood( int targetPlayer );
 		void						showBad( int targetPlayer );
