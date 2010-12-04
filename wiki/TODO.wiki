@@ -31,3 +31,5 @@ vector<event> aMusic;
 
  * <font color="orange">*Gráficos*</font> _(60%)_
    gráfico mooooonstro
+
+ * <font color="red">*Multiplayer*</font> _(0%)_
