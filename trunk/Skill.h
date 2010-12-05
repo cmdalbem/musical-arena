@@ -9,7 +9,7 @@ class Skill
 {
 	public:
 		Skill();
-		Skill( std::string name, double cooldown, double cost, skillType type, effectType effects[], int neffects, visualEffectFunction effectFunction, buttonType keys[], int nkeys );
+		Skill( std::string name, double cooldown, double cost, elementType element, effectType effects[], int neffects, visualEffectFunction effectFunction, buttonType keys[], int nkeys );
 		~Skill();
 		
 		vector<buttonType>	keysSequence;
@@ -18,10 +18,8 @@ class Skill
 		double				cooldown;
 		double 				cost;
 		
-		skillType			type;
+		elementType			element;
 		visualEffectFunction effectFunction;
-	
-		std::string			getType();
 		
 	private:
 		

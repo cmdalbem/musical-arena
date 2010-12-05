@@ -20,6 +20,8 @@
 #define STONE_RADIUS 1
 #define NECK_TEXTURE_PROPORTION 2 //how many texture copies fit on a neck
 
+#define NSTAMINALEVELS 2
+
 #define SCREENX 800 
 #define SCREENY 600
 

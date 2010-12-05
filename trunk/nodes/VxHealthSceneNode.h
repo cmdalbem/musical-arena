@@ -20,6 +20,7 @@ namespace irr
 								VxHealthSceneNode( ISceneNode* parent,
 												ISceneManager* mgr,
 												s32 id,
+												s32 direction = 1, bool vertical=false,
 												s32 width = 100,
 												s32 height = 10,
 												const core::vector3df& position = core::vector3df(0,0,0),
@@ -65,6 +66,8 @@ namespace irr
 								s32 MaxNum;
 								s32 isVisible;
 								s32 m_s32Percent;
+								s32 direction;
+								bool isVertical;
 				};
 
 		} // end namespace scene

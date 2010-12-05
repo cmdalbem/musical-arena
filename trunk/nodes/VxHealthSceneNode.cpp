@@ -19,6 +19,7 @@ namespace irr
 				VxHealthSceneNode::VxHealthSceneNode( ISceneNode* parent,
 								ISceneManager* mgr,
 								s32 id,
+								s32 direction, bool vertical,
 								s32 width,
 								s32 height,
 								const core::vector3df& position,
@@ -32,7 +33,9 @@ namespace irr
 						m_gDim( width, height ),
 						m_bBorder(1),
 						isVisible(1),
-						m_s32Percent(100)
+						m_s32Percent(100),
+						direction(direction),
+						isVertical(vertical)
 				{
 #ifdef _DEBUG
 						setDebugName("VxHealthSceneNode");
@@ -97,26 +100,42 @@ namespace irr
 						// draw boarder if needed
 						if( m_bBorder )
 						{
-								driver->draw2DRectangle( BorderColor, AbsoluteRect, &AbsoluteRect);
+								driver->draw2DLine( BarRect.UpperLeftCorner,
+													core::vector2di(BarRect.LowerRightCorner.X,BarRect.UpperLeftCorner.Y),
+													BorderColor);
+								driver->draw2DLine( core::vector2di(BarRect.UpperLeftCorner.X,BarRect.LowerRightCorner.Y),
+													BarRect.LowerRightCorner,
+													BorderColor);
+								
+								driver->draw2DLine( BarRect.UpperLeftCorner,
+													core::vector2di(BarRect.UpperLeftCorner.X,BarRect.LowerRightCorner.Y),
+													BorderColor);
+								driver->draw2DLine( core::vector2di(BarRect.LowerRightCorner.X,BarRect.UpperLeftCorner.Y),
+													BarRect.LowerRightCorner,
+													BorderColor);
+								
 								// shrink by one for bar
 								BarRect.UpperLeftCorner.X += 1;
 								BarRect.UpperLeftCorner.Y += 1;
 								BarRect.LowerRightCorner.X -= 1;
-								BarRect.LowerRightCorner.Y -= 1;
 						}
 						// calculate progress bar
-						MaxNum = (BarRect.LowerRightCorner.X - BarRect.UpperLeftCorner.X) - 1;
+						if(isVertical)
+							MaxNum = (BarRect.UpperLeftCorner.Y - BarRect.LowerRightCorner.Y) - 1;
+						else
+							MaxNum = (BarRect.LowerRightCorner.X - BarRect.UpperLeftCorner.X) - 1;
 						s32 PercentNum = (s32)((m_s32Percent * MaxNum) / 100.);
 						
 						// draw progress part
 						core::rect<s32> LoadRect = BarRect;
-						LoadRect.LowerRightCorner.X = BarRect.UpperLeftCorner.X + PercentNum;
-						driver->draw2DRectangle( BarColor, LoadRect, &LoadRect );
 
-						// draw empty part
-						LoadRect.UpperLeftCorner.X = BarRect.UpperLeftCorner.X + PercentNum;
-						LoadRect.LowerRightCorner.X = BarRect.LowerRightCorner.X;
-						driver->draw2DRectangle( BkgColor, LoadRect, &LoadRect );
+						if(isVertical) 
+							LoadRect.UpperLeftCorner.Y -= PercentNum;
+						else if(direction==1)	
+							LoadRect.UpperLeftCorner.X += PercentNum;
+						else
+							LoadRect.LowerRightCorner.X -= PercentNum;
+						driver->draw2DRectangle( BkgColor, LoadRect );
 				}
 
 

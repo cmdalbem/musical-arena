@@ -28,6 +28,7 @@ class Player
 		
 		void			update();
 		void			addSkill( Skill s );
+		void			takeDamage( double damage );
 		
 	private:
 		void 			initialize();

@@ -53,10 +53,13 @@ class EffectFactory
 		void						createFireball( int targetPlayer, bool randomizeTarget );
 		void						createFireball( array<vector3df> path );
 		void						createAreaEffect(int player, ITexture *tex, int timeMs=700 );
+		void						createLaserBeam( int target );
 		void						createBolt( int targetPlayer );
+		void						createThunderstormBolt( int targetPlayer );
 		void						createEletrifiedGround( int targetPlayer );
 		void						createWaterBeam( int targetPlayer );
 		void						createDrunkEffect ( int targetPlayer, int times );
 		void						createParticlesExplosion( vector3df pos, ITexture *tex );
+		void 						createFloodEffect( int targetPlayer );
 
 };
