@@ -14,18 +14,19 @@ enum visualEffectFunction
 	CREATE_GLOW_AREA, CREATE_FEEDBACK, SHOW_SHIELD,
 	CREATE_BOLT, CREATE_ELETRIC_GROUND, CREATE_WATER_BEAM,
 	CREATE_DRUNK_EFFECT, CREATE_DRUNK_EFFECT_SINGLE, CREATE_EXPLOSION,
+	CREATE_THUNDERSTORM_BOLT, CREATE_THUNDERSTORM, CREATE_FLOOD_EFFECT
 };
 
 typedef pair<pair<unsigned int,visualEffectFunction>,int> effectEvent;
 
-enum skillType
+enum elementType
 {
-	ATTACK, DEFENSE
+	FIRE, THUNDER, WATER, EARTH
 };
 
 enum skillId
 {
-	FIREBALL, CURE, EXPLOSION, LIGHTNING_BOLT, FIRE_RAIN, FEEDBACK,ELETRIFIED_GROUND,
+	FIREBALL, CURE, EXPLOSION, LIGHTNING_BOLT, FIRE_RAIN, FEEDBACK, ELETRIFIED_GROUND, FLOOD, WATER_BEAM,
 	
 	SKILLS_TOTAL
 };
@@ -37,8 +38,10 @@ enum statusType
 	ST_POISON,		// takes damage per time
 	ST_FIRE,		// damage and defense down per time
 	ST_BARRIER,		// infinite armor
+	ST_MAGIC_BARRIER, // can't be targeted by spells
 	ST_MIRROR,		// will reflect enemy's casted spell
-	ST_ELETRIFIED	// player get shocks and damge per time
+	ST_ELETRIFIED,	// player get shocks and damage per time
+	ST_DROWNED		// stamina will start to decrease, and when it's all gone player will start getting damage per time
 };
 
 // The effects the skills causes on the player. There's are good and bad effects.
@@ -60,6 +63,7 @@ enum effectType
 	T_MIRROR,				// casts the last casted speel by the enemy on him	
 	T_TIME_WARP,			// changes actual music position of stones spawning on enemy's track
 	T_BURN,					// puts the enemy on Burn Status
+	T_DROWN,				// puts the enemy on Drowned Status
 	
 	//* SKILLS SACANINHAS*
 	T_SHOCK,				// displaces randomly some of the notes

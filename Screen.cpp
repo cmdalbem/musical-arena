@@ -9,10 +9,10 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	this->device = _device;
 	this->driver = device->getVideoDriver();
 	this->smgr = device->getSceneManager();
-	players.push_back(player1);
-	players.push_back(player2);
+	player.push_back(player1);
+	player.push_back(player2);
 	
-	effectFactory = new EffectFactory(device,driver,smgr,players);
+	effectFactory = new EffectFactory(device,driver,smgr,player);
 	
 	initializeScreenElements();
 	
@@ -21,21 +21,24 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	//abox->addAnimator(smgr->createRotationAnimator(core::vector3df(0.3f, 0.3f,0)));
 	
 	
+	//effectFactory->queueEffect( 0, CREATE_WATER_BEAM, 1);
+	//effectFactory->queueEffect( 1500, CREATE_FLOOD_EFFECT, 1);
+	//effectFactory->queueEffect(0, CREATE_BOLT, 1);
+	//effectFactory->queueEffect(0, CREATE_THUNDERSTORM, 0);
 	//effectFactory->queueEffect(0, CREATE_ELETRIC_GROUND, 0);
+	//effectFactory->queueEffect(0, CREATE_FIREBALL, 1);
+	effectFactory->queueEffect( 0, CREATE_FIRE_RAIN, 1 );
 	//effectFactory->queueEffect(0, CREATE_BOLT, 1);
 	//effectFactory->queueEffect(1000, CREATE_BOLT, 0);
 	//effectFactory->queueEffect( 0, CREATE_EXPLOSION, 0 );
 	//effectFactory->queueEffect( 0, CREATE_FEEDBACK, 1 );
-	//queueEffect( 2000, CREATE_DRUNK_EFFECT_SINGLE, 0 );
-	//queueEffect( 0, CREATE_EXPLOSION, 1 );
-	//queueEffect( 2000, CREATE_DRUNK_EFFECT, 0 );
-	//queueEffect( 0, CREATE_GLOW_AREA, 0 );
-	//queueEffect( 0, CREATE_ELECTRIC, 1 );
+	//effectFactory->queueEffect( 2000, CREATE_DRUNK_EFFECT_SINGLE, 0 );
+	//effectFactory->queueEffect( 0, CREATE_EXPLOSION, 1 );
+	//effectFactory->queueEffect( 2000, CREATE_DRUNK_EFFECT, 0 );
+	//effectFactory->queueEffect( 0, CREATE_GLOW_AREA, 0 );
+	//effectFactory->queueEffect( 0, CREATE_ELECTRIC, 1 );
 	//for(int i=0;i<10;i++)
 		//effectFactory->queueEffect( 1000 + i*100, CREATE_FIREBALL, 0 );
-	//queueEffect( 3000, CREATE_WATER_BEAM, 1);
-	//queueEffect( 3000, CREATE_DRUNK_EFFECT, 0 );
-	//queueEffect( 5000, CREATE_FIRE_RAIN, 1 );
 }
 
 Screen::~Screen()
@@ -71,16 +74,31 @@ void Screen::initializeScreenElements()
 			neutral[i] = device->getGUIEnvironment()->addImage( neutralTex, core::position2d<s32>(xpos,500), true );
 			
 			// health bars
-			healthBars[i] = new VxHealthSceneNode(
+			healthBar[i] = new VxHealthSceneNode(
 								smgr->getRootSceneNode(), // parent node
 								smgr, // scene manager
 								-1, // id
+								i==0? 1:-1, false,
 								300, // width
-								30, // height
-								core::vector3df(xpos, 20, 0), // position in 2d
-								video::SColor(255,0,200,0), // bar color
-								video::SColor(255,220,0,0), // background color
-								video::SColor(128,255,255,255) ); // border color
+								20, // height
+								vector3df(xpos, 20, 0), // position in 2d
+								SColor(0,0,0,0), // bar color
+								SColor(255,220,0,0), // background color
+								SColor(200,255,255,255) ); // border color
+								
+			for(int k=0; k<NSTAMINALEVELS; k++)
+				staminaBar[i][k] = new VxHealthSceneNode(
+									smgr->getRootSceneNode(), // parent node
+									smgr, // scene manager
+									-1, // id
+									1, true,
+									10, // width
+									60, // height
+									vector3df(i==0 ? 20 : SCREENX-20, SCREENY/3 + (k==0?30:-30), 0), // position in 2d
+									SColor(0,0,0,0), // bar color
+									SColor(170,30,30,240), // background color
+									SColor(255,255,255,255) ); // border color								
+			
 		}
 		
 		// glowing when you hit correclty a fret
@@ -88,7 +106,7 @@ void Screen::initializeScreenElements()
 			glow[i][k] = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), dimension2d<float>(10, 10));
 			glow[i][k]->setMaterialFlag(EMF_LIGHTING, false);
 			glow[i][k]->setMaterialType(EMT_TRANSPARENT_ADD_COLOR); 
-			glow[i][k]->setPosition( vector3df(players[i]->track->getStoneXPos(k),-TRACK_SIZE_Y,players[i]->track->posz) );
+			glow[i][k]->setPosition( vector3df(player[i]->track->getStoneXPos(k),-TRACK_SIZE_Y,player[i]->track->posz) );
 			glow[i][k]->setVisible(false);
 			((IBillboardSceneNode*)glow[i][k])->setColor(fretColors[k]);
 			glow[i][k]->setMaterialTexture(0, glowTex);
@@ -97,7 +115,7 @@ void Screen::initializeScreenElements()
 							12,                              // Subdivisions on V axis
 							fretColors[k], 			// foot color
 							SColor(0, 0, 0, 0),      		// tail color
-							vector3df(players[i]->track->getStoneXPos(k),-TRACK_SIZE_Y,players[i]->track->posz),
+							vector3df(player[i]->track->getStoneXPos(k),-TRACK_SIZE_Y,player[i]->track->posz),
 							vector3df(-90,0,0),
 							vector3df(10,10,10));
 			glow[i][k]->setMaterialTexture(0, glowTex);	
@@ -119,11 +137,11 @@ void Screen::drawKeys()
 		
 		for(int k=0; k<NFRETS; k++) {
 			
-			glow[i][k]->setVisible( players[i]->fretting->_hitting[k]==1 );
+			glow[i][k]->setVisible( player[i]->fretting->_hitting[k]==1 );
 			
 			int zdisplace = 0;
 			// what's the state of the fret?
-			switch( players[i]->fretting->_hitting[k] )
+			switch( player[i]->fretting->_hitting[k] )
 			{
 				case 0:
 					color = fretColors[k];
@@ -143,8 +161,8 @@ void Screen::drawKeys()
 			}
 			
 			// draw the colored bar for this fret
-			driver->draw3DLine( vector3df(players[i]->track->getStoneXPos(k) -1, -TRACK_SIZE_Y, players[i]->track->posz - zdisplace),
-								vector3df(players[i]->track->getStoneXPos(k) +1, -TRACK_SIZE_Y, players[i]->track->posz - zdisplace),
+			driver->draw3DLine( vector3df(player[i]->track->getStoneXPos(k) -1, -TRACK_SIZE_Y, player[i]->track->posz - zdisplace),
+								vector3df(player[i]->track->getStoneXPos(k) +1, -TRACK_SIZE_Y, player[i]->track->posz - zdisplace),
 								color );
 		}
 	}
@@ -165,10 +183,14 @@ void Screen::update()
 void Screen::drawHP()
 {
 	for(int i=0; i<NPLAYERS; i++) {
-		healthBars[i]->setProgress( players[i]->HP*100/players[i]->maxHP );
+		//healthBar[i]->setProgress( player[i]->HP*100/player[i]->maxHP );
+		//staminaBar[i]->setProgress( player[i]->stamina*100/player[i]->maxStamina );
+		healthBar[i]->setProgress( 20 );
+		staminaBar[i][0]->setProgress( 0 );
+		staminaBar[i][1]->setProgress( 70 );
 			
 		char str[30];
-		sprintf(str,"%i/%i",players[i]->HP,players[i]->maxHP);
+		sprintf(str,"%i/%i",player[i]->HP,player[i]->maxHP);
 		hpTxt[i]->setText( stringw(str).c_str() );
 	}
 }
@@ -177,7 +199,7 @@ void Screen::drawHittingState()
 {
 	for(int i=0; i<NPLAYERS; i++) 
 	{
-		switch( players[i]->fretting->frettingState )
+		switch( player[i]->fretting->frettingState )
 		{
 			case  1:
 				showGood(i);

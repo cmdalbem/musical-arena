@@ -28,7 +28,7 @@ class Screen
 		
 		ITexture					*bloodSplit[NPLAYERS];
 		ISceneNode					*abox;
-		vector<Player*> 			players;
+		vector<Player*> 			player;
 
 		void						update();		
 		void						setFps( int fps );
@@ -42,7 +42,7 @@ class Screen
 		IGUIImage 					*good[NPLAYERS], *bad[NPLAYERS], *neutral[NPLAYERS];
 		ISceneNode					*glow[NPLAYERS][NFRETS];
 		IGUIStaticText 				*fpsText, *hpTxt[NPLAYERS];
-		VxHealthSceneNode			*healthBars[NPLAYERS];
+		VxHealthSceneNode			*healthBar[NPLAYERS], *staminaBar[NPLAYERS][NSTAMINALEVELS];
 		ITexture 					*glowTex;
 		
 		// HUD drawing
