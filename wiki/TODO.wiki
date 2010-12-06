@@ -29,7 +29,17 @@ vector<event> aMusic;
  * <font color="red">*IA*</font> _(0%)_
    inicialmente um sistema bem simples que simplesmente acerte ou erre notas de tempos em tempos. posteriormente, adicionamos uma IA que execute skills, etc.
 
- * <font color="orange">*Gráficos*</font> _(60%)_
-   gráfico mooooonstro
+ * <font color="orange">*Aparência*</font>
+   * <font color="red">*Menus*</font> _(20%)_
+      Menus do jogo para selecionar musica e customizar os instrumentos com as skills.
+   * <font color="red">*Backgrounds*</font> _(0%)_
+      Fundos para o jogo (imagens paradas, imagens animadas, coisas em 3d, ...)
+   * <font color="orange">*Sound effects*</font> _(70%)_
+      Efeitos de som.
+   * <font color="red">*HUD*</font> _(40%)_
+      Barrinhas e indicadores da tela.
+   * <font color="green">*Skills effects*</font> _(80%)_
+      Efeitos visuais das skills.
 
  * <font color="red">*Multiplayer*</font> _(0%)_
+   Infelizmente é uma das coisas que botamos no nosso planejamento, pode dar problema se não implementarmos isso mais tarde.
