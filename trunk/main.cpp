@@ -115,10 +115,12 @@ void musa_init()
 {	
 	player1.addSkill( skillBank.skills[FIREBALL] );
 	player1.addSkill( skillBank.skills[CURE] );
+	player2.addSkill( skillBank.skills[FIREBALL] );
+	player2.addSkill( skillBank.skills[CURE] );
 
 	player1.fretting = new Fretting( &player1.skills );
 	player1.track = new Track(&theMusic,&musicTime,device,23, -20);
-	player2.fretting = new Fretting();
+	player2.fretting = new Fretting(&player2.skills);
 	player2.track = new Track(&theMusic,&musicTime,device,10, 20);
 	
 	double tolerance = 0.2;
@@ -165,7 +167,7 @@ void musa_init()
 	int events1[NFRETS] = {0,1,2,3,4};
 
 	player1.fretting->setEvents(eventos1);
-	//player1.fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
+	player1.fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
 	player2.fretting->setEvents(eventos2);
 	
 	screen = new Screen(device,&player1,&player2);
@@ -216,6 +218,8 @@ void initializeIrrlicht()
 	
 	skin->setFont(font);
 
+	//env->addButton(rect<s32>(10,240,110,240 + 32), 0, GUI_ID_QUIT_BUTTON,
+	//		L"Quit", L"Exits Program");
 	/*scene::ILightSceneNode *light = */smgr->addLightSceneNode(0, vector3df(0,-80,-30), video::SColorf(1.0f, 1.0f, 1.0f), 20.0f);
 	//light->setLightType(video::ELT_DIRECTIONAL);
 	//light->setRotation(vector3df(-90,0,0));

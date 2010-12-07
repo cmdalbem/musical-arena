@@ -5,6 +5,7 @@
 
 #include <iostream>
 
+
 EventReceiver::EventReceiver()
 {
 	for (u32 i=0; i<KEY_KEY_CODES_COUNT; ++i)
@@ -18,6 +19,7 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 
 	if (enabled)
 	{
+		
 		events.push_back(_event);
 		refreshArray(_event);
 		//sem_post(semaphore);
