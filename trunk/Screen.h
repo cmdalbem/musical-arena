@@ -27,7 +27,6 @@ class Screen
 		~Screen();
 		
 		ITexture					*bloodSplit[NPLAYERS];
-		ISceneNode					*abox;
 		vector<Player*> 			player;
 
 		void						update();		
