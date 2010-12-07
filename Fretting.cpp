@@ -27,6 +27,7 @@ ostream& operator<<(ostream& out, skillTreeNode& node )
 Fretting::Fretting()
 {
 	initialize();
+	generateSkillsTree(NULL);
 }
 
 Fretting::Fretting( vector<Skill> *skills )
@@ -183,13 +184,18 @@ int Fretting::joystickPreFretting(SEvent *event)
         {
                 JoystickState = event->JoystickEvent;
 		for (int i = 0; i < NFRETS; i++)
+		{
+			//cout << JoystickState.IsButtonPressed(joystickButtons[i]) << _trackPressed[i] << " ";
 			if (JoystickState.IsButtonPressed(joystickButtons[i]) != _trackPressed[i])
 			{
-				_trackPressed[i] = JoystickState.IsButtonPressed(joystickButtons[i]);
+				
 				usefullButton = i;
 			}
+		}
+		//cout << endl;
 	}
 	//cout << usefullButton << endl;
+	_trackPressed[usefullButton] = JoystickState.IsButtonPressed(joystickButtons[usefullButton]);
 	return usefullButton;
 }
 

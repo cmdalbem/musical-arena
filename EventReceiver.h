@@ -6,6 +6,14 @@
 using namespace irr;
 using namespace std;
 
+enum
+{
+	GUI_ID_QUIT_BUTTON = 101,
+	GUI_ID_NEW_WINDOW_BUTTON,
+	GUI_ID_FILE_OPEN_BUTTON,
+	GUI_ID_TRANSPARENCY_SCROLL_BAR
+};
+
 class EventReceiver : public IEventReceiver
 {
 	public:
