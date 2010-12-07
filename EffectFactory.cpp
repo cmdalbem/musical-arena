@@ -151,17 +151,17 @@ void EffectFactory::createFeedback( int i )
 
 void EffectFactory::createExplosion( vector3df pos )
 {
+	#define animTime 45
+
 	IVolumeLightSceneNode * spellEffect = smgr->addVolumeLightSceneNode(0, -1,
-                                256,                              // Subdivisions on U axis
-                                256,                              // Subdivisions on V axis
-                                SColor(0, 20,20,20), 		// foot color
+                                64,                              // Subdivisions on U axis
+                                64,                              // Subdivisions on V axis
+                                SColor(0, 50,50,50), 		// foot color
                                 SColor(0, 0,0,0),      		// tail color
                                 pos,
                                 vector3df(-90,0,0),
                                 vector3df(70,20,70));
 	spellEffect->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
-	
-	#define animTime 45
 	spellEffect->addAnimator( smgr->createTextureAnimator(explosion, animTime, false) );
 	spellEffect->addAnimator( smgr->createDeleteAnimator(NEXPLOSIONTEX*animTime) );
 }

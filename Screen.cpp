@@ -27,10 +27,10 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	//effectFactory->queueEffect(0, CREATE_THUNDERSTORM, 0);
 	//effectFactory->queueEffect(0, CREATE_ELETRIC_GROUND, 0);
 	//effectFactory->queueEffect(0, CREATE_FIREBALL, 1);
-	effectFactory->queueEffect( 0, CREATE_FIRE_RAIN, 1 );
+	//effectFactory->queueEffect( 0, CREATE_FIRE_RAIN, 1 );
 	//effectFactory->queueEffect(0, CREATE_BOLT, 1);
 	//effectFactory->queueEffect(1000, CREATE_BOLT, 0);
-	//effectFactory->queueEffect( 0, CREATE_EXPLOSION, 0 );
+	//effectFactory->queueEffect( 800, CREATE_EXPLOSION, 0 );
 	//effectFactory->queueEffect( 0, CREATE_FEEDBACK, 1 );
 	//effectFactory->queueEffect( 2000, CREATE_DRUNK_EFFECT_SINGLE, 0 );
 	//effectFactory->queueEffect( 0, CREATE_EXPLOSION, 1 );

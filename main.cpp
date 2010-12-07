@@ -23,6 +23,7 @@ using irr::core::vector3df;
 #include "PostProcessBloom.h"
 #include "PostProcessRadialBlur.h"
 #include "PostProcessInvert.h"
+#include "SoundBank.h"
 
 core::array<SJoystickInfo> joystickInfo;
 
@@ -33,7 +34,6 @@ video::IVideoDriver 		*driver=0;
 scene::ISceneManager 		*smgr=0;
 IGUIEnvironment				*env=0;
 scene::ICameraSceneNode 	*camera=0;
-scene::ICameraSceneNode		*aboxCam=0;
 EventReceiver 				receiver;
 
 // Post process effects
@@ -50,6 +50,7 @@ Screen						*screen;
 vector<musicEvent> 			theMusic;
 Player 						player1, player2;
 SkillBank					skillBank;
+SoundBank					*soundBank;
 
 bool 						endOfMusic =false; // indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
 double 						musicTime =0;
@@ -57,18 +58,6 @@ double 						musicTime =0;
 // Other globals
 sem_t semaphore;
 sem_t receiverSemaphore;
-
-struct musicLibEntry
-{
-	std::string notes, song, guitar;
-	difficultyType difficulty;
-};
-
-const musicLibEntry musicLib[] = { {"music/api/notes.mid", "music/api/song.ogg", "music/api/guitar.ogg", HARD},
-							       {"music/example/notes.mid", "music/example/song.ogg", "", EXPERT},
-							       {"music/roundabout/notes.mid", "music/roundabout/song.ogg", "", HARD}
-							  };
-const musicLibEntry selectedSong = musicLib[0];
 
 
 
@@ -171,10 +160,7 @@ void musa_init()
 	player2.fretting->setEvents(eventos2);
 	
 	screen = new Screen(device,&player1,&player2);
-	
-	theMusic = decoder.decodeMidi(selectedSong.notes, selectedSong.difficulty);
-	//decoder.printMusic(theMusic);
-					
+						
 	// start getting signals, baby
 	receiver.enabled = true;	
 }
@@ -245,9 +231,6 @@ void initializeIrrlicht()
 	
 	// a FPS camera for debugging
 	//camera = smgr->addCameraSceneNodeFPS(); device->getCursorControl()->setVisible(false);
-	
-	aboxCam = smgr->addCameraSceneNode(0, core::vector3df(0,0,-120), core::vector3df(0,0,1));
-	smgr->setActiveCamera(camera);
 
 	initializePostProcessEffects();
 }
@@ -278,20 +261,8 @@ int main(int argc, char *argv[])
 	/*
 	 * initializing the sound engine
 	 */
-	FMOD_RESULT result;
-	FMOD::System *system;
-	result = FMOD::System_Create(&system);		// Create the main system object.
-	ERRCHECK(result)
-	result = system->init(100, FMOD_INIT_NORMAL, 0);	// Initialize FMOD.
-	ERRCHECK(result)
+	soundBank = new SoundBank();
 
-	// load the sound files
-	FMOD::Sound *song, *guitar=0;
-	result = system->createSound(selectedSong.song.c_str(), FMOD_DEFAULT, 0, &song);
-	if(selectedSong.guitar.size()>0)
-		system->createSound(selectedSong.guitar.c_str(), FMOD_DEFAULT, 0, &guitar);
-	ERRCHECK(result);
-	
 	
 	/*
 	 * initializing the graphics engine
@@ -320,11 +291,10 @@ int main(int argc, char *argv[])
 	/*
 	 * start playing the music
 	 */
-	FMOD::Channel *channel;
-	result = system->playSound(FMOD_CHANNEL_FREE, song, false, &channel);
-	if(guitar)
-		system->playSound(FMOD_CHANNEL_FREE, guitar, false, &channel);
-	ERRCHECK(result);	
+	soundBank->selectMusic(0);
+	soundBank->playSelectedMusic();
+	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
+	//decoder.printMusic(theMusic);
 	
 	SColor bgColor = SColor(255,113,113,133);
 	/* 
@@ -336,12 +306,6 @@ int main(int argc, char *argv[])
 
 		//sem_wait(&semaphore);
 		
-		/*driver->setRenderTarget(screen->bloodSplit[0], true, true, 0);
-			smgr->setActiveCamera(aboxCam);
-			screen->abox->setVisible(true);
-			screen->abox->render();
-			screen->abox->setVisible(false);
-			smgr->setActiveCamera(camera);*/
 		if(bloomEffect) {
 			driver->setRenderTarget(bloom->rt0, true, true, bgColor); 
 				smgr->drawAll();
