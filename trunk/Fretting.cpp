@@ -212,7 +212,7 @@ int Fretting::keyboardPreFretting(SEvent *event)
 int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
 {
 	if ((event->EventType == irr::EET_JOYSTICK_INPUT_EVENT && type == JOYSTICK) || 
-	(event->EventType == irr::EET_KEY_INPUT_EVENT  && type == KEYBOARD))
+		(event->EventType == irr::EET_KEY_INPUT_EVENT  && type == KEYBOARD))
 	{
 	double 	noteCreationTime;
 	double 	noteDestructionTime;
@@ -265,7 +265,6 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
 	 * lost on it.
 	 * 
 	 * Total time lost: 6h23 minutes
-	 * 9h10
 	 */
 	lastState = _hitting[usefulButton];	// stores the old value of the actual pressed button
 	if 	((type == KEYBOARD && event->KeyInput.PressedDown) || // key was pressed down

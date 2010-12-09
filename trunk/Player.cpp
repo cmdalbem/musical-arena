@@ -45,6 +45,9 @@ void Player::update()
 	if ( track->nonPressedChord ) // the player left behind a chord he should have played
 	{
 		fretting->lostNote();
+		HP = HP - track->notesOnChord;
+		if (HP < 0)
+			HP = 0;
 		//cout << "the player left " << track->notesOnChord << " behind" << endl;
 	}
 	else
@@ -67,9 +70,17 @@ void Player::update()
 				gotAnEvent = fretting->verifyEvents( anEvent, firstStones );
 				
 				if (gotAnEvent != 0)
-					//removes the first event of the events vector (so we can deal with the others =D)
+				{
+					// removes the first event of the events vector (so we can deal with the others =D)
 					fretting->receiver->removeEvent();
 					
+					// check if the player must lose some HP
+					if (fretting->frettingState == -1)
+						if (HP > 0)
+							HP--;
+						else
+							HP = 0;	// just to make sure HP is not gonna be a negative number
+				}
 			}
 			//cout << "vai verificar eventos" << endl;
 			//cout << "terminou de verificar eventos" << endl;

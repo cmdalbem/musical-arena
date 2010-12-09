@@ -156,7 +156,7 @@ void musa_init()
 	int events1[NFRETS] = {0,1,2,3,4};
 
 	player1.fretting->setEvents(eventos1);
-	player1.fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
+	//player1.fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
 	player2.fretting->setEvents(eventos2);
 	
 	screen = new Screen(device,&player1,&player2);
@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
 	/*
 	 * start playing the music
 	 */
-	soundBank->selectMusic(0);
+	soundBank->selectMusic(1);
 	soundBank->playSelectedMusic();
 	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
 	//decoder.printMusic(theMusic);
