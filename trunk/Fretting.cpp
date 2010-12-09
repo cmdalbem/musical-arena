@@ -294,12 +294,12 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], int *usingSkill
 		case 0: // wasn't pressing
 		{
 			// search skills
-			if (usingSkill)
+			if (*usingSkill == 1)
 			{
 				Skill *cast = 0;
 				cast = findSkill( (buttonType)usefulButton );
 				if(cast)
-					cout << "Player casted " << cast->name << "!!!" << endl;
+					cout << "Player casted " << cast->name << "!!!" << "  usingSkill: " << *usingSkill << endl;
 			}
 			
 			if (*musicTime > noteCreationTime - tolerance &&
