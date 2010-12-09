@@ -42,4 +42,4 @@ vector<event> aMusic;
       Efeitos visuais das skills.
 
  * <font color="red">*Multiplayer*</font> _(0%)_
-   Infelizmente é uma das coisas que botamos no nosso planejamento, pode dar problema se não implementarmos isso mais tarde.
+   Infelizmente é uma das coisas que botamos no nosso planejamento, pode dar problema se não implementarmos isso logo.
