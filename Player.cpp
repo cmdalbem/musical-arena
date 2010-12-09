@@ -28,7 +28,7 @@ void Player::initialize()
 	maxStamina = 30 + (rand() % 21);
 	stamina = maxStamina;
 	
-	usingSkill = 1;
+	usingSkill = 0;
 	staminaDecreaseSpeed = 1;
 	staminaRecoverSpeed = 1;
 	
