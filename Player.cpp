@@ -27,7 +27,11 @@ void Player::initialize()
 	HP = maxHP;
 	maxStamina = 30 + (rand() % 21);
 	stamina = maxStamina;
-	usingSkill = 0;
+	
+	usingSkill = 1;
+	staminaDecreaseSpeed = 1;
+	staminaRecoverSpeed = 1;
+	
 	
 	XP = 0;
 	level = 1;
@@ -42,6 +46,7 @@ void Player::update()
 	SEvent *anEvent;
 
 	track->update();
+	updateStamina();
 	
 	if ( track->nonPressedChord ) // the player left behind a chord he should have played
 	{
@@ -66,7 +71,7 @@ void Player::update()
 			while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
 			{
 				//sem_wait(fretting->receiver->semaphore);
-				gotAnEvent = fretting->verifyEvents( anEvent, firstStones, usingSkill );
+				gotAnEvent = fretting->verifyEvents( anEvent, firstStones, &usingSkill );
 				
 				if (gotAnEvent != 0)
 				{
@@ -75,10 +80,13 @@ void Player::update()
 					
 					// check if the player must lose some HP or earn some XP
 					int state = fretting->getFrettingState();
-					if (state == -1)
-						takeDamage (1 * IS_STATUS_FIRE);	// IS_STATUS_FIRE is defined in utils.h
-					else if (state > 0)
-						XP += state;
+					if (gotAnEvent != SKILLBUTTON_INDEX)
+					{
+						if (state == -1)
+							takeDamage (1 * IS_STATUS_FIRE);	// IS_STATUS_FIRE is defined in utils.h
+						else if (state > 0)
+							XP += state;
+					}
 				}
 			}
 			//cout << "vai verificar eventos" << endl;
@@ -97,5 +105,42 @@ void Player::takeDamage( double damage )
 	HP = HP - damage;
 	if (HP < 0)
 		HP = 0;
+}
+
+void Player::staminaDecrease()
+{
+	stamina--;
+	if (stamina < 0)
+		stamina = 0;
+}
+
+void Player::staminaRecover()
+{
+	stamina++;
+	if (stamina > maxStamina)
+		stamina = maxStamina;
+}
+
+void Player::updateStamina()
+{
+	double elapsedTime = 0;
+	if (usingSkill)
+	{
+		elapsedTime = time_diff(staminaLastTimeDecreased);
+		if (elapsedTime > (1/staminaDecreaseSpeed))
+		{
+			staminaDecrease();
+			gettimeofday(&staminaLastTimeDecreased, NULL);
+		}
+	}
+	else
+	{
+		elapsedTime = time_diff(staminaLastTimeRecovered);
+		if (elapsedTime > (1/staminaRecoverSpeed))
+		{
+			staminaRecover();
+			gettimeofday(&staminaLastTimeRecovered, NULL);
+		}
+	}
 }
 

@@ -47,14 +47,15 @@ void Fretting::initialize()
 		keyState[i] = 0;
 	}
 	
+	skillButtonState = 0;
 	frettingState = 0;
 	
 	//sem_init(&semaphore, 0, 1);
 }
 
-Fretting::Fretting(EKEY_CODE events[NFRETS])
+Fretting::Fretting(EKEY_CODE events[NFRETS], EKEY_CODE skillButton)
 {
-	setEvents( &(events[NFRETS]) );
+	setEvents( &(events[NFRETS]), skillButton);
 	initialize();
 }
 
@@ -63,12 +64,15 @@ Fretting::~Fretting()
 {	}
 
 ////////////////////////////////////////////////////////////// GETTERS & SETTERS
-void Fretting::setEvents(EKEY_CODE events[NFRETS])
+void Fretting::setEvents(EKEY_CODE events[NFRETS], EKEY_CODE _skillButton)
 {
 	for (int i = 0; i < NFRETS; i++)
 		_events.push_back(events[i]);
+	
 	type = KEYBOARD;
+	skillButton = _skillButton;
 }
+
 void Fretting::setEvents(int buttons[NFRETS], core::array<SJoystickInfo> 
 			joystickInfo, int number)
 {
@@ -206,10 +210,14 @@ int Fretting::keyboardPreFretting(SEvent *event)
 	for (int i = 0; i < NFRETS; i++)
 		if (event->KeyInput.Key == _events[i])
 			usefullButton = i;
+			
+	if (event->KeyInput.Key == skillButton)
+		usefullButton = SKILLBUTTON_INDEX;
+	
 	return usefullButton;
 }
 
-int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], int usingSkill)
+int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], int *usingSkill)
 {
 	if ((event->EventType == irr::EET_JOYSTICK_INPUT_EVENT && type == JOYSTICK) || 
 		(event->EventType == irr::EET_KEY_INPUT_EVENT  && type == KEYBOARD))
@@ -231,15 +239,31 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], int usingSkill)
 			cout << "no fretting type defined\n";
 	}
 	else
-	{
 		return -1;
-	}
 
 	if (usefulButton == -1)
-	{
-		//cout << "useless button: " << event->KeyInput.Key
-		//	 << "  1: " << _events[0] << " 2: " << _events[1] << " 3: " << _events[2] << " 4: " << _events[3] << " 5: " << _events[4] << endl;
 		return 0;
+	
+	// treatment of the SkillButton (toggle the usingSkill variable
+	// collateral effect: starts to decrease stamina
+	if (usefulButton == SKILLBUTTON_INDEX)
+	{
+		if (type == KEYBOARD && event->KeyInput.PressedDown)
+		{
+			if(skillButtonState == 0)
+			{
+				if (*usingSkill == 0)
+					*usingSkill = 1;
+				else if (*usingSkill == 1)
+					*usingSkill = 0;
+				else
+					*usingSkill = 0;
+				skillButtonState = 1;
+			}
+		}
+		else
+			skillButtonState = 0;
+		return SKILLBUTTON_INDEX;
 	}
 	
 	//cout << "1" << endl;

@@ -29,6 +29,8 @@
 #define TRACK_SIZE_X 30
 #define TRACK_SIZE_Y 70
 
+#define SKILLBUTTON_INDEX 10
+
 #ifdef HAVE_FMOD
   #include <fmod.hpp>
   #include <fmod_errors.h>

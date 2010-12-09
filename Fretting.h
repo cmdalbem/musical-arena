@@ -40,7 +40,7 @@ class Fretting
 	public:
 		Fretting();
 		Fretting(vector<Skill> *skills);
-		Fretting(EKEY_CODE events[NFRETS]);
+		Fretting(EKEY_CODE events[NFRETS] , EKEY_CODE skillButton);
 		//Fretting(int buttons[NUMBER_OF_FRETS], core::array<SJoystickInfo> joystickInfo, int joystickNumber);
 		~Fretting();
 		
@@ -49,14 +49,14 @@ class Fretting
 		double 	tolerance;
 		int 	frettingState;
 		int		keyState[5];
-		int		_hitting[NFRETS];
 		EventReceiver *receiver;
+		int		_hitting[NFRETS];
 
-		void 	setEvents(EKEY_CODE events[NFRETS]);
+		void 	setEvents(EKEY_CODE events[NFRETS], EKEY_CODE _skillButton);
 		void 	setEvents(int buttons[NFRETS], core::array<SJoystickInfo> 
 							joystickInfo, int joystickNumber);
 
-		int 	verifyEvents(SEvent *event, Stone* firstStones[NFRETS], int usingSkill);
+		int 	verifyEvents(SEvent *event, Stone* firstStones[NFRETS], int *usingSkill);
 		int		getFrettingState();
 		void	printHitFret();
 		void	lostNote();
@@ -68,7 +68,12 @@ class Fretting
 		skillSearchTree 			skillsTree;
 		skillSearchTree::iterator 	actualSkillNode;
 		
+		// Keyboard
 		vector<EKEY_CODE> 	_events;
+		EKEY_CODE			skillButton;
+		int		skillButtonState;
+		
+		// Joystick (Gamepad)
 		vector<int>			joystickButtons;
 		int					joystickNumber;
         SEvent::SJoystickEvent JoystickState;
