@@ -31,6 +31,7 @@ class Player
 		int				level;
 		int				gold;
 		statusType		status;
+		//Instrument		instrument;
 		vector<Skill>	skills;
 		
 		void			update();
