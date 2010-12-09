@@ -209,7 +209,7 @@ int Fretting::keyboardPreFretting(SEvent *event)
 	return usefullButton;
 }
 
-int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
+int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], int usingSkill)
 {
 	if ((event->EventType == irr::EET_JOYSTICK_INPUT_EVENT && type == JOYSTICK) || 
 		(event->EventType == irr::EET_KEY_INPUT_EVENT  && type == KEYBOARD))
@@ -237,17 +237,12 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
 
 	if (usefulButton == -1)
 	{
-//		cout << "useless button: " << event->KeyInput.Key
-//			 << "  1: " << _events[0] << " 2: " << _events[1] << " 3: " << _events[2] << " 4: " << _events[3] << " 5: " << _events[4] << endl;
+		//cout << "useless button: " << event->KeyInput.Key
+		//	 << "  1: " << _events[0] << " 2: " << _events[1] << " 3: " << _events[2] << " 4: " << _events[3] << " 5: " << _events[4] << endl;
 		return 0;
 	}
 	
 	//cout << "1" << endl;
-	Skill *cast =0;
-	cast = findSkill( (buttonType)usefulButton );
-	if(cast)
-		cout << "Player casted " << cast->name << "!!!" << endl;
-	
 	if( stones[usefulButton]!= NULL ) {
 		noteCreationTime = stones[usefulButton]->event.time;
 		noteDestructionTime = stones[usefulButton]->destroyTime;
@@ -273,6 +268,16 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
 		switch (_hitting[usefulButton])
 		{
 		case 0: // wasn't pressing
+		{
+			// search skills
+			if (usingSkill)
+			{
+				Skill *cast = 0;
+				cast = findSkill( (buttonType)usefulButton );
+				if(cast)
+					cout << "Player casted " << cast->name << "!!!" << endl;
+			}
+			
 			if (*musicTime > noteCreationTime - tolerance &&
 				*musicTime < noteCreationTime + tolerance)
 				// hit strike
@@ -281,6 +286,7 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
 				// missed strike
 				_hitting[usefulButton] = -1;
 			break;
+		}	
 		case 1: // hitting
 			if (*musicTime < noteDestructionTime &&
 				*musicTime > noteCreationTime)
@@ -380,7 +386,8 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS])
 		}
 	}
 	
-	frettingState = nextFrettingState;
+	if (nextFrettingState != -3)
+		frettingState = nextFrettingState;
 	return 1;
 	}
 	return 0;
@@ -391,7 +398,7 @@ void Fretting::printHitFret()
 	// printing-time!
 	for(int i=0; i<NFRETS; i++)
 		cout<<_hitting[i]<<"\t";
-	cout << "  =[" << frettingState << "]" << "  vector_size: "  << receiver->events.size() << endl;
+	cout << "  =[" << frettingState << "]" << "  vector_size: "  << receiver->events.size();
 		// << "  1: " << _events[0] << " 2: " << _events[1] << " 3: " << _events[2] << " 4: " << _events[3] << " 5: " << _events[4] << endl;
 	//<< "  tolerance: " << tolerance << endl;
 }

@@ -240,6 +240,7 @@ static void *debugger (void *argument)
 	while(1)
 	{
 		player1.fretting->printHitFret();
+		cout << "  player1.XP: " << player1.XP << endl;
 		usleep(80000);
 	}
 

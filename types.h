@@ -42,6 +42,7 @@ enum statusType
 	ST_MIRROR,		// will reflect enemy's casted spell
 	ST_ELETRIFIED,	// player get shocks and damage per time
 	ST_DROWNED		// stamina will start to decrease, and when it's all gone player will start getting damage per time
+					// /\ inspired on Tomb Raider, when Lara Croft is swimming u.u
 };
 
 // The effects the skills causes on the player. There's are good and bad effects.
