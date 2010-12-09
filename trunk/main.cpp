@@ -70,7 +70,7 @@ static void *updater(void *argument)
 	  
 	 while( !endOfMusic ) {
 		usleep(1);
-		musicTime = time_diff(start);// + 20;
+		musicTime = time_diff(start);
  
 		// spawning on track1
 		while( (unsigned int)player1.track->musicPos < theMusic.size() &&
@@ -155,9 +155,9 @@ void musa_init()
 	EKEY_CODE eventos2[NFRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
 	int events1[NFRETS] = {0,1,2,3,4};
 
-	player1.fretting->setEvents(eventos1);
+	player1.fretting->setEvents(eventos1, irr::KEY_SPACE );
 	//player1.fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
-	player2.fretting->setEvents(eventos2);
+	player2.fretting->setEvents(eventos2, irr::KEY_KEY_C );
 	
 	screen = new Screen(device,&player1,&player2);
 						
@@ -240,7 +240,8 @@ static void *debugger (void *argument)
 	while(1)
 	{
 		player1.fretting->printHitFret();
-		cout << "  player1.XP: " << player1.XP << endl;
+		//cout << "  player1.XP: " << player1.XP <<
+		cout << "player1.stamina: " << player1.stamina << " usingSkill: " << player1.usingSkill << endl;
 		usleep(80000);
 	}
 

@@ -16,8 +16,12 @@ class Player
 		Fretting		*fretting;
 		Track			*track;
 		int				gotAnEvent;
+		
 		int				usingSkill;
-		doubles			lastTimeDecreasedStamina;
+		timeval			staminaLastTimeDecreased;
+		timeval			staminaLastTimeRecovered;
+		double			staminaDecreaseSpeed;
+		double			staminaRecoverSpeed;
 		
 		int				HP;
 		int				maxHP;
@@ -32,7 +36,9 @@ class Player
 		void			update();
 		void			addSkill( Skill s );
 		void			takeDamage( double damage );
-		
+		void 			updateStamina();
 	private:
 		void 			initialize();
+		void 			staminaRecover();
+		void 			staminaDecrease();
 };
