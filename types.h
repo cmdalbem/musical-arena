@@ -114,3 +114,4 @@ typedef struct musicEvent_t
 	double time; //	time in seconds
 	int mspqn; // microseconds per quarter note
 } musicEvent;
+
