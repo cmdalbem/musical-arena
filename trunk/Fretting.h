@@ -54,10 +54,10 @@ class Fretting
 
 		void 	setEvents(EKEY_CODE events[NFRETS]);
 		void 	setEvents(int buttons[NFRETS], core::array<SJoystickInfo> 
-			joystickInfo, int joystickNumber);
+							joystickInfo, int joystickNumber);
 
-		int 	verifyEvents(SEvent *event, Stone* firstStones[NFRETS]);
-		int	getFrettingState();
+		int 	verifyEvents(SEvent *event, Stone* firstStones[NFRETS], int usingSkill);
+		int		getFrettingState();
 		void	printHitFret();
 		void	lostNote();
 
@@ -69,9 +69,9 @@ class Fretting
 		skillSearchTree::iterator 	actualSkillNode;
 		
 		vector<EKEY_CODE> 	_events;
-		vector<int>		joystickButtons;
-		int			joystickNumber;
-        	SEvent::SJoystickEvent JoystickState;
+		vector<int>			joystickButtons;
+		int					joystickNumber;
+        SEvent::SJoystickEvent JoystickState;
 		
 		bool 				_trackPressed[NFRETS];		// tell us the state of the tracks on the last
 		bool 				_rightPressed[NFRETS];		// frame		

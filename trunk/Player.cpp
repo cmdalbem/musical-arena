@@ -27,6 +27,7 @@ void Player::initialize()
 	HP = maxHP;
 	maxStamina = 30 + (rand() % 21);
 	stamina = maxStamina;
+	usingSkill = 0;
 	
 	XP = 0;
 	level = 1;
@@ -45,9 +46,7 @@ void Player::update()
 	if ( track->nonPressedChord ) // the player left behind a chord he should have played
 	{
 		fretting->lostNote();
-		HP = HP - track->notesOnChord;
-		if (HP < 0)
-			HP = 0;
+		takeDamage (track->notesOnChord);
 		//cout << "the player left " << track->notesOnChord << " behind" << endl;
 	}
 	else
@@ -67,19 +66,19 @@ void Player::update()
 			while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
 			{
 				//sem_wait(fretting->receiver->semaphore);
-				gotAnEvent = fretting->verifyEvents( anEvent, firstStones );
+				gotAnEvent = fretting->verifyEvents( anEvent, firstStones, usingSkill );
 				
 				if (gotAnEvent != 0)
 				{
 					// removes the first event of the events vector (so we can deal with the others =D)
 					fretting->receiver->removeEvent();
 					
-					// check if the player must lose some HP
-					if (fretting->frettingState == -1)
-						if (HP > 0)
-							HP--;
-						else
-							HP = 0;	// just to make sure HP is not gonna be a negative number
+					// check if the player must lose some HP or earn some XP
+					int state = fretting->getFrettingState();
+					if (state == -1)
+						takeDamage (1 * IS_STATUS_FIRE);	// IS_STATUS_FIRE is defined in utils.h
+					else if (state > 0)
+						XP += state;
 				}
 			}
 			//cout << "vai verificar eventos" << endl;
@@ -91,5 +90,12 @@ void Player::update()
 void Player::addSkill( Skill s )
 {
 	skills.push_back(s);	
+}
+
+void Player::takeDamage( double damage )
+{
+	HP = HP - damage;
+	if (HP < 0)
+		HP = 0;
 }
 
