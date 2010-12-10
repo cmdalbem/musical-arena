@@ -56,7 +56,7 @@ class Fretting
 		void 	setEvents(int buttons[NFRETS], core::array<SJoystickInfo> 
 							joystickInfo, int joystickNumber);
 
-		int 	verifyEvents(SEvent *event, Stone* firstStones[NFRETS], bool *usingSkill);
+		int 	verifyEvents(SEvent *event, Stone* firstStones[NFRETS], bool *usingSkill, Skill* castedSpell);
 		int		getFrettingState();
 		void	printHitFret();
 		void	lostNote();

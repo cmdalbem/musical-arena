@@ -13,7 +13,6 @@ class Player
 		Player();
 		~Player();
 		
-		//Instrument		instrument;
 		Fretting		*fretting;
 		Track			*track;
 		int				gotAnEvent;
@@ -29,22 +28,30 @@ class Player
 		int				level;
 		int				gold;
 		statusType		status;
-		Instrument		*instrument;
+		double			timeInStatus;
+
+//		statusType		status1;
 		
+		Instrument*		instrument;
+		
+		Skill*			castedSpell;
+		
+		void 			staminaDecrease(int howMuch);
 		void 			initializeAtributes();
 		void			update();
-		void			takeDamage( double damage );
+		void			HPRecover ( double howMuch );
+		void			takeDamage( double damage  );
 		void 			updateStatus();
+		void			setStatusNormal();
 		
 	private:
 		timeval			lastTimeUpdatedStatus;
 		int				counterPoison;
-		int				timeInStatus;
+//		double			timeInStatus1;
 		bool			magicBarrier;
 		bool			mirror;
 		
 		void 			initialize();
 		void 			staminaRecover();
-		void 			staminaDecrease(int howMuch);
 };
 

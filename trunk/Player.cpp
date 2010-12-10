@@ -34,6 +34,8 @@ void Player::initialize()
 	level = 1;
 	gold = 0;
 	gotAnEvent = 0;
+
+	castedSpell = NULL;
 	
 	status = ST_NORMAL;
 }
@@ -42,7 +44,7 @@ void Player::initializeAtributes()
 {
 	maxHP = 300 + (rand() % 150) + instrument->sumHP;
 	HP = maxHP;
-	maxStamina = 400 + (rand() % 200) + instrument->sumStamina;
+	maxStamina = 200 + (rand() % 100) + instrument->sumStamina;
 	stamina = maxStamina;
 	armor = instrument->armor;
 	
@@ -59,7 +61,7 @@ void Player::update()
 	
 	track->update();
 	
-	if (elapsedTime >= ( 1. / UPDATE_STATUS_TIME ))
+	if (elapsedTime >= ( 1.0 / UPDATE_STATUS_TIME ))
 	{
 		//cout << "elapsedTime: " << elapsedTime << endl;
 		updateStatus();
@@ -89,7 +91,7 @@ void Player::update()
 			while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
 			{
 				//sem_wait(fretting->receiver->semaphore);
-				gotAnEvent = fretting->verifyEvents( anEvent, firstStones, &usingSkill );
+				gotAnEvent = fretting->verifyEvents( anEvent, firstStones, &usingSkill, castedSpell );
 				
 				if (gotAnEvent != 0)
 				{
@@ -120,6 +122,13 @@ void Player::takeDamage( double damage )
 		HP = 0;
 }
 
+void Player::HPRecover (double howMuch)
+{
+	HP = HP + howMuch;
+	if (HP > maxHP)
+		HP = maxHP;
+}
+
 void Player::staminaDecrease(int howMuch)
 {
 	stamina = stamina - howMuch;
@@ -141,13 +150,13 @@ void Player::updateStatus()
 		case ST_POISON:
 			counterPoison = (counterPoison + 1) % 5;
 			if (counterPoison == 0)
-				takeDamage ( 30 );
+				takeDamage ( 25 );
 			break;
 		case ST_FIRE:
-			takeDamage (30);
+			takeDamage (4);
 			break;
 		case ST_BARRIER:
-			// decrease armor
+			// increase armor
 			break;
 		case ST_MAGIC_BARRIER:
 			magicBarrier = true;
@@ -156,12 +165,15 @@ void Player::updateStatus()
 			mirror = true;
 			break;
 		case ST_ELETRIFIED:
-			takeDamage (30);
+			takeDamage (4);
 			break;
 		case ST_DROWNED:
 			staminaDecrease (3);
 			if (stamina == 0)
 				takeDamage (10);
+			break;
+		case ST_DEFENSE_DOWN:
+			// decrease armor
 			break;
 		default:
 			break;
@@ -172,11 +184,17 @@ void Player::updateStatus()
 	else
 		staminaRecover();
 		
-	timeInStatus = timeInStatus - (1. / UPDATE_STATUS_TIME);
+	timeInStatus = timeInStatus - (1.0 / UPDATE_STATUS_TIME);
 	if (timeInStatus <= 0)
 	{
-		status = ST_NORMAL;
-		armor = instrument->armor;
+		setStatusNormal();
 	}
+}
+
+void Player::setStatusNormal()
+{
+	status = ST_NORMAL;
+	armor = instrument->armor;
+	fretting->tolerance = instrument->tolerance;
 }
 

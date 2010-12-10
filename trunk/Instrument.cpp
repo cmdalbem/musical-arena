@@ -17,8 +17,8 @@ Instrument::Instrument( statusType newStatus)
 
 void Instrument::init ()
 {
-	sumHP = 100;
-	sumStamina = 150;
+	sumHP = 150;
+	sumStamina = 50;
 	armor = 50;
 	tolerance = 2;
 }

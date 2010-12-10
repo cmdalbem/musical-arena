@@ -49,18 +49,72 @@ ITexture					*glowTex;
 Decoder 					decoder;
 Screen						*screen;
 vector<musicEvent> 			theMusic;
-Player 						player1, player2;
+Player 						player[2];
 SkillBank					skillBank;
 SoundBank					*soundBank;
 
 bool 						endOfMusic =false; // indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
 double 						musicTime =0;
 
-// Other globals
+// Other global
 sem_t semaphore;
 sem_t receiverSemaphore;
 
-
+void castSpell ()
+{
+	for (int i = 0; i < 2; i++)
+	{
+		if (player[i].castedSpell != NULL)
+		{
+			// treat the skill properly
+			player[i].staminaDecrease (player->castedSpell->cost);
+			for (int j = 0; j < player[i].castedSpell->effects.size(); j++)
+			{
+				switch (player[i].castedSpell->effects[j].type)
+				{
+				case T_DAMAGE:
+					player[!i].takeDamage(player[i].castedSpell->effects[j].param1);
+					break;
+				case T_DEFENSE_DOWN:
+					player[!i].status = ST_DEFENSE_DOWN;
+					player[!i].timeInStatus = player[i].castedSpell->effects[j].param1;
+					break;
+				case T_HEAL:
+					player[i].HPRecover(player[i].castedSpell->effects[j].param1);
+					break;
+				case T_ANTIDOTE:
+					player[i].setStatusNormal();
+					break;
+				case T_STAMINA_DOWN:
+					player[!i].staminaDecrease( player[i].castedSpell->effects[j].param1 );
+					break;
+				case T_SHOCK:
+					//
+					break;
+				case T_BURN:
+					player[!i].status = ST_FIRE;
+					player[!i].timeInStatus = player[i].castedSpell->effects[j].param1;
+					break;
+				case T_FEEDBACK:
+					player[!i].takeDamage (player[!i].stamina);
+					player[!i].stamina = 0;
+					break;
+				case T_ELETRIFY:
+					player[!i].status = ST_ELETRIFIED;
+					player[!i].timeInStatus = player[i].castedSpell->effects[j].param1;
+					player[!i].fretting->tolerance -= player[i].castedSpell->effects[j].param2;
+					break;
+				case T_DROWN:
+					player[!i].status = ST_DROWNED;
+					player[!i].timeInStatus = player[i].castedSpell->effects[j].param1;
+					break;
+					
+				}
+			}
+		}
+		player[i].castedSpell = NULL;
+	}
+}
 
 static void *updater(void *argument) 
 {
@@ -74,23 +128,23 @@ static void *updater(void *argument)
 		musicTime = time_diff(start);
  
 		// spawning on track1
-		while( (unsigned int)player1.track->musicPos < theMusic.size() &&
-			   (musicTime + player1.track->spawnDelay) > theMusic[player1.track->musicPos].time ) {
+		while( (unsigned int)player[0].track->musicPos < theMusic.size() &&
+			   (musicTime + player[0].track->spawnDelay) > theMusic[player[0].track->musicPos].time ) {
 			
-			player1.track->processEvent(theMusic[player1.track->musicPos]);
+			player[0].track->processEvent(theMusic[player[0].track->musicPos]);
 		}
 		
 		// spawning on track2
-		while( (unsigned int)player2.track->musicPos < theMusic.size() &&
-			   (musicTime + player2.track->spawnDelay) > theMusic[player2.track->musicPos].time ) {
+		while( (unsigned int)player[1].track->musicPos < theMusic.size() &&
+			   (musicTime + player[1].track->spawnDelay) > theMusic[player[1].track->musicPos].time ) {
 			
-			player2.track->processEvent(theMusic[player2.track->musicPos]);
+			player[1].track->processEvent(theMusic[player[1].track->musicPos]);
 		}
 				 
 		sem_wait(&semaphore);
-		player1.update();
-		player2.update();
-		if ((player1.gotAnEvent == 0) && (player2.gotAnEvent == 0))
+		player[0].update();
+		player[1].update();
+		if ((player[0].gotAnEvent == 0) && (player[1].gotAnEvent == 0))
 			receiver.removeEvent();
 		//receiver.clearEvents();
 		sem_post(&semaphore);
@@ -111,23 +165,23 @@ void musa_init()
 		violin->addSkill( skillBank.skills[i] );
 	}
 	
-	player1.track = new Track(&theMusic,&musicTime,device,23, -20);
-	player2.track = new Track(&theMusic,&musicTime,device,7, 20);
+	player[0].track = new Track(&theMusic,&musicTime,device,23, -20);
+	player[1].track = new Track(&theMusic,&musicTime,device,7, 20);
 	
-	player1.instrument = violin; 
-	player2.instrument = drums;
+	player[0].instrument = violin; 
+	player[1].instrument = drums;
 	
-	player1.initializeAtributes();
-	player2.initializeAtributes();
+	player[0].initializeAtributes();
+	player[1].initializeAtributes();
 	
-	player1.track->fretting = player1.fretting;
-	player2.track->fretting = player2.fretting;
+	player[0].track->fretting = player[0].fretting;
+	player[1].track->fretting = player[1].fretting;
 	
-	player1.fretting->musicTime = &musicTime;
-	player2.fretting->musicTime = &musicTime;
+	player[0].fretting->musicTime = &musicTime;
+	player[1].fretting->musicTime = &musicTime;
 	
-	player1.fretting->receiver = &receiver;
-	player2.fretting->receiver = &receiver;
+	player[0].fretting->receiver = &receiver;
+	player[1].fretting->receiver = &receiver;
 
 
         if(device->activateJoysticks(joystickInfo))
@@ -157,11 +211,11 @@ void musa_init()
 	EKEY_CODE eventos2[NFRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
 	int events1[NFRETS] = {0,1,2,3,4};
 
-	player1.fretting->setEvents(eventos1, irr::KEY_SPACE );
+	player[0].fretting->setEvents(eventos1, irr::KEY_SPACE );
 	//player1.fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
-	player2.fretting->setEvents(eventos2, irr::KEY_KEY_C );
+	player[1].fretting->setEvents(eventos2, irr::KEY_KEY_C );
 	
-	screen = new Screen(device,&player1,&player2);
+	screen = new Screen(device,&player[0],&player[1]);
 						
 	// start getting signals, baby
 	receiver.enabled = true;	
@@ -241,9 +295,9 @@ static void *debugger (void *argument)
 {
 	while(1)
 	{
-		player1.fretting->printHitFret();
+		player[0].fretting->printHitFret();
 		//cout << "  player1.XP: " << player1.XP <<
-		cout << "player1.stamina: " << player1.stamina << " usingSkill: " << player1.usingSkill << endl;
+		cout << "player1.stamina: " << player[0].stamina << " usingSkill: " << player[0].usingSkill << endl;
 		usleep(80000);
 	}
 
@@ -325,9 +379,10 @@ int main(int argc, char *argv[])
 		driver->setRenderTarget(0, true, true, bgColor);
 			renderPostProcessEffects();
 			smgr->drawAll();
-			player1.track->drawStoneTrails();
-			player2.track->drawStoneTrails();
+			player[0].track->drawStoneTrails();
+			player[1].track->drawStoneTrails();
 		
+		sem_post(&semaphore);
 		screen->update();
 		
 		sem_post(&semaphore);
