@@ -301,7 +301,6 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 				
 				if(castedSpell) {
 					//casted!
-					cout << "Player casted " << castedSpell->name << "!!!" << "  usingSkill: " << *usingSkill << endl;
 					*usingSkill = 0;
 				}
 				
@@ -446,8 +445,11 @@ int Fretting::verifyEventsAI(SEvent *event, Stone* stones[NFRETS])
 		{
 			if ((*musicTime >= noteCreationTime - (tolerance/2)) && (stones[i]->pressed == false))
 			{
-				_hitting[i] = 1;
-				stones[i]->pressed = true;
+				int prob = rand()%100;
+				if(prob<60) {
+					_hitting[i] = 1;
+					stones[i]->pressed = true;
+				}
 			}
 			else
 				_hitting[i] = 0;

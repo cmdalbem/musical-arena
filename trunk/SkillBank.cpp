@@ -23,16 +23,16 @@ void SkillBank::makeSkills()
 	}
 	
 	{
-		buttonType k[] = {B2,B3};
+		buttonType k[] = {B1,B2,B5,B4,B1,B2,B5,B4};
 		effectStruct e[] = {{T_HEAL, 50, -1},{T_ANTIDOTE, -1}};
-		Skill s("Cure", DEFENSE, S_MAGIC1, 15, 70, WATER, e, 2, CREATE_GLOW_AREA, k, 2, "Cures illness and HP");
+		Skill s("Cure", DEFENSE, S_MAGIC1, 15, 70, WATER, e, 2, CREATE_GLOW_AREA, k, 8, "Cures illness and HP");
 		skills[CURE] = s;
 	}
 	
 	{
-		buttonType k[] = {B1,B2,B1,B3,B1,B4,B1,B5};
+		buttonType k[] = {B1,B2,B1,B3,B1,B4,B1,B5,B5,B5};
 		effectStruct e[] = {{T_DAMAGE, 300, -1},{T_DEFENSE_DOWN, 15, 6},{T_STAMINA_DOWN, 25, -1}};
-		Skill s("Explosion", ATTACK, S_EXPLOSION, 30, 190, EARTH, e, 3, CREATE_EXPLOSION, k, 8,
+		Skill s("Explosion", ATTACK, S_EXPLOSION, 30, 190, EARTH, e, 3, CREATE_EXPLOSION, k, 10,
 		"A big explosion right in the enemies face! Causes damage, lowers the defense and knocks the enemy into the ground, causing him to lose stamina");
 		skills[EXPLOSION] = s;
 	}
@@ -95,10 +95,18 @@ void SkillBank::makeSkills()
 	
 	{
 		buttonType k[] = {B1,B2,B3,B4,B5,B5,B4,B3,B2,B1};
-		effectStruct e[] = {{T_MIRROR, 1200, -1}};
+		effectStruct e[] = {{T_MIRROR, 3.5, -1}};
 		Skill s("Mirror", DEFENSE, S_DIGITAL, 30, 120, WATER, e, 1, SHOW_SHIELD, k, 10,
 		"");
 		skills[MIRROR] = s;
+	}	
+	
+	{
+		buttonType k[] = {B3,B4,B5,B1,B2,B3,B4,B5,B1,B2};
+		effectStruct e[] = {{T_POISONOUS, 8, -1}};
+		Skill s("Swamp", ATTACK, S_UNDERWATER2, 30, 120, WATER, e, 1, CREATE_SWAMP_EFFECT, k, 10,
+		"");
+		skills[SWAMP] = s;
 	}	
 	
 }

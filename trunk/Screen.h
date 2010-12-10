@@ -45,7 +45,7 @@ class Screen
 		ISceneNode					*glow[NPLAYERS][NFRETS];
 		IGUIStaticText 				*fpsText, *hpTxt[NPLAYERS], *timeText;
 		VxHealthSceneNode			*healthBar[NPLAYERS], *staminaBar[NPLAYERS][NSTAMINALEVELS];
-		ITexture 					*glowTex;
+		ITexture 					*glowTex, *fireballTex;
 		ISceneNode 					*sky;
 		
 		// HUD drawing

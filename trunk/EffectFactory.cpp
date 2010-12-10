@@ -98,8 +98,8 @@ void EffectFactory::handleEffectsQueue()
 				createFeedback(target);
 				break;
 			case SHOW_SHIELD:
-				for(int i=0; i<50; i++)
-					queueEffect( i*150, SHOW_SHIELD_SINGLE, target );
+				for(int i=0; i<25; i++)
+					queueEffect( i*140, SHOW_SHIELD_SINGLE, target );
 				break;
 			case SHOW_SHIELD_SINGLE:
 				createShield(target);
@@ -135,6 +135,10 @@ void EffectFactory::handleEffectsQueue()
 			case CREATE_FLOOD_EFFECT:
 				createFloodEffect(target);
 				break;
+			case CREATE_SWAMP_EFFECT:
+				createSwampEffect(target,8000);
+				break;
+				
 		}
 		effectsQueue.erase( effectsQueue.begin() );
 	}
@@ -404,6 +408,41 @@ void EffectFactory::createFloodEffect( int player )
 		
 		new CDeleteParticleAffector(ps, 6000);
 		ps->addAnimator( smgr->createDeleteAnimator(12000) );
+	}
+}
+
+void EffectFactory::createSwampEffect( int player, int timeMs )
+{
+	vector3df pos = players[player]->track->getCentroid();
+	
+	// create and set emitter
+	for(int i=0; i<5; i++)
+	{
+		// add particle system
+		scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false,0,-1,pos);
+		
+		scene::IParticleEmitter* em = ps->createBoxEmitter(
+				aabbox3d<f32>(-TRACK_SIZE_X/2,-TRACK_SIZE_Y/2,0,TRACK_SIZE_X/2,TRACK_SIZE_Y/2,1), //minx, miny, minz, maxx, maxy, maxz
+				vector3df(0.0f,0.002f,0.0f),
+				20,30,
+				SColor(0,100,255,90), SColor(i*30,255,50,128),
+				10,2000,
+				15,
+				dimension2df(1.0f, 1.0f),
+				dimension2df(3.0f, 3.0f));
+		ps->setEmitter(em);
+		em->drop();
+
+		ps->addAffector( ps->createScaleParticleAffector( dimension2df(4,4) ) );
+
+		// adjust some material settings
+		ps->setMaterialFlag(EMF_LIGHTING, false);
+		ps->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
+		ps->setMaterialTexture(0, waterTex[i]);
+		ps->setMaterialType(EMT_TRANSPARENT_ALPHA_CHANNEL);
+		
+		new CDeleteParticleAffector(ps, timeMs);
+		ps->addAnimator( smgr->createDeleteAnimator(timeMs*2) );
 	}
 }
 

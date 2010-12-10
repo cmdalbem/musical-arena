@@ -31,6 +31,7 @@ class EffectFactory
 		
 		void						splitBlood( int targetPlayer, E_GORE_LEVEL gore );
 		void						createSoloEffect(int player, ITexture *tex, int timeMs=700 );
+		void						createAreaEffect(int player, ITexture *tex, int timeMs=700 );		
 		
 	
 	private:
@@ -47,7 +48,6 @@ class EffectFactory
 		array<ITexture*> 			feedbackTex, explosion;
 		
 		
-		void						createAreaEffect(int player, ITexture *tex, int timeMs=700 );
 		void 						createShield( int targetPlayer );
 		void 						createFeedback( int targetPlayer );
 		void						createExplosion( vector3df pos );
@@ -62,5 +62,6 @@ class EffectFactory
 		void						createDrunkEffect ( int targetPlayer, int times );
 		void						createParticlesExplosion( vector3df pos, ITexture *tex );
 		void 						createFloodEffect( int targetPlayer );
+		void 						createSwampEffect( int targetPlayer, int timeMs=3000 );
 
 };

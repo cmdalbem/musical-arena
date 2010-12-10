@@ -22,6 +22,7 @@ Screen::Screen( IrrlichtDevice *_device, double *_musicTime, Player* player1, Pl
 	//abox->addAnimator(smgr->createRotationAnimator(core::vector3df(0.3f, 0.3f,0)));
 	
 	
+	//effectFactory->queueEffect( 1000, CREATE_SWAMP_EFFECT, 1 );
 	//effectFactory->queueEffect( 300, CREATE_DRUNK_EFFECT, 1 );
 	//effectFactory->queueEffect( 0, CREATE_FLOOD_EFFECT, 1);
 	//effectFactory->queueEffect( 0, CREATE_WATER_BEAM, 1);
@@ -55,6 +56,7 @@ void Screen::initializeScreenElements()
 	ITexture *badTex = driver->getTexture("img/bad.png");
 	ITexture *neutralTex = driver->getTexture("img/neutral.png");
 	this->glowTex = driver->getTexture("img/glow2.bmp");
+	this->fireballTex = driver->getTexture("img/fireball.bmp");
 	
 	sky = smgr->addSkyDomeSceneNode( driver->getTexture("img/stars.tga"), 32, 32 );
 	sky->setMaterialFlag(video::EMF_TEXTURE_WRAP, video::ETC_REPEAT);
@@ -266,6 +268,9 @@ void Screen::drawHittingState()
 			effectFactory->splitBlood(i, gore);
 			player[i]->damageTaken = 0;
 		}
+
+		if( player[i]->status==ST_FIRE )
+			effectFactory->createAreaEffect(i, fireballTex, 50);
 	}
 }
 
