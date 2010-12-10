@@ -23,16 +23,13 @@ void Player::initialize()
 {
 	srand((unsigned)time(0));
 	
-	maxHP = 10 + (rand() % 16);
-	HP = maxHP;
-	maxStamina = 30 + (rand() % 21);
-	stamina = maxStamina;
-	
 	usingSkill = 0;
-	staminaDecreaseSpeed = 1;
-	staminaRecoverSpeed = 1;
+	gettimeofday (&lastTimeUpdatedStatus, NULL);
+	magicBarrier = false;
+	mirror = false;
 	
-	
+	counterPoison = 0;
+	timeInStatus = 0;
 	XP = 0;
 	level = 1;
 	gold = 0;
@@ -41,12 +38,28 @@ void Player::initialize()
 	status = ST_NORMAL;
 }
 
+void Player::setInstrumentAttributes()
+{
+	maxHP = 300 + (rand() % 150) + instrument->sumHP;
+	HP = maxHP;
+	maxStamina = 400 + (rand() % 200) + instrument->sumStamina;
+	stamina = maxStamina;
+	armor = instrument->armor;
+}
+
 void Player::update()
 {
 	SEvent *anEvent;
-
+	double elapsedTime = time_diff (lastTimeUpdatedStatus);
+	
 	track->update();
-	updateStamina();
+	
+	if (elapsedTime >= ( 1. / UPDATE_STATUS_TIME ))
+	{
+		//cout << "elapsedTime: " << elapsedTime << endl;
+		updateStatus();
+		gettimeofday (&lastTimeUpdatedStatus, NULL);
+	}
 	
 	if ( track->nonPressedChord ) // the player left behind a chord he should have played
 	{
@@ -107,9 +120,9 @@ void Player::takeDamage( double damage )
 		HP = 0;
 }
 
-void Player::staminaDecrease()
+void Player::staminaDecrease(int howMuch)
 {
-	stamina--;
+	stamina = stamina - howMuch;
 	if (stamina < 0)
 		stamina = 0;
 }
@@ -121,26 +134,47 @@ void Player::staminaRecover()
 		stamina = maxStamina;
 }
 
-void Player::updateStamina()
+void Player::updateStatus()
 {
-	double elapsedTime = 0;
-	if (usingSkill)
+	switch (status)
 	{
-		elapsedTime = time_diff(staminaLastTimeDecreased);
-		if (elapsedTime > (1/staminaDecreaseSpeed))
-		{
-			staminaDecrease();
-			gettimeofday(&staminaLastTimeDecreased, NULL);
-		}
+	case ST_POISON:
+		counterPoison = (counterPoison + 1) % 5;
+		if (counterPoison == 0)
+			takeDamage ( 30 );
+		break;
+	case ST_FIRE:
+		takeDamage (30);
+		break;
+	case ST_BARRIER:
+		// decrease armor
+		break;
+	case ST_MAGIC_BARRIER:
+		magicBarrier = true;
+		break;
+	case ST_MIRROR:
+		mirror = true;
+		break;
+	case ST_ELETRIFIED:
+		takeDamage (30);
+		break;
+	case ST_DROWNED:
+		staminaDecrease (3);
+		if (stamina == 0)
+			takeDamage (10);
+		break;
 	}
+	
+	if (usingSkill)
+		staminaDecrease(1);
 	else
+		staminaRecover();
+		
+	timeInStatus = timeInStatus - (1. / UPDATE_STATUS_TIME);
+	if (timeInStatus <= 0)
 	{
-		elapsedTime = time_diff(staminaLastTimeRecovered);
-		if (elapsedTime > (1/staminaRecoverSpeed))
-		{
-			staminaRecover();
-			gettimeofday(&staminaLastTimeRecovered, NULL);
-		}
+		status = ST_NORMAL;
+		armor = instrument->armor;
 	}
 }
 

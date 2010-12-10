@@ -24,6 +24,7 @@ using irr::core::vector3df;
 #include "PostProcessRadialBlur.h"
 #include "PostProcessInvert.h"
 #include "SoundBank.h"
+#include "Instrument.h"
 
 core::array<SJoystickInfo> joystickInfo;
 
@@ -111,6 +112,11 @@ void musa_init()
 	player1.track = new Track(&theMusic,&musicTime,device,23, -20);
 	player2.fretting = new Fretting(&player2.skills);
 	player2.track = new Track(&theMusic,&musicTime,device,10, 20);
+	
+	player1.instrument = new Instrument( player1.skills, ST_NORMAL);
+	player2.instrument = new Instrument( player2.skills, ST_NORMAL);
+	player1.setInstrumentAttributes();
+	player2.setInstrumentAttributes();
 	
 	double tolerance = 0.2;
 	
