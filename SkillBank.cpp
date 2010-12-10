@@ -94,11 +94,11 @@ void SkillBank::makeSkills()
 	}
 	
 	{
-		buttonType k[] = {B1,B3,B4,B5,B1,B3,B4,B5,B1,B3,B4,B5};
-		effectStruct e[] = {{T_DAMAGE, 200, -1},{T_ELETRIFY, 4, 0.05}};
-		Skill s("Twin Soul", ATTACK, S_STORM, 15, 70, WATER, e, 2, CREATE_THUNDERSTORM, k, 12,
+		buttonType k[] = {B1,B2,B3,B4,B5,B5,B4,B3,B2,B1};
+		effectStruct e[] = {{T_MIRROR, 1200, -1}};
+		Skill s("Mirror", DEFENSE, S_DIGITAL, 30, 120, WATER, e, 1, SHOW_SHIELD, k, 10,
 		"");
-		skills[THUNDERSTORM] = s;
+		skills[MIRROR] = s;
 	}	
 	
 }
