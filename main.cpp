@@ -64,36 +64,40 @@ void castSpell ()
 {
 	for (int i = 0; i < 2; i++)
 	{
-		if (player[i].castedSpell != NULL)
+		if ((player[i].fretting->castedSpell) != NULL)
 		{
+			Skill *casted = player[i].fretting->castedSpell;
+			
 			// treat the skill properly
-			player[i].staminaDecrease (player->castedSpell->cost);
-			for (int j = 0; j < player[i].castedSpell->effects.size(); j++)
+			cout << "entrou aqui" << endl;
+			player[i].staminaDecrease (casted->cost);
+			screen->effectFactory->queueEffect(100, casted->effectFunction, !i);
+			for (int j = 0; j < casted->effects.size(); j++)
 			{
-				switch (player[i].castedSpell->effects[j].type)
+				switch (casted->effects[j].type)
 				{
 				case T_DAMAGE:
-					player[!i].takeDamage(player[i].castedSpell->effects[j].param1);
+					player[!i].takeDamage(casted->effects[j].param1);
 					break;
 				case T_DEFENSE_DOWN:
 					player[!i].status = ST_DEFENSE_DOWN;
-					player[!i].timeInStatus = player[i].castedSpell->effects[j].param1;
+					player[!i].timeInStatus = casted->effects[j].param1;
 					break;
 				case T_HEAL:
-					player[i].HPRecover(player[i].castedSpell->effects[j].param1);
+					player[i].HPRecover(casted->effects[j].param1);
 					break;
 				case T_ANTIDOTE:
 					player[i].setStatusNormal();
 					break;
 				case T_STAMINA_DOWN:
-					player[!i].staminaDecrease( player[i].castedSpell->effects[j].param1 );
+					player[!i].staminaDecrease( casted->effects[j].param1 );
 					break;
 				case T_SHOCK:
 					//
 					break;
 				case T_BURN:
 					player[!i].status = ST_FIRE;
-					player[!i].timeInStatus = player[i].castedSpell->effects[j].param1;
+					player[!i].timeInStatus = casted->effects[j].param1;
 					break;
 				case T_FEEDBACK:
 					player[!i].takeDamage (player[!i].stamina);
@@ -101,18 +105,18 @@ void castSpell ()
 					break;
 				case T_ELETRIFY:
 					player[!i].status = ST_ELETRIFIED;
-					player[!i].timeInStatus = player[i].castedSpell->effects[j].param1;
-					player[!i].fretting->tolerance -= player[i].castedSpell->effects[j].param2;
+					player[!i].timeInStatus = casted->effects[j].param1;
+					player[!i].fretting->tolerance -= casted->effects[j].param2;
 					break;
 				case T_DROWN:
 					player[!i].status = ST_DROWNED;
-					player[!i].timeInStatus = player[i].castedSpell->effects[j].param1;
+					player[!i].timeInStatus = casted->effects[j].param1;
 					break;
 					
 				}
 			}
 		}
-		player[i].castedSpell = NULL;
+		player[i].fretting->castedSpell = NULL;
 	}
 }
 
@@ -140,7 +144,9 @@ static void *updater(void *argument)
 			
 			player[1].track->processEvent(theMusic[player[1].track->musicPos]);
 		}
-				 
+		
+		castSpell();
+		
 		sem_wait(&semaphore);
 		player[0].update();
 		player[1].update();
@@ -212,7 +218,7 @@ void musa_init()
 	int events1[NFRETS] = {0,1,2,3,4};
 
 	player[0].fretting->setEvents(eventos1, irr::KEY_SPACE );
-	//player1.fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
+	//player[0].fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
 	player[1].fretting->setEvents(eventos2, irr::KEY_KEY_C );
 	
 	screen = new Screen(device,&player[0],&player[1]);
@@ -348,7 +354,7 @@ int main(int argc, char *argv[])
 	pthread_t thread[3];
 	int arg = 1;
 	pthread_create(&thread[0], NULL, updater, (void *) arg);
-	//pthread_create(&thread[1], NULL, debugger, (void *) arg);
+	pthread_create(&thread[1], NULL, debugger, (void *) arg);
 	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
 	
 	soundBank->playSelectedMusic();

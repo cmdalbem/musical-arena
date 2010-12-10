@@ -51,12 +51,13 @@ class Fretting
 		int		keyState[5];
 		EventReceiver *receiver;
 		int		_hitting[NFRETS];
+		Skill*	castedSpell;
 
 		void 	setEvents(EKEY_CODE events[NFRETS], EKEY_CODE _skillButton);
 		void 	setEvents(int buttons[NFRETS], core::array<SJoystickInfo> 
 							joystickInfo, int joystickNumber);
 
-		int 	verifyEvents(SEvent *event, Stone* firstStones[NFRETS], bool *usingSkill, Skill* castedSpell);
+		int 	verifyEvents(SEvent *event, Stone* firstStones[NFRETS], bool *usingSkill);
 		int		getFrettingState();
 		void	printHitFret();
 		void	lostNote();

@@ -50,6 +50,7 @@ void Fretting::initialize()
 	skillButtonState = 0;
 	frettingState = 0;
 	
+	castedSpell = NULL;
 	//sem_init(&semaphore, 0, 1);
 }
 
@@ -217,7 +218,7 @@ int Fretting::keyboardPreFretting(SEvent *event)
 	return usefullButton;
 }
 
-int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkill, Skill* castedSpell)
+int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkill)
 {
 	if ((event->EventType == irr::EET_JOYSTICK_INPUT_EVENT && type == JOYSTICK) || 
 		(event->EventType == irr::EET_KEY_INPUT_EVENT  && type == KEYBOARD))
@@ -300,7 +301,7 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 				
 				if(castedSpell) {
 					//casted!
-					//cout << "Player casted " << cast->name << "!!!" << "  usingSkill: " << *usingSkill << endl;
+					cout << "Player casted " << castedSpell->name << "!!!" << "  usingSkill: " << *usingSkill << endl;
 					*usingSkill = 0;
 				}
 				

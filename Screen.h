@@ -28,6 +28,7 @@ class Screen
 		
 		ITexture					*bloodSplit[NPLAYERS];
 		vector<Player*> 			player;
+		EffectFactory				*effectFactory;
 
 		void						update();		
 		void						setFps( int fps );
@@ -36,7 +37,6 @@ class Screen
 		IrrlichtDevice				*device;
 		IVideoDriver				*driver;
 		ISceneManager				*smgr;
-		EffectFactory				*effectFactory;
 		
 		IGUIImage 					*good[NPLAYERS], *bad[NPLAYERS], *neutral[NPLAYERS];
 		ISceneNode					*glow[NPLAYERS][NFRETS];
