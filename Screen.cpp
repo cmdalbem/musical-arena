@@ -210,7 +210,7 @@ void Screen::drawSoloModeState()
 {
 	for(int i=0; i<NPLAYERS; i++)
 		if( player[i]->usingSkill )
-			effectFactory->createAreaBorderEffect(i,glowTex,10);		
+			effectFactory->createSoloEffect(i,glowTex,10);		
 }
 
 void Screen::drawHUD()
@@ -254,11 +254,11 @@ void Screen::drawHittingState()
 		if( player[i]->damageTaken ) {
 			
 			E_GORE_LEVEL gore;
-			if(player[i]->damageTaken>100)
+			if(player[i]->damageTaken>=50)
 				gore = EGL_INSANE;
-			else if(player[i]->damageTaken>80)
+			else if(player[i]->damageTaken>=30)
 				gore = EGL_BRUTAL;
-			else if(player[i]->damageTaken>20)
+			else if(player[i]->damageTaken>=20)
 				gore = EGL_MEDIUM;
 			else
 				gore = EGL_MILD;
