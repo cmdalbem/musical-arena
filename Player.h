@@ -30,6 +30,7 @@ class Player
 		int				gold;
 		statusType		status;
 		double			timeInStatus;
+		bool			activateAI;
 
 //		statusType		status1;
 		
