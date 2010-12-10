@@ -103,30 +103,26 @@ static void *updater(void *argument)
 
 void musa_init()
 {	
+	Instrument* violin = new Instrument( ST_NORMAL);
+	Instrument* drums = new Instrument( ST_NORMAL);
+	
 	for(int i=0; i<SKILLS_TOTAL; i++) {
-		player1.addSkill( skillBank.skills[i] );
-		player1.addSkill( skillBank.skills[i] );
+		drums->addSkill( skillBank.skills[i] );
+		violin->addSkill( skillBank.skills[i] );
 	}
-
-	player1.fretting = new Fretting( &player1.skills );
+	
 	player1.track = new Track(&theMusic,&musicTime,device,23, -20);
-	player2.fretting = new Fretting(&player2.skills);
-	player2.track = new Track(&theMusic,&musicTime,device,10, 20);
+	player2.track = new Track(&theMusic,&musicTime,device,7, 20);
 	
-	player1.instrument = new Instrument( player1.skills, ST_NORMAL);
-	player2.instrument = new Instrument( player2.skills, ST_NORMAL);
-	player1.setInstrumentAttributes();
-	player2.setInstrumentAttributes();
+	player1.instrument = violin; 
+	player2.instrument = drums;
 	
-	double tolerance = 0.2;
+	player1.initializeAtributes();
+	player2.initializeAtributes();
 	
 	player1.track->fretting = player1.fretting;
 	player2.track->fretting = player2.fretting;
 	
-	player1.track->tolerance = tolerance;
-	player2.track->tolerance = tolerance;
-	player1.fretting->tolerance = tolerance;
-	player2.fretting->tolerance = tolerance;
 	player1.fretting->musicTime = &musicTime;
 	player2.fretting->musicTime = &musicTime;
 	
@@ -286,7 +282,7 @@ int main(int argc, char *argv[])
 	/*
 	 * gets some music
 	 */
-	soundBank->selectMusic(1);
+	soundBank->selectMusic(0);
 	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
 	//decoder.printMusic(theMusic);
 	
@@ -312,7 +308,7 @@ int main(int argc, char *argv[])
 		
 		driver->beginScene(true, true, bgColor);
 
-		//sem_wait(&semaphore);
+		sem_wait(&semaphore);
 		
 		if(bloomEffect) {
 			driver->setRenderTarget(bloom->rt0, true, true, bgColor); 
@@ -332,9 +328,9 @@ int main(int argc, char *argv[])
 			player1.track->drawStoneTrails();
 			player2.track->drawStoneTrails();
 		
-		//sem_post(&semaphore);
-		
 		screen->update();
+		
+		sem_post(&semaphore);
 		
 		env->drawAll();
 

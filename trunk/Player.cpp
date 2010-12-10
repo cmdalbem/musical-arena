@@ -38,13 +38,18 @@ void Player::initialize()
 	status = ST_NORMAL;
 }
 
-void Player::setInstrumentAttributes()
+void Player::initializeAtributes()
 {
 	maxHP = 300 + (rand() % 150) + instrument->sumHP;
 	HP = maxHP;
 	maxStamina = 400 + (rand() % 200) + instrument->sumStamina;
 	stamina = maxStamina;
 	armor = instrument->armor;
+	
+	fretting = new Fretting(&instrument->skills);
+	
+	track->tolerance = instrument->tolerance;
+	fretting->tolerance = instrument->tolerance;
 }
 
 void Player::update()
@@ -108,11 +113,6 @@ void Player::update()
 	}
 }
 
-void Player::addSkill( Skill s )
-{
-	skills.push_back(s);	
-}
-
 void Player::takeDamage( double damage )
 {
 	HP = HP - damage;
@@ -138,31 +138,33 @@ void Player::updateStatus()
 {
 	switch (status)
 	{
-	case ST_POISON:
-		counterPoison = (counterPoison + 1) % 5;
-		if (counterPoison == 0)
-			takeDamage ( 30 );
-		break;
-	case ST_FIRE:
-		takeDamage (30);
-		break;
-	case ST_BARRIER:
-		// decrease armor
-		break;
-	case ST_MAGIC_BARRIER:
-		magicBarrier = true;
-		break;
-	case ST_MIRROR:
-		mirror = true;
-		break;
-	case ST_ELETRIFIED:
-		takeDamage (30);
-		break;
-	case ST_DROWNED:
-		staminaDecrease (3);
-		if (stamina == 0)
-			takeDamage (10);
-		break;
+		case ST_POISON:
+			counterPoison = (counterPoison + 1) % 5;
+			if (counterPoison == 0)
+				takeDamage ( 30 );
+			break;
+		case ST_FIRE:
+			takeDamage (30);
+			break;
+		case ST_BARRIER:
+			// decrease armor
+			break;
+		case ST_MAGIC_BARRIER:
+			magicBarrier = true;
+			break;
+		case ST_MIRROR:
+			mirror = true;
+			break;
+		case ST_ELETRIFIED:
+			takeDamage (30);
+			break;
+		case ST_DROWNED:
+			staminaDecrease (3);
+			if (stamina == 0)
+				takeDamage (10);
+			break;
+		default:
+			break;
 	}
 	
 	if (usingSkill)

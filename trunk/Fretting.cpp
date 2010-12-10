@@ -299,9 +299,11 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 				Skill *cast = 0;
 				cast = findSkill( (buttonType)usefulButton );
 				
-				if(cast)
+				if(cast) {
 					//casted!
 					cout << "Player casted " << cast->name << "!!!" << "  usingSkill: " << *usingSkill << endl;
+					*usingSkill = 0;
+				}
 				else if( actualSkillNode == skillsTree.begin() ) 
 					//missed! aborting Solo
 					*usingSkill = 0;

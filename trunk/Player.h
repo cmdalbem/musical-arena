@@ -19,22 +19,20 @@ class Player
 		int				gotAnEvent;
 		bool			usingSkill;
 
-		int					HP;
-		int					maxHP;
-		int					stamina;
-		int					maxStamina;
-		int					armor;
+		int				HP;
+		int				maxHP;
+		int				stamina;
+		int				maxStamina;
+		int				armor;
 				
-		int					XP;
-		int					level;
-		int					gold;
-		statusType			status;
+		int				XP;
+		int				level;
+		int				gold;
+		statusType		status;
 		Instrument		*instrument;
-		vector<Skill>		skills;
 		
-		void 			setInstrumentAttributes();
+		void 			initializeAtributes();
 		void			update();
-		void			addSkill( Skill s );
 		void			takeDamage( double damage );
 		void 			updateStatus();
 		
