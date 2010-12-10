@@ -69,7 +69,7 @@ void Player::update()
 		gettimeofday (&lastTimeUpdatedStatus, NULL);
 	}
 	
-	if ( track->nonPressedChord ) // the player left behind a chord he should have played
+	if ( track->nonPressedChord && (!activateAI) ) // the player left behind a chord he should have played
 	{
 		fretting->lostNote();
 		takeDamage (track->notesOnChord);
@@ -89,30 +89,36 @@ void Player::update()
 		{
 			//for (int i=0; i<fretting->receiver->getEventsSize(); i++)
 				//fretting->verifyEvents(fretting->receiver->getEvent(i), firstStones);
-			while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
+			if (activateAI)
+				gotAnEvent = fretting->verifyEventsAI( anEvent, firstStones );
+			else
 			{
-				//sem_wait(fretting->receiver->semaphore);
-				gotAnEvent = fretting->verifyEvents( anEvent, firstStones, &usingSkill);
-				//castedSpell = fretting->castedSpell;
-				
-				if (gotAnEvent != 0)
+				while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
 				{
-					// removes the first event of the events vector (so we can deal with the others =D)
-					fretting->receiver->removeEvent();
-					
-					// check if the player must lose some HP or earn some XP
-					int state = fretting->getFrettingState();
-					if (gotAnEvent != SKILLBUTTON_INDEX)
+					//sem_wait(fretting->receiver->semaphore);
+					if (!activateAI)
+						gotAnEvent = fretting->verifyEvents( anEvent, firstStones, &usingSkill);
+					//castedSpell = fretting->castedSpell;
+				
+					if (gotAnEvent != 0)
 					{
-						if (state == -1)
-							takeDamage (1 * IS_STATUS_FIRE);	// IS_STATUS_FIRE is defined in utils.h
-						else if (state > 0)
-							XP += state;
+						// removes the first event of the events vector (so we can deal with the others =D)
+						fretting->receiver->removeEvent();
+					
+						// check if the player must lose some HP or earn some XP
+						int state = fretting->getFrettingState();
+						if (gotAnEvent != SKILLBUTTON_INDEX)
+						{
+							if (state == -1)
+								takeDamage (1 * IS_STATUS_FIRE);	// IS_STATUS_FIRE is defined in utils.h
+							else if (state > 0)
+								XP += state;
+						}
 					}
 				}
+				//cout << "vai verificar eventos" << endl;
+				//cout << "terminou de verificar eventos" << endl;
 			}
-			//cout << "vai verificar eventos" << endl;
-			//cout << "terminou de verificar eventos" << endl;
 		}
 	}
 }

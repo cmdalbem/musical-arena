@@ -58,6 +58,7 @@ class Fretting
 							joystickInfo, int joystickNumber);
 
 		int 	verifyEvents(SEvent *event, Stone* firstStones[NFRETS], bool *usingSkill);
+		int		verifyEventsAI(SEvent *event, Stone* stones[NFRETS]);
 		int		getFrettingState();
 		void	printHitFret();
 		void	lostNote();

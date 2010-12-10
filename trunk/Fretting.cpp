@@ -427,6 +427,52 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 	return 0;
 }
 
+int Fretting::verifyEventsAI(SEvent *event, Stone* stones[NFRETS])
+{
+	double 	noteCreationTime;
+	double 	noteDestructionTime;
+
+	for (int i = 0; i < NFRETS; i++)
+	{
+		if( stones[i]!= NULL ) {
+			noteCreationTime = stones[i]->event.time;
+			noteDestructionTime = stones[i]->destroyTime;
+		} else {
+			noteCreationTime = INT_MAX;
+			noteDestructionTime = INT_MIN;
+		}
+
+		if (_hitting[i] == 0)	// wasn't pressing
+		{
+			if ((*musicTime >= noteCreationTime - (tolerance/2)) && (stones[i]->pressed == false))
+			{
+				_hitting[i] = 1;
+				stones[i]->pressed = true;
+			}
+			else
+				_hitting[i] = 0;
+		}
+		else					// was pressing
+		{
+			if (*musicTime >= noteDestructionTime - (tolerance/2))
+				_hitting[i] = 0;
+			else
+				_hitting[i] = 1;
+		}
+	}
+	
+	for (int i = 0; i < NFRETS; i++)
+	{
+		frettingState = 0;
+		if (_hitting[i] == 1)
+		{
+			frettingState = 1;
+			break;
+		}
+	}
+	return 0;
+}
+
 void Fretting::printHitFret()
 {
 	// printing-time!
