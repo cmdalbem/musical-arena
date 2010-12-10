@@ -114,11 +114,11 @@ Skill* Fretting::findSkill( buttonType buttonPressed )
 		}
 	}
 	else
-		// didn't find any keys here, going back to the root node!
+		// there is no more possibilities of skills
 		actualSkillNode = skillsTree.begin();
 	
 	
-	// didn't find any Skills.
+	// didn't find any Skills yet.
 	return NULL;
 }
 
@@ -217,7 +217,7 @@ int Fretting::keyboardPreFretting(SEvent *event)
 	return usefullButton;
 }
 
-int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], int *usingSkill)
+int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkill)
 {
 	if ((event->EventType == irr::EET_JOYSTICK_INPUT_EVENT && type == JOYSTICK) || 
 		(event->EventType == irr::EET_KEY_INPUT_EVENT  && type == KEYBOARD))
@@ -298,8 +298,15 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], int *usingSkill
 			{
 				Skill *cast = 0;
 				cast = findSkill( (buttonType)usefulButton );
+				
 				if(cast)
+					//casted!
 					cout << "Player casted " << cast->name << "!!!" << "  usingSkill: " << *usingSkill << endl;
+				else if( actualSkillNode == skillsTree.begin() ) 
+					//missed! aborting Solo
+					*usingSkill = 0;
+				else
+					;//still has chances to cast something
 			}
 			
 			if (*musicTime > noteCreationTime - tolerance &&

@@ -251,9 +251,9 @@ void EffectFactory::createAreaEffect( int player, ITexture *tex, int timeMs )
 	// create and set emitter
 	scene::IParticleEmitter* em = ps->createBoxEmitter(
 			core::aabbox3d<f32>(-TRACK_SIZE_X/2,-TRACK_SIZE_Y/2,0,TRACK_SIZE_X/2,TRACK_SIZE_Y/2,1), //minx, miny, minz, maxx, maxy, maxz
-			core::vector3df(0.0f,0.03f,0.0f),
-			100,100,
-			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
+			core::vector3df(0.0f,0.015f,0.0f),
+			80,80,
+			video::SColor(0,130,130,130), video::SColor(0,130,130,130),
 			400,2000);
 	em->setMinStartSize(core::dimension2d<f32>(3.0f, 3.0f));
 	em->setMaxStartSize(core::dimension2d<f32>(6.0f, 6.0f));
@@ -373,7 +373,10 @@ void EffectFactory::createFloodEffect( int player )
 void EffectFactory::splitBlood( int targetPlayer )
 {
 	// EGL_MILD, EGL_MEDIUM, EGL_BRUTAL, EGL_INSANE
-	blood = new CBloodEffect(device->getSceneManager(), bloodTex, EGL_MILD, players[targetPlayer]->track->getCentroid()+vector3df(targetPlayer==0? 14:-14,0,-30), vector3df(0, -0.5f, -0.05), 35);
+	blood = new CBloodEffect(device->getSceneManager(), bloodTex, EGL_MILD,
+							players[targetPlayer]->track->getCentroid()+vector3df(targetPlayer==0? 14:-14,0,-30), //source
+							vector3df(0, -0.3f, -0.05), //direction
+							35); //duration
 	blood->setVisible(false);
 }
 

@@ -21,6 +21,7 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	//abox->addAnimator(smgr->createRotationAnimator(core::vector3df(0.3f, 0.3f,0)));
 	
 	
+	//effectFactory->queueEffect( 0, CREATE_FLOOD_EFFECT, 1);
 	//effectFactory->queueEffect( 0, CREATE_WATER_BEAM, 1);
 	//effectFactory->queueEffect( 1500, CREATE_FLOOD_EFFECT, 1);
 	//effectFactory->queueEffect(0, CREATE_BOLT, 1);
@@ -86,6 +87,7 @@ void Screen::initializeScreenElements()
 								SColor(255,220,0,0), // background color
 								SColor(200,255,255,255) ); // border color
 								
+			#define STAMINA_BAR_H 60
 			for(int k=0; k<NSTAMINALEVELS; k++)
 				staminaBar[i][k] = new VxHealthSceneNode(
 									smgr->getRootSceneNode(), // parent node
@@ -93,8 +95,8 @@ void Screen::initializeScreenElements()
 									-1, // id
 									1, true,
 									10, // width
-									60, // height
-									vector3df(i==0 ? 20 : SCREENX-20, SCREENY/3 + (k==0?30:-30), 0), // position in 2d
+									STAMINA_BAR_H, // height
+									vector3df(i==0 ? 20 : SCREENX-20, SCREENY/3 + (k==0?(STAMINA_BAR_H/2):-(STAMINA_BAR_H/2)), 0), // position in 2d
 									SColor(0,0,0,0), // bar color
 									SColor(170,30,30,240), // background color
 									SColor(255,255,255,255) ); // border color								
@@ -137,33 +139,45 @@ void Screen::drawKeys()
 		
 		for(int k=0; k<NFRETS; k++) {
 			
-			glow[i][k]->setVisible( player[i]->fretting->_hitting[k]==1 );
-			
 			int zdisplace = 0;
-			// what's the state of the fret?
-			switch( player[i]->fretting->_hitting[k] )
-			{
-				case 0:
-					color = fretColors[k];
-					color.setAlpha(255);
-					break;				
-				case 1: 
-					color = fretColors[k];
-					color.setAlpha(255);
-					zdisplace=3;
-					break;
-				default:
-					color.setAlpha(128);
-					color = SColor(255,0,0,0);
-					//color.setAlpha(255);
-					break;
-				
-			}
 			
+			if(player[i]->usingSkill) {
+				glow[i][k]->setVisible(player[i]->fretting->_hitting[k]==2);				
+				
+				color = fretColors[k];
+				color.setAlpha(255);
+			}
+			else
+			{	
+				glow[i][k]->setVisible(player[i]->fretting->_hitting[k]==1);
+				
+				// what's the state of the fret?
+				switch( player[i]->fretting->_hitting[k] )
+				{
+					case 0:
+						// idle
+						color = fretColors[k];
+						color.setAlpha(255);
+						break;				
+					case 1:
+						// hit
+						color = fretColors[k];
+						color.setAlpha(255);
+						zdisplace=3;
+						break;
+					default:
+						// mising
+						color.setAlpha(128);
+						color = SColor(255,0,0,0);
+						break;
+					
+				}
+			}
+				
 			// draw the colored bar for this fret
 			driver->draw3DLine( vector3df(player[i]->track->getStoneXPos(k) -1, -TRACK_SIZE_Y, player[i]->track->posz - zdisplace),
 								vector3df(player[i]->track->getStoneXPos(k) +1, -TRACK_SIZE_Y, player[i]->track->posz - zdisplace),
-								color );
+								color );			
 		}
 	}
 }	
@@ -175,20 +189,31 @@ void Screen::update()
 	drawHP();
 	drawKeys();
 	drawHittingState();
+	drawSoloModeState();
 	
 	effectFactory->handleEffectsQueue();
 	effectFactory->shieldmanager->drawAll();
 }
 
+void Screen::drawSoloModeState()
+{
+	for(int i=0; i<NPLAYERS; i++)
+		if( player[i]->usingSkill )
+			effectFactory->createAreaEffect(i,glowTex,10);		
+}
+
 void Screen::drawHP()
 {
 	for(int i=0; i<NPLAYERS; i++) {
-		//healthBar[i]->setProgress( player[i]->HP*100/player[i]->maxHP );
-		//staminaBar[i]->setProgress( player[i]->stamina*100/player[i]->maxStamina );
-		healthBar[i]->setProgress( 20 );
-		staminaBar[i][0]->setProgress( 0 );
-		staminaBar[i][1]->setProgress( 70 );
-			
+		healthBar[i]->setProgress( player[i]->HP*100/player[i]->maxHP );
+		
+		staminaBar[i][1]->setProgress( ((player[i]->stamina)-(player[i]->maxStamina/2))*100 / (player[i]->maxStamina/2) );
+		
+		if(player[i]->stamina > player[i]->maxStamina/2)
+			staminaBar[i][0]->setProgress( 100 );
+		else
+			staminaBar[i][0]->setProgress( player[i]->stamina*100 / (player[i]->maxStamina/2) );
+		
 		char str[30];
 		sprintf(str,"%i/%i",player[i]->HP,player[i]->maxHP);
 		hpTxt[i]->setText( stringw(str).c_str() );

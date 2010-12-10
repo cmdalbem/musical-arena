@@ -45,6 +45,7 @@ class Screen
 		ITexture 					*glowTex;
 		
 		// HUD drawing
+		void 						drawSoloModeState();
 		void						drawKeys();
 		void 						drawHittingState();
 		void 						drawHP();

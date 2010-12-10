@@ -17,7 +17,7 @@ class Player
 		Track			*track;
 		int				gotAnEvent;
 		
-		int				usingSkill;
+		bool			usingSkill;
 		timeval			staminaLastTimeDecreased;
 		timeval			staminaLastTimeRecovered;
 		double			staminaDecreaseSpeed;
@@ -38,6 +38,7 @@ class Player
 		void			addSkill( Skill s );
 		void			takeDamage( double damage );
 		void 			updateStamina();
+		
 	private:
 		void 			initialize();
 		void 			staminaRecover();
