@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
 	pthread_t thread[3];
 	int arg = 1;
 	pthread_create(&thread[0], NULL, updater, (void *) arg);
-	pthread_create(&thread[1], NULL, debugger, (void *) arg);
+	//pthread_create(&thread[1], NULL, debugger, (void *) arg);
 	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
 	
 	soundBank->playSelectedMusic();
