@@ -30,6 +30,7 @@ class EffectFactory
 		void						handleEffectsQueue();
 		
 		void						splitBlood( int targetPlayer );
+		void						createAreaEffect(int player, ITexture *tex, int timeMs=700 );
 		
 	
 	private:
@@ -52,7 +53,6 @@ class EffectFactory
 		void						createFireRain( int targetPlayer );
 		void						createFireball( int targetPlayer, bool randomizeTarget );
 		void						createFireball( array<vector3df> path );
-		void						createAreaEffect(int player, ITexture *tex, int timeMs=700 );
 		void						createLaserBeam( int target );
 		void						createBolt( int targetPlayer );
 		void						createThunderstormBolt( int targetPlayer );

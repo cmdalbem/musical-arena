@@ -50,7 +50,7 @@ enum effectType
 {
 	//* SKILLS DE DEFESA*
 	T_BARRIER,				// invulnerable of enemy's magics
-	T_INVINCIBLE,			// invulnerable to any damage and magic	
+	T_INVENCIBLE,			// invulnerable to any damage and magic	
 	T_HEAL,					// increase caster HP
 	T_ANTIDOTE,				// heals from current effects
 	T_DEFENSE_UP,			// increase caster defense

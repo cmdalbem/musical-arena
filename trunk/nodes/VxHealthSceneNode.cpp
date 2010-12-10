@@ -124,6 +124,7 @@ namespace irr
 							MaxNum = (BarRect.UpperLeftCorner.Y - BarRect.LowerRightCorner.Y) - 1;
 						else
 							MaxNum = (BarRect.LowerRightCorner.X - BarRect.UpperLeftCorner.X) - 1;
+						
 						s32 PercentNum = (s32)((m_s32Percent * MaxNum) / 100.);
 						
 						// draw progress part
@@ -154,7 +155,7 @@ namespace irr
 				//! sets the progress percentage ( or health )
 				void VxHealthSceneNode::setProgress( s32 s32Percent )
 				{
-						m_s32Percent = s32Percent;
+						m_s32Percent = 100 - s32Percent;
 						if( m_s32Percent < 0 )
 						{
 								m_s32Percent = 0;

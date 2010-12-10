@@ -42,15 +42,15 @@ void SkillBank::makeSkills()
 		// Cheap and fast damage which eletrifies the opponents instrument, causing notes to be harder to hit
 		buttonType k[] = {B2,B2};
 		effectType e[] = {T_DAMAGE,T_SHOCK,T_TOLERANCE_DOWN};
-		Skill s("Lightning Bolt", 30, 10, THUNDER, e, 3, CREATE_BOLT, k, 5);
+		Skill s("Lightning Bolt", 30, 10, THUNDER, e, 3, CREATE_BOLT, k, 2);
 		skills[LIGHTNING_BOLT] = s;
 	}
 
 	{
 		// The skies are on fire! Causes damage, lowers defense and put your enemy on fire. Also, all that fire makes the fretting harder to see...
-		buttonType k[] = {B1,B2,B3,B4,B5,B1,B2,B3,B4,B5};
+		buttonType k[] = {B5,B4,B3,B2,B1,B5,B4,B3,B2,B1,B5,B4,B3,B2,B1};
 		effectType e[] = {T_DAMAGE,T_DEFENSE_DOWN,T_BURN};
-		Skill s("Fire Rain", 1, 1, FIRE, e, 3, CREATE_FIRE_RAIN, k, 10);
+		Skill s("Fire Rain", 1, 1, FIRE, e, 3, CREATE_FIRE_RAIN, k, 15);
 		skills[FIRE_RAIN] = s;
 	}
 	

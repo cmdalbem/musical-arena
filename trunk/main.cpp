@@ -102,10 +102,10 @@ static void *updater(void *argument)
 
 void musa_init()
 {	
-	player1.addSkill( skillBank.skills[FIREBALL] );
-	player1.addSkill( skillBank.skills[CURE] );
-	player2.addSkill( skillBank.skills[FIREBALL] );
-	player2.addSkill( skillBank.skills[CURE] );
+	for(int i=0; i<SKILLS_TOTAL; i++) {
+		player1.addSkill( skillBank.skills[i] );
+		player1.addSkill( skillBank.skills[i] );
+	}
 
 	player1.fretting = new Fretting( &player1.skills );
 	player1.track = new Track(&theMusic,&musicTime,device,23, -20);
@@ -277,6 +277,12 @@ int main(int argc, char *argv[])
 	 */
 	musa_init();
 	
+	/*
+	 * gets some music
+	 */
+	soundBank->selectMusic(1);
+	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
+	//decoder.printMusic(theMusic);
 	
 	/*
 	 * initializing threads
@@ -289,14 +295,8 @@ int main(int argc, char *argv[])
 	pthread_create(&thread[1], NULL, debugger, (void *) arg);
 	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
 	
-
-	/*
-	 * start playing the music
-	 */
-	soundBank->selectMusic(1);
 	soundBank->playSelectedMusic();
-	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
-	//decoder.printMusic(theMusic);
+
 	
 	SColor bgColor = SColor(255,113,113,133);
 	/* 
