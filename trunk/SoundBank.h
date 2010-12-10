@@ -4,7 +4,10 @@
 
 using namespace std;
 
-
+enum
+{
+	S_BOLT, S_LIGHTNING, S_DIGITAL, S_EXPLOSION, S_FIRE, S_MAGIC, S_STORM, S_UNDERWATER, S_WATER, S_WATERFALL, S_MISS
+};
 
 struct musicLibEntry
 {
@@ -30,6 +33,8 @@ class SoundBank
 		
 		void 			selectMusic( int n );
 		void 			playSelectedMusic();
+		void			playEffect(int efect);
+		void			playEffect(int efect, int index);
 		
 		
 	private:
@@ -40,6 +45,6 @@ class SoundBank
 		FMOD::Sound 	*song, *guitar;
 		
 		// sound effects
-		FMOD::Sound 	*bolt1, *bolt2, *lightning;
+		vector<FMOD::Sound *> 	bolt, lightning, digital, explosion, fire, magic, storm, underwater, water, waterfall, miss;
 
 };
