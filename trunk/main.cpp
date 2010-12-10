@@ -131,6 +131,10 @@ void castSpell ()
 						player[!i].status = ST_DROWNED;
 						player[!i].timeInStatus = casted->effects[j].param1;
 						break;
+					case T_MIRROR:
+						player[i].status = ST_MIRROR;
+						player[i].timeInStatus = casted->effects[j].param1;
+						break;
 					
 					}
 				}

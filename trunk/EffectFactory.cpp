@@ -11,7 +11,7 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 	players = _players;
 	
 	ITexture *shielTex0 = driver->getTexture("img/blanktex.png");
-	ITexture *shielTex1 = driver->getTexture("img/gradient_two.png");
+	ITexture *shielTex1 = driver->getTexture("img/gradient.png");
 	CBloodShader::instance().createMaterial(device);
 	this->fireballTex = driver->getTexture("img/fireball.bmp");
 	this->glowTex = driver->getTexture("img/glow2.bmp");
@@ -98,6 +98,10 @@ void EffectFactory::handleEffectsQueue()
 				createFeedback(target);
 				break;
 			case SHOW_SHIELD:
+				for(int i=0; i<50; i++)
+					queueEffect( i*150, SHOW_SHIELD_SINGLE, target );
+				break;
+			case SHOW_SHIELD_SINGLE:
 				createShield(target);
 				break;
 			case CREATE_BOLT:
@@ -169,7 +173,7 @@ void EffectFactory::createExplosion( vector3df pos )
 
 void EffectFactory::createShield( int player )
 {
-	shieldmanager->addLocalImpact(shields[player], vector3df(0,0,-1), 20);
+	shieldmanager->addLocalImpact(shields[player], vector3df(0,0,-1), 70);
 }
 
 void EffectFactory::createFireRain( int attacked )
