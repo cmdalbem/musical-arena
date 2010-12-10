@@ -52,7 +52,7 @@ vector<musicEvent> 			theMusic;
 Player 						player[2];
 SkillBank					skillBank;
 SoundBank					*soundBank;
-bool						activateAI = true;
+bool						activateAI = false;
 
 bool 						endOfMusic =false; // indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
 double 						musicTime =0;
@@ -78,7 +78,7 @@ void castSpell ()
 
 				player[i].staminaDecrease (casted->cost);
 
-                if(player[i].status == ST_MIRROR) {
+                if(player[!i].status == ST_MIRROR) {
                     player[i].fretting->castedSpell = NULL;
                     i = !i;
                 }
@@ -194,9 +194,9 @@ static void *updater(void *argument)
 		castSpell();
 		player[0].update();
 		player[1].update();
-		if ((player[0].gotAnEvent == 0) && (player[1].gotAnEvent == 0))
-			receiver.removeEvent();
-		//receiver.clearEvents();
+		//if ((player[0].gotAnEvent == 0) && (player[1].gotAnEvent == 0))
+			//receiver.removeEvent();
+		receiver.clearEvents();
 		sem_post(&semaphore);
 		
 	}
@@ -258,13 +258,15 @@ void musa_init()
 	//cout << "passou" << endl;
 	//sem_init(&receiverSemaphore, 0, 1);
 	
-	EKEY_CODE eventos1[NFRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
-	EKEY_CODE eventos2[NFRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
-	int events1[NFRETS] = {0,1,2,3,4};
-
-	player[0].fretting->setEvents(eventos1, irr::KEY_SPACE );
-	//player[0].fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
-	player[1].fretting->setEvents(eventos2, irr::KEY_KEY_C );
+	EKEY_CODE eventsKeyboard1[NFRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
+	EKEY_CODE eventsKeyboard2[NFRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
+	int eventsJoystick1[NFRETS] = {4,6,7,5,2};
+	int eventsJoystick2[NFRETS] = {4,6,7,5,2};
+	cout << "1";
+	player[0].fretting->setEvents(eventsKeyboard1, irr::KEY_SPACE );
+	player[0].fretting->setEvents(eventsJoystick1, joystickInfo, 0, 3);	//comment this line to use keyboard for player 1
+	player[1].fretting->setEvents(eventsKeyboard2, irr::KEY_KEY_C );
+	player[1].fretting->setEvents(eventsJoystick2, joystickInfo, 1, 3);	//comment this line to use keyboard for player 2
 	
 	screen = new Screen(device,&musicTime,&player[0],&player[1]);
 						
@@ -342,8 +344,7 @@ static void *debugger (void *argument)
 	while(1)
 	{
 		player[0].fretting->printHitFret();
-		//cout << "  player1.XP: " << player1.XP <<
-		cout << "player1.stamina: " << player[0].stamina << " usingSkill: " << player[0].usingSkill << endl;
+		cout << "vetor.size(): " << receiver.getEventsSize() << endl;
 		usleep(80000);
 	}
 
@@ -382,7 +383,7 @@ int main(int argc, char *argv[])
 	/*
 	 * gets some music
 	 */
-	soundBank->selectMusic(1);
+	soundBank->selectMusic(2);
 	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
 	//decoder.printMusic(theMusic);
 	screen->musicTotalTime = theMusic.back().time;
@@ -395,7 +396,7 @@ int main(int argc, char *argv[])
 	pthread_t thread[3];
 	int arg = 1;
 	pthread_create(&thread[0], NULL, updater, (void *) arg);
-	//pthread_create(&thread[1], NULL, debugger, (void *) arg);
+	pthread_create(&thread[1], NULL, debugger, (void *) arg);
 	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
 	
 	soundBank->playSelectedMusic();
