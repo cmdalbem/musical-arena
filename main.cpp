@@ -68,12 +68,21 @@ void castSpell ()
 		if (((player[i].fretting->castedSpell) != NULL))
 		{
 			Skill *casted = player[i].fretting->castedSpell;
+
 			if (player[i].stamina > casted->cost)
 			{			
 				player[i].staminaDecrease (casted->cost);
 			
+                // sound effect
 				soundBank->playEffect(casted->soundEffect); 
-				cout << "entrou aqui" << endl;
+
+				player[i].staminaDecrease (casted->cost);
+
+                if(player[i].status == ST_MIRROR) {
+                    player[i].fretting->castedSpell = NULL;
+                    i = !i;
+                }
+
 				// visual effects
 				switch(casted->targetType)
 				{
@@ -88,61 +97,52 @@ void castSpell ()
 						screen->effectFactory->queueEffect(0, casted->effectFunction, i);
 						break;
 				}
-			
-				player[i].staminaDecrease (casted->cost);
+
 				for (int j = 0; j < casted->effects.size(); j++)
 				{
-					cout << "vai entrar no switch" << endl;
 					switch (casted->effects[j].type)
 					{
+					case T_POISONOUS:
+						player[!i].status = ST_POISON;
+						player[!i].timeInStatus = casted->effects[j].param1;
+						break;
 					case T_DAMAGE:
-						cout << "damage" << endl;
 						player[!i].takeDamage(casted->effects[j].param1);
 						break;
 					case T_DEFENSE_DOWN:
-						cout << "defense down" << endl;
 						player[!i].status = ST_DEFENSE_DOWN;
 						player[!i].timeInStatus = casted->effects[j].param1;
 						break;
 					case T_HEAL:
-						cout << "heal" << endl;
 						player[i].HPRecover(casted->effects[j].param1);
 						break;
 					case T_ANTIDOTE:
-						cout << "antidote" << endl;
 						player[i].setStatusNormal();
 						break;
 					case T_STAMINA_DOWN:
-						cout << "stamina down" << endl;
 						player[!i].staminaDecrease( casted->effects[j].param1 );
 						break;
 					case T_SHOCK:
 						//
-						cout << "shock" << endl;
 						break;
 					case T_BURN:
-						cout << "burn" << endl;
 						player[!i].status = ST_FIRE;
 						player[!i].timeInStatus = casted->effects[j].param1;
 						break;
 					case T_FEEDBACK:
-						cout << "feedback" << endl;
 						player[!i].takeDamage (player[!i].stamina);
 						player[!i].stamina = 0;
 						break;
 					case T_ELETRIFY:
-						cout << "eletrify" << endl;
 						player[!i].status = ST_ELETRIFIED;
 						player[!i].timeInStatus = casted->effects[j].param1;
-						player[!i].fretting->tolerance -= casted->effects[j].param2;
+						player[!i].fretting->tolerance -= casted->effects[j].param2; //temporario enquanto nao temos um vetor de efeitos
 						break;
 					case T_DROWN:
-						cout << "drown" << endl;
 						player[!i].status = ST_DROWNED;
 						player[!i].timeInStatus = casted->effects[j].param1;
 						break;
 					case T_MIRROR:
-						cout << "mirror" << endl;
 						player[i].status = ST_MIRROR;
 						player[i].timeInStatus = casted->effects[j].param1;
 						break;
