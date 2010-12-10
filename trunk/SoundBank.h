@@ -4,12 +4,6 @@
 
 using namespace std;
 
-enum soundEffectType
-{
-	S_BOLT1, S_BOLT2, S_LIGHTNING, S_DIGITAL, S_EXPLOSION, S_FIRE, S_MAGIC1, S_MAGIC2, S_STORM, S_UNDERWATER1, S_UNDERWATER2, S_WATER1, S_WATER2, S_WATERFALL,
-	
-	S_TOTAL
-};
 
 struct musicLibEntry
 {

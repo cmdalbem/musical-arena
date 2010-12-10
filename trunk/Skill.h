@@ -10,7 +10,7 @@ class Skill
 {
 	public:
 		Skill();
-		Skill( std::string name, double cooldown, double cost, elementType element, effectStruct effects[], int neffects, visualEffectFunction effectFunction, buttonType keys[], int nkeys, std::string skillDescription );
+		Skill( std::string name, skillTargetType targetType, soundEffectType soundEffect, double cooldown, double cost, elementType element, effectStruct effects[], int neffects, visualEffectFunction effectFunction, buttonType keys[], int nkeys, std::string skillDescription );
 		~Skill();
 		
 		vector<buttonType>		keysSequence;
@@ -19,8 +19,10 @@ class Skill
 		double					cooldown;
 		double 					cost;
 		
-		elementType			element;
-		visualEffectFunction effectFunction;
+		soundEffectType			soundEffect;
+		elementType				element;
+		skillTargetType			targetType;
+		visualEffectFunction 	effectFunction;
 		std::string					description;
 		
 	private:

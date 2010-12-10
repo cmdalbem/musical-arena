@@ -30,7 +30,7 @@ class EffectFactory
 		void						handleEffectsQueue();
 		
 		void						splitBlood( int targetPlayer, E_GORE_LEVEL gore );
-		void						createAreaBorderEffect(int player, ITexture *tex, int timeMs=700 );
+		void						createSoloEffect(int player, ITexture *tex, int timeMs=700 );
 		
 	
 	private:

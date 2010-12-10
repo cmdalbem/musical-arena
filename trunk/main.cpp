@@ -52,7 +52,7 @@ vector<musicEvent> 			theMusic;
 Player 						player[2];
 SkillBank					skillBank;
 SoundBank					*soundBank;
-bool						activateAI;
+bool						activateAI = true;
 
 bool 						endOfMusic =false; // indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
 double 						musicTime =0;
@@ -69,8 +69,26 @@ void castSpell ()
 		{ 
 			Skill *casted = player[i].fretting->castedSpell;
 			
-			// treat the skill properly
-			cout << "entrou aqui" << endl;
+			player[i].staminaDecrease (casted->cost);
+			
+			soundBank->playEffect(casted->soundEffect); 
+			
+			// visual effects
+			switch(casted->targetType)
+			{
+				case ATTACK:
+					screen->effectFactory->queueEffect(0, casted->effectFunction, !i);
+					break;
+				case DEFENSE:
+					screen->effectFactory->queueEffect(0, casted->effectFunction, i);
+					break;
+				case GLOBAL:
+					screen->effectFactory->queueEffect(0, casted->effectFunction, !i);
+					screen->effectFactory->queueEffect(0, casted->effectFunction, i);
+					break;
+			}
+			
+			for (int j = 0; j < casted->effects.size(); j++)
 			if (player[i].stamina > casted->cost)
 			{
 				player[i].staminaDecrease (casted->cost);
@@ -149,6 +167,8 @@ static void *updater(void *argument)
 			player[1].track->processEvent(theMusic[player[1].track->musicPos]);
 		}
 		
+		
+		sem_wait(&semaphore);
 		if (player[1].activateAI == true)
 		{
 			double chance = rand() % 100000;
@@ -158,8 +178,6 @@ static void *updater(void *argument)
 				player[1].fretting->castedSpell = &(player[1].instrument->skills[random]);	
 			}
 		}
-		
-		sem_wait(&semaphore);
 		castSpell();
 		player[0].update();
 		player[1].update();
@@ -202,8 +220,7 @@ void musa_init()
 	player[0].fretting->receiver = &receiver;
 	player[1].fretting->receiver = &receiver;
 
-	activateAI = false;
-	player[1].activateAI = false;
+	player[1].activateAI = activateAI;
 
 	if(device->activateJoysticks(joystickInfo))
 	{
@@ -233,7 +250,7 @@ void musa_init()
 	int events1[NFRETS] = {0,1,2,3,4};
 
 	player[0].fretting->setEvents(eventos1, irr::KEY_SPACE );
-	player[0].fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
+	//player[0].fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
 	player[1].fretting->setEvents(eventos2, irr::KEY_KEY_C );
 	
 	screen = new Screen(device,&musicTime,&player[0],&player[1]);
@@ -399,7 +416,6 @@ int main(int argc, char *argv[])
 			player[0].track->drawStoneTrails();
 			player[1].track->drawStoneTrails();
 		
-		sem_post(&semaphore);
 		screen->update();
 		
 		sem_post(&semaphore);

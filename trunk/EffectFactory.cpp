@@ -92,7 +92,7 @@ void EffectFactory::handleEffectsQueue()
 				createFireRain(target);
 				break;
 			case CREATE_GLOW_AREA:
-				createAreaEffect(target,glowTex);
+				createAreaEffect(target,glowTex, 700);
 				break;
 			case CREATE_FEEDBACK:
 				createFeedback(target);
@@ -115,16 +115,17 @@ void EffectFactory::handleEffectsQueue()
 				createWaterBeam(target);
 				break;	
 			case CREATE_DRUNK_EFFECT:
-				for(int i=0; i<5; i++)
+				for(int i=0; i<10; i++)
 					queueEffect( i*500, CREATE_DRUNK_EFFECT_SINGLE, target );
 				break;
 			case CREATE_DRUNK_EFFECT_SINGLE:
-				createDrunkEffect(target,8);
+				createDrunkEffect(target,5);
 				break;
 			case CREATE_EXPLOSION:
 				createExplosion(players[target]->track->getCentroid());
 				break;
 			case CREATE_ELETRIC_GROUND:
+				queueEffect( 0, CREATE_DRUNK_EFFECT, target );
 				createEletrifiedGround(target);
 				break;
 			case CREATE_FLOOD_EFFECT:
@@ -252,8 +253,8 @@ void EffectFactory::createAreaEffect( int player, ITexture *tex, int timeMs )
 	scene::IParticleEmitter* em = ps->createBoxEmitter(
 			core::aabbox3d<f32>(-TRACK_SIZE_X/2,-TRACK_SIZE_Y/2,0,TRACK_SIZE_X/2,TRACK_SIZE_Y/2,1), //minx, miny, minz, maxx, maxy, maxz
 			core::vector3df(0.0f,0.015f,0.0f),
-			80,80,
-			video::SColor(0,130,130,130), video::SColor(0,130,130,130),
+			180,200,
+			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
 			400,2000);
 	em->setMinStartSize(core::dimension2d<f32>(3.0f, 3.0f));
 	em->setMaxStartSize(core::dimension2d<f32>(6.0f, 6.0f));
@@ -272,7 +273,7 @@ void EffectFactory::createAreaEffect( int player, ITexture *tex, int timeMs )
 	ps->addAnimator( smgr->createDeleteAnimator(timeMs+1300) );
 }
 
-void EffectFactory::createAreaBorderEffect( int player, ITexture *tex, int timeMs )
+void EffectFactory::createSoloEffect( int player, ITexture *tex, int timeMs )
 {
 	vector3df pos = players[player]->track->getCentroid();
 	
@@ -422,7 +423,7 @@ void EffectFactory::createDrunkEffect ( int targetPlayer, int times )
 		for(int xtimes=0;xtimes<times; xtimes++)
 			if(stones.size()) {
 				k = rand()%stones.size();
-				stones[k]->displace = vector3df(rand()%6-3,0,0);
+				stones[k]->displace = vector3df(rand()%4-2,0,0);
 				createParticlesExplosion( stones[k]->getPosition()+stones[k]->displace,glowTex );
 			}
 	}
