@@ -4,13 +4,14 @@
 using namespace irr::core;
 using namespace irr::video;
 
-Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
+Screen::Screen( IrrlichtDevice *_device, double *_musicTime, Player* player1, Player* player2 )
 {
 	this->device = _device;
 	this->driver = device->getVideoDriver();
 	this->smgr = device->getSceneManager();
 	player.push_back(player1);
 	player.push_back(player2);
+	musicTime = _musicTime;
 	
 	effectFactory = new EffectFactory(device,driver,smgr,player);
 	
@@ -21,9 +22,10 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	//abox->addAnimator(smgr->createRotationAnimator(core::vector3df(0.3f, 0.3f,0)));
 	
 	
+	//effectFactory->queueEffect( 300, CREATE_DRUNK_EFFECT, 1 );
 	//effectFactory->queueEffect( 0, CREATE_FLOOD_EFFECT, 1);
 	//effectFactory->queueEffect( 0, CREATE_WATER_BEAM, 1);
-	//effectFactory->queueEffect( 1500, CREATE_FLOOD_EFFECT, 1);
+	//effectFactory->queueEffect( 0, CREATE_FLOOD_EFFECT, 1);
 	//effectFactory->queueEffect(0, CREATE_BOLT, 1);
 	//effectFactory->queueEffect(0, CREATE_THUNDERSTORM, 0);
 	//effectFactory->queueEffect(0, CREATE_ELETRIC_GROUND, 0);
@@ -35,7 +37,6 @@ Screen::Screen( IrrlichtDevice *_device, Player* player1, Player* player2 )
 	//effectFactory->queueEffect( 0, CREATE_FEEDBACK, 1 );
 	//effectFactory->queueEffect( 2000, CREATE_DRUNK_EFFECT_SINGLE, 0 );
 	//effectFactory->queueEffect( 0, CREATE_EXPLOSION, 1 );
-	//effectFactory->queueEffect( 2000, CREATE_DRUNK_EFFECT, 0 );
 	//effectFactory->queueEffect( 0, CREATE_GLOW_AREA, 0 );
 	//effectFactory->queueEffect( 0, CREATE_ELECTRIC, 1 );
 	//for(int i=0;i<10;i++)
@@ -55,7 +56,14 @@ void Screen::initializeScreenElements()
 	ITexture *neutralTex = driver->getTexture("img/neutral.png");
 	this->glowTex = driver->getTexture("img/glow2.bmp");
 	
-	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::rect<int>(0, 0, 100, 10));
+	sky = smgr->addSkyDomeSceneNode( driver->getTexture("img/stars.tga"), 32, 32 );
+	sky->setMaterialFlag(video::EMF_TEXTURE_WRAP, video::ETC_REPEAT);
+	sky->getMaterial(0).getTextureMatrix(0).setTextureScale(6,6);
+	
+	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::recti(0, 0, 100, 10));
+	timeText = device->getGUIEnvironment()->addStaticText(L"", core::recti( position2di(SCREENX/2-50,5), dimension2di(100,50) ) , false);
+	timeText->setTextAlignment( EGUIA_CENTER,EGUIA_CENTER );
+	timeText->setOverrideColor( SColor(255,255,255,255) );
 	
 	// create render target
 	for(int i=0;i<NPLAYERS;i++) {
@@ -64,7 +72,8 @@ void Screen::initializeScreenElements()
 		
 			int xpos = SCREENX/4 + i*SCREENX/2;
 			
-			hpTxt[i] = device->getGUIEnvironment()->addStaticText(L"", rect<int>(xpos, 50, xpos+50, 100));
+			hpTxt[i] = device->getGUIEnvironment()->addStaticText(L"", recti(position2di(xpos-35,40),position2di(xpos+35,60)));
+			hpTxt[i]->setOverrideColor( SColor(200,255,255,255) );
 			
 			//bloodSplit[i] = driver->addRenderTargetTexture(core::dimension2d<u32>(256,256), "RTT1");
 			//device->getGUIEnvironment()->addImage( bloodSplit[i], core::position2d<s32>(xpos-256/2, 70-256/2) );
@@ -99,7 +108,7 @@ void Screen::initializeScreenElements()
 									vector3df(i==0 ? 20 : SCREENX-20, SCREENY/3 + (k==0?(STAMINA_BAR_H/2):-(STAMINA_BAR_H/2)), 0), // position in 2d
 									SColor(0,0,0,0), // bar color
 									SColor(170,30,30,240), // background color
-									SColor(255,255,255,255) ); // border color								
+									SColor(150,255,255,255) ); // border color								
 			
 		}
 		
@@ -186,10 +195,12 @@ void Screen::update()
 // Here we check everything about the game that has to be drawn.
 // It's all about HUDs and special effects!
 {
-	drawHP();
+	drawHUD();
 	drawKeys();
 	drawHittingState();
 	drawSoloModeState();
+	
+	sky->getMaterial(0).getTextureMatrix(0).setTextureTranslate( 0, -*musicTime/3 );
 	
 	effectFactory->handleEffectsQueue();
 	effectFactory->shieldmanager->drawAll();
@@ -199,11 +210,15 @@ void Screen::drawSoloModeState()
 {
 	for(int i=0; i<NPLAYERS; i++)
 		if( player[i]->usingSkill )
-			effectFactory->createAreaEffect(i,glowTex,10);		
+			effectFactory->createAreaBorderEffect(i,glowTex,10);		
 }
 
-void Screen::drawHP()
+void Screen::drawHUD()
 {
+	char str[30];
+	sprintf(str,"%.1lf",musicTotalTime-*musicTime);
+	timeText->setText( stringw(str).c_str() );
+	
 	for(int i=0; i<NPLAYERS; i++) {
 		healthBar[i]->setProgress( player[i]->HP*100/player[i]->maxHP );
 		
@@ -214,7 +229,6 @@ void Screen::drawHP()
 		else
 			staminaBar[i][0]->setProgress( player[i]->stamina*100 / (player[i]->maxStamina/2) );
 		
-		char str[30];
 		sprintf(str,"%i/%i",player[i]->HP,player[i]->maxHP);
 		hpTxt[i]->setText( stringw(str).c_str() );
 	}
@@ -226,16 +240,31 @@ void Screen::drawHittingState()
 	{
 		switch( player[i]->fretting->frettingState )
 		{
-			case  1:
+			case 1:
 				showGood(i);
 				break;
 			case -1:
 				showBad(i);
-				effectFactory->splitBlood(i);
 				break;
 			case 0:
 				showNeutral(i);
 				break;
+		}
+		
+		if( player[i]->damageTaken ) {
+			
+			E_GORE_LEVEL gore;
+			if(player[i]->damageTaken>100)
+				gore = EGL_INSANE;
+			else if(player[i]->damageTaken>80)
+				gore = EGL_BRUTAL;
+			else if(player[i]->damageTaken>20)
+				gore = EGL_MEDIUM;
+			else
+				gore = EGL_MILD;
+			
+			effectFactory->splitBlood(i, gore);
+			player[i]->damageTaken = 0;
 		}
 	}
 }

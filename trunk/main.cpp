@@ -190,22 +190,22 @@ void musa_init()
 	player[1].fretting->receiver = &receiver;
 
 
-        if(device->activateJoysticks(joystickInfo))
-        {
-                cout << "Joystick support is enabled and " << joystickInfo.size() << " joystick(s) are present." << endl;
+	if(device->activateJoysticks(joystickInfo))
+	{
+			cout << "Joystick support is enabled and " << joystickInfo.size() << " joystick(s) are present." << endl;
 
-                for(u32 joystick = 0; joystick < joystickInfo.size(); ++joystick)
-                {
-                        cout << "Joystick " << joystick << ":" << endl;
-                        cout << "\tName: '" << joystickInfo[joystick].Name.c_str() << "'" << endl;
-                        cout << "\tAxes: " << joystickInfo[joystick].Axes << endl;
-                        cout << "\tButtons: " << joystickInfo[joystick].Buttons << endl;
-                }
-        }
-        else
-        {
-                cout << "Joystick support is not enabled." << endl;
-        }
+			for(u32 joystick = 0; joystick < joystickInfo.size(); ++joystick)
+			{
+					cout << "Joystick " << joystick << ":" << endl;
+					cout << "\tName: '" << joystickInfo[joystick].Name.c_str() << "'" << endl;
+					cout << "\tAxes: " << joystickInfo[joystick].Axes << endl;
+					cout << "\tButtons: " << joystickInfo[joystick].Buttons << endl;
+			}
+	}
+	else
+	{
+			cout << "Joystick support is not enabled." << endl;
+	}
 
 	
 	//cout << "vai passar" << endl;
@@ -221,7 +221,7 @@ void musa_init()
 	//player[0].fretting->setEvents(events1, joystickInfo, 0);	//comment this line to use keyboard for player 1
 	player[1].fretting->setEvents(eventos2, irr::KEY_KEY_C );
 	
-	screen = new Screen(device,&player[0],&player[1]);
+	screen = new Screen(device,&musicTime,&player[0],&player[1]);
 						
 	// start getting signals, baby
 	receiver.enabled = true;	
@@ -262,8 +262,7 @@ void initializeIrrlicht()
 	env = device->getGUIEnvironment();
 	
 	IGUISkin* skin = env->getSkin();
-	IGUIFont* font = env->getFont("img/fonthaettenschweiler.bmp");
-	
+	IGUIFont* font = env->getFont("img/fontcourier.bmp");
 	skin->setFont(font);
 
 	//env->addButton(rect<s32>(10,240,110,240 + 32), 0, GUI_ID_QUIT_BUTTON,
@@ -271,10 +270,6 @@ void initializeIrrlicht()
 	/*scene::ILightSceneNode *light = */smgr->addLightSceneNode(0, vector3df(0,-80,-30), video::SColorf(1.0f, 1.0f, 1.0f), 20.0f);
 	//light->setLightType(video::ELT_DIRECTIONAL);
 	//light->setRotation(vector3df(-90,0,0));
-	
-	/*ISceneNode *sky = smgr->addSkyDomeSceneNode( driver->getTexture("img/stars.tga"));
-	sky->setMaterialFlag(video::EMF_TEXTURE_WRAP, video::ETC_REPEAT);
-	sky->getMaterial(0).getTextureMatrix(0).setTextureScale(5,5);*/
 	
     // lol quake scenario
     /*device->getFileSystem()->addZipFileArchive("map-20kdm2.pk3");
@@ -345,6 +340,7 @@ int main(int argc, char *argv[])
 	soundBank->selectMusic(0);
 	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
 	//decoder.printMusic(theMusic);
+	screen->musicTotalTime = theMusic.back().time;
 	
 	/*
 	 * initializing threads

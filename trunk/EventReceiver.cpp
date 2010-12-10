@@ -54,7 +54,7 @@ SEvent* EventReceiver::getEvent()
 		return NULL;
 }
 
-SEvent* EventReceiver::getEvent(int i)
+SEvent* EventReceiver::getEvent(unsigned int i)
 {
 	if (events.size() > i)
 		return &(events[i]);

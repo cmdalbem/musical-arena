@@ -23,7 +23,8 @@ void Player::initialize()
 {
 	srand((unsigned)time(0));
 	
-	usingSkill = 0;
+	damageTaken = 0;
+	usingSkill = false;
 	gettimeofday (&lastTimeUpdatedStatus, NULL);
 	magicBarrier = false;
 	mirror = false;
@@ -118,6 +119,8 @@ void Player::update()
 
 void Player::takeDamage( double damage )
 {
+	damageTaken = damage;
+	
 	HP = HP - damage;
 	if (HP < 0)
 		HP = 0;
@@ -181,7 +184,7 @@ void Player::updateStatus()
 	}
 	
 	if (usingSkill)
-		staminaDecrease(1);
+		staminaDecrease(2.5);
 	else
 		staminaRecover();
 		

@@ -42,7 +42,7 @@ Track::~Track() {}
 
 
 void Track::update()
-{
+{	
 	nonPressedChord		= false;
 	notesOnChord		= 0;
 	chordCreationTime	= INT_MAX;

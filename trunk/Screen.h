@@ -23,12 +23,14 @@ using namespace irr::video;
 class Screen
 {
 	public:
-		Screen( IrrlichtDevice *device, Player* player1, Player* player2 );
+		Screen( IrrlichtDevice *device, double *musicTime, Player* player1, Player* player2 );
 		~Screen();
 		
 		ITexture					*bloodSplit[NPLAYERS];
 		vector<Player*> 			player;
+		double						musicTotalTime;
 		EffectFactory				*effectFactory;
+
 
 		void						update();		
 		void						setFps( int fps );
@@ -37,18 +39,20 @@ class Screen
 		IrrlichtDevice				*device;
 		IVideoDriver				*driver;
 		ISceneManager				*smgr;
+		double						*musicTime;
 		
 		IGUIImage 					*good[NPLAYERS], *bad[NPLAYERS], *neutral[NPLAYERS];
 		ISceneNode					*glow[NPLAYERS][NFRETS];
-		IGUIStaticText 				*fpsText, *hpTxt[NPLAYERS];
+		IGUIStaticText 				*fpsText, *hpTxt[NPLAYERS], *timeText;
 		VxHealthSceneNode			*healthBar[NPLAYERS], *staminaBar[NPLAYERS][NSTAMINALEVELS];
 		ITexture 					*glowTex;
+		ISceneNode 					*sky;
 		
 		// HUD drawing
 		void 						drawSoloModeState();
 		void						drawKeys();
 		void 						drawHittingState();
-		void 						drawHP();
+		void 						drawHUD();
 		
 		// Inner utility functions
 		void						initializeScreenElements();
