@@ -34,8 +34,6 @@ void Player::initialize()
 	level = 1;
 	gold = 0;
 	gotAnEvent = 0;
-
-	castedSpell = NULL;
 	
 	status = ST_NORMAL;
 }
@@ -49,6 +47,8 @@ void Player::initializeAtributes()
 	armor = instrument->armor;
 	
 	fretting = new Fretting(&instrument->skills);
+	
+	castedSpell = NULL;
 	
 	track->tolerance = instrument->tolerance;
 	fretting->tolerance = instrument->tolerance;
@@ -91,7 +91,8 @@ void Player::update()
 			while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
 			{
 				//sem_wait(fretting->receiver->semaphore);
-				gotAnEvent = fretting->verifyEvents( anEvent, firstStones, &usingSkill, castedSpell );
+				gotAnEvent = fretting->verifyEvents( anEvent, firstStones, &usingSkill);
+				//castedSpell = fretting->castedSpell;
 				
 				if (gotAnEvent != 0)
 				{
