@@ -55,7 +55,7 @@ class Fretting
 
 		void 	setEvents(EKEY_CODE events[NFRETS], EKEY_CODE _skillButton);
 		void 	setEvents(int buttons[NFRETS], core::array<SJoystickInfo> 
-							joystickInfo, int joystickNumber);
+							joystickInfo, int joystickNumber, int skButton);
 
 		int 	verifyEvents(SEvent *event, Stone* firstStones[NFRETS], bool *usingSkill);
 		int		verifyEventsAI(SEvent *event, Stone* stones[NFRETS]);
@@ -73,6 +73,7 @@ class Fretting
 		// Keyboard
 		vector<EKEY_CODE> 	_events;
 		EKEY_CODE			skillButton;
+		int					joystickSkillButton;
 		int		skillButtonState;
 		
 		// Joystick (Gamepad)

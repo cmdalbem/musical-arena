@@ -75,7 +75,7 @@ void Fretting::setEvents(EKEY_CODE events[NFRETS], EKEY_CODE _skillButton)
 }
 
 void Fretting::setEvents(int buttons[NFRETS], core::array<SJoystickInfo> 
-			joystickInfo, int number)
+			joystickInfo, int number, int skButton)
 {
 	if (number < joystickInfo.size())
 	{
@@ -86,6 +86,7 @@ void Fretting::setEvents(int buttons[NFRETS], core::array<SJoystickInfo>
 	else
 		cout << "Não foi encontrado este joystick\n";
 	type = JOYSTICK;
+	joystickSkillButton = skButton;
 }
 ////////////////////////////////////////////////////////////////// OTHER METHODS
 
@@ -201,6 +202,13 @@ int Fretting::joystickPreFretting(SEvent *event)
 	}
 	//cout << usefullButton << endl;
 	_trackPressed[usefullButton] = JoystickState.IsButtonPressed(joystickButtons[usefullButton]);
+	
+	if (JoystickState.IsButtonPressed(joystickSkillButton) != skillButtonState)
+	{
+		//skillButtonState = JoystickState.IsButtonPressed(joystickSkillButton);
+		usefullButton = SKILLBUTTON_INDEX;
+	}
+		//cout << JoystickState.IsButtonPressed(joystickSkillButton) << "\t" << skillButtonState << endl;
 	return usefullButton;
 }
 
@@ -249,7 +257,8 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 	// collateral effect: starts to decrease stamina
 	if (usefulButton == SKILLBUTTON_INDEX)
 	{
-		if (type == KEYBOARD && event->KeyInput.PressedDown)
+		if ((type == KEYBOARD && event->KeyInput.PressedDown) || 
+			(type == JOYSTICK && JoystickState.IsButtonPressed(joystickSkillButton)))
 		{
 			if(skillButtonState == 0)
 			{

@@ -87,13 +87,13 @@ void Player::update()
 				firstStones[i] = NULL;
 		if (fretting->receiver->enabled)
 		{
-			//for (int i=0; i<fretting->receiver->getEventsSize(); i++)
-				//fretting->verifyEvents(fretting->receiver->getEvent(i), firstStones);
 			if (activateAI)
 				gotAnEvent = fretting->verifyEventsAI( anEvent, firstStones );
 			else
-			{
-				while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
+				{
+				for (int i=0; i<fretting->receiver->getEventsSize(); i++)
+					fretting->verifyEvents(fretting->receiver->getEvent(i), firstStones, &usingSkill);
+				/*while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
 				{
 					//sem_wait(fretting->receiver->semaphore);
 					if (!activateAI)
@@ -115,7 +115,7 @@ void Player::update()
 								XP += state;
 						}
 					}
-				}
+				}*/
 				//cout << "vai verificar eventos" << endl;
 				//cout << "terminou de verificar eventos" << endl;
 			}
