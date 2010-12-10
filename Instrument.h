@@ -4,9 +4,7 @@
 // Besides, each instument has some effects on the player, like increase the staminaRecoverSpeed,
 // prevent some damage, cause an diferent status, etc...
 //
-
-#ifndef _INSTRUMENT_H_
-#define _INSTRUMENT_H_
+#pragma once
 
 #include "types.h"
 #include "Skill.h"
@@ -18,25 +16,22 @@ class Instrument
 {
 	public:
 		Instrument();
-		Instrument( vector< Skill > newSkills, statusType newStatus);
+		Instrument( statusType newStatus);
 		void init();
 		
 		int			sumHP;
 		int			sumStamina;
 		int			armor;
+		double		tolerance;
+		vector< Skill > 	skills;
 
-		Skill* getSkill (int index);
-		statusType getStatus();
+		statusType 	getStatus();
 		
-		void setStatus (statusType newStatus);
-		void addSkill (Skill newSkill);
-//		void removeSkill (...)  // pensar melhor
-		
+		void 		setStatus (statusType newStatus);
+		void 		addSkill (Skill newSkill);
+//		void 		removeSkill (...)  // pensar melhor
 		
 	private:
-		vector< Skill > 	skills;
 		statusType			status;
 		// We can put some other variables indicating several interesting effects on the Instrument
 };
-
-#endif _INSTRUMENT_H_

@@ -8,9 +8,8 @@ Instrument::Instrument()
 	init();
 }
 
-Instrument::Instrument( vector< Skill > newSkills, statusType newStatus)
+Instrument::Instrument( statusType newStatus)
 {
-	skills = newSkills;	
 	status = newStatus;
 	
 	init();
@@ -21,18 +20,7 @@ void Instrument::init ()
 	sumHP = 100;
 	sumStamina = 150;
 	armor = 50;
-}
-
-Skill* Instrument::getSkill (int index)
-{
-	Skill* returnValue;
-	if (index < 0)
-		return NULL;
-	
-	if (skills.size() < (index - 1))
-		return NULL;
-	else
-		return &(skills[index]);
+	tolerance = 2;
 }
 
 statusType Instrument::getStatus()

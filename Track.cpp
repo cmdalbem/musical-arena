@@ -166,7 +166,7 @@ void Track::destroyStone( int fret, int stone )
 void Track::drawStoneTrails()
 {
 	drawStones();
-	drawQuarters();
+	//drawQuarters();
 }
 
 void Track::processEvent( musicEvent event )
