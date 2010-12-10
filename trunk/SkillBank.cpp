@@ -31,7 +31,7 @@ void SkillBank::makeSkills()
 	
 	{
 		buttonType k[] = {B1,B2,B1,B3,B1,B4,B1,B5};
-		effectStruct e[] = {{T_DAMAGE, 200},{T_DEFENSE_DOWN, 15, 6},{T_STAMINA_DOWN, 25, -1}};
+		effectStruct e[] = {{T_DAMAGE, 300, -1},{T_DEFENSE_DOWN, 15, 6},{T_STAMINA_DOWN, 25, -1}};
 		Skill s("Explosion", ATTACK, S_EXPLOSION, 30, 190, EARTH, e, 3, CREATE_EXPLOSION, k, 8,
 		"A big explosion right in the enemies face! Causes damage, lowers the defense and knocks the enemy into the ground, causing him to lose stamina");
 		skills[EXPLOSION] = s;
@@ -92,5 +92,13 @@ void SkillBank::makeSkills()
 		"");
 		skills[THUNDERSTORM] = s;
 	}
+	
+	{
+		buttonType k[] = {B1,B3,B4,B5,B1,B3,B4,B5,B1,B3,B4,B5};
+		effectStruct e[] = {{T_DAMAGE, 200, -1},{T_ELETRIFY, 4, 0.05}};
+		Skill s("Twin Soul", ATTACK, S_STORM, 15, 70, WATER, e, 2, CREATE_THUNDERSTORM, k, 12,
+		"");
+		skills[THUNDERSTORM] = s;
+	}	
 	
 }
