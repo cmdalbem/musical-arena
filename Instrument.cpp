@@ -20,7 +20,7 @@ void Instrument::init ()
 	sumHP = 150;
 	sumStamina = 50;
 	armor = 50;
-	tolerance = 2;
+	tolerance = 0.2;
 }
 
 statusType Instrument::getStatus()

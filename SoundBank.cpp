@@ -12,26 +12,9 @@ SoundBank::SoundBank()
 	guitar = NULL;
 	
 	char filename[128];
-	for(int i=0; i<14; i++) {
-		FMOD::Sound * sound;
+	for(int i=0; i<S_TOTAL; i++) {
 		sprintf(filename,"sound/%s.wav",wavFiles[i].c_str());
-
-		system->createSound(filename, FMOD_DEFAULT, 0, &sound);
-		string name = wavFiles[i];
-		if(name.find("bolt"))
-			bolt.push_back(sound);
-		else if(name.find("lightning"))
-			lightning.push_back(sound);
-		else if(name.find("digital"))
-			digital.push_back(sound);
-		else if(name.find("explosion"))
-			explosion.push_back(sound);
-		else if(name.find("fire"))
-			fire.push_back(sound);
-		else if(name.find("miss"))
-			miss.push_back(sound);
-		else if(name.find("water"))
-			water.push_back(sound);
+		system->createSound(filename, FMOD_DEFAULT, 0, &effects[i]);
 	}
 }
 
@@ -58,36 +41,13 @@ void SoundBank::playSelectedMusic()
 	FMOD_RESULT result;
 	
 	// play files
-	result = system->playSound(FMOD_CHANNEL_FREE, song, false, &ch1);
+	result = system->playSound(FMOD_CHANNEL_FREE, song, false, &ch);
 	if(guitar)
-		system->playSound(FMOD_CHANNEL_FREE, guitar, false, &ch1);
+		system->playSound(FMOD_CHANNEL_FREE, guitar, false, &ch);
 	ERRCHECK(result);
-	
-	// play some test effects
-	//system->playSound(FMOD_CHANNEL_FREE, lightning, false, &ch2);
 }
 
-void SoundBank::playEffect(int efect)
+void SoundBank::playEffect( soundEffectType which )
 {
-	FMOD_RESULT result;
-	int index;
-	switch (efect)
-	{
-	case S_MISS:
-		index = rand() % miss.size();
-		result = system->playSound(FMOD_CHANNEL_FREE, miss[index], false, &ch1);
-		break;
-	}
-	ERRCHECK(result);
-}
-void SoundBank::playEffect(int efect, int index)
-{
-	FMOD_RESULT result;
-	switch (efect)
-	{
-	case S_MISS:
-		result = system->playSound(FMOD_CHANNEL_FREE, miss[index], false, &ch1);
-		break;
-	}
-	ERRCHECK(result);
+	system->playSound(FMOD_CHANNEL_FREE, effects[which], false, &ch);
 }

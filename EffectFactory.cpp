@@ -272,6 +272,38 @@ void EffectFactory::createAreaEffect( int player, ITexture *tex, int timeMs )
 	ps->addAnimator( smgr->createDeleteAnimator(timeMs+1300) );
 }
 
+void EffectFactory::createAreaBorderEffect( int player, ITexture *tex, int timeMs )
+{
+	vector3df pos = players[player]->track->getCentroid();
+	
+	// add particle system
+	scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false);
+	ps->setPosition( pos );	
+	
+	// create and set emitter
+	scene::IParticleEmitter* em = ps->createBoxEmitter(
+			core::aabbox3d<f32>(-TRACK_SIZE_X/2,-TRACK_SIZE_Y/2,0,TRACK_SIZE_X/2,TRACK_SIZE_Y/2,0.5), //minx, miny, minz, maxx, maxy, maxz
+			core::vector3df(0.0f,0.015f,0.0f),
+			80,80,
+			video::SColor(0,100,100,255), video::SColor(0,200,100,255),
+			400,2000);			
+	em->setMinStartSize(core::dimension2d<f32>(4.0f, 4.0f));
+	em->setMaxStartSize(core::dimension2d<f32>(6.0f, 6.0f));
+	ps->setEmitter(em);
+	em->drop();	
+
+	ps->addAffector( ps->createFadeOutParticleAffector() );
+
+	// adjust some material settings
+	ps->setMaterialFlag(video::EMF_LIGHTING, false);
+	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialTexture(0, tex);
+	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	
+	new CDeleteParticleAffector(ps, timeMs);
+	ps->addAnimator( smgr->createDeleteAnimator(timeMs+500) );
+}
+
 void EffectFactory::createBolt( int target )
 {
 	vector3df initPos = players[!target]->track->getCentroid() + vector3df(0,0,-20);
@@ -370,10 +402,10 @@ void EffectFactory::createFloodEffect( int player )
 	}
 }
 
-void EffectFactory::splitBlood( int targetPlayer )
+void EffectFactory::splitBlood( int targetPlayer, E_GORE_LEVEL gore )
 {
 	// EGL_MILD, EGL_MEDIUM, EGL_BRUTAL, EGL_INSANE
-	blood = new CBloodEffect(device->getSceneManager(), bloodTex, EGL_MILD,
+	blood = new CBloodEffect(device->getSceneManager(), bloodTex, gore,
 							players[targetPlayer]->track->getCentroid()+vector3df(targetPlayer==0? 14:-14,0,-30), //source
 							vector3df(0, -0.3f, -0.05), //direction
 							35); //duration

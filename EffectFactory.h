@@ -29,8 +29,8 @@ class EffectFactory
 		void						queueEffect( int msecondsAhead, visualEffectFunction functionToCall, int targetPlayer );
 		void						handleEffectsQueue();
 		
-		void						splitBlood( int targetPlayer );
-		void						createAreaEffect(int player, ITexture *tex, int timeMs=700 );
+		void						splitBlood( int targetPlayer, E_GORE_LEVEL gore );
+		void						createAreaBorderEffect(int player, ITexture *tex, int timeMs=700 );
 		
 	
 	private:
@@ -47,6 +47,7 @@ class EffectFactory
 		array<ITexture*> 			feedbackTex, explosion;
 		
 		
+		void						createAreaEffect(int player, ITexture *tex, int timeMs=700 );
 		void 						createShield( int targetPlayer );
 		void 						createFeedback( int targetPlayer );
 		void						createExplosion( vector3df pos );

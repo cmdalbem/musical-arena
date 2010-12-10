@@ -17,6 +17,7 @@ class Player
 		Track			*track;
 		int				gotAnEvent;
 		bool			usingSkill;
+		int				damageTaken;
 
 		int				HP;
 		int				maxHP;

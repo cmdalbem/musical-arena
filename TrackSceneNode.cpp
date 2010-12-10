@@ -35,7 +35,7 @@ TrackSceneNode::TrackSceneNode(scene::ISceneNode* parent, scene::ISceneManager* 
 	Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 	Material.setTexture(0, driver->getTexture("img/neck.png")); 
 	Material.setFlag(video::EMF_TEXTURE_WRAP, video::ETC_REPEAT);
-	Material.setFlag(video::EMF_ZWRITE_ENABLE, false);
+	//Material.setFlag(video::EMF_ZWRITE_ENABLE, false);
 	Material.getTextureMatrix(0).setTextureScale(1,NECK_TEXTURE_PROPORTION);
 }
 
