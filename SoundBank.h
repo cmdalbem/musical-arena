@@ -13,7 +13,8 @@ struct musicLibEntry
 
 const musicLibEntry musicLib[] = { {"music/api/notes.mid", "music/api/song.ogg", "music/api/guitar.ogg", HARD},
 							       {"music/example/notes.mid", "music/example/song.ogg", "", EXPERT},
-							       {"music/roundabout/notes.mid", "music/roundabout/song.ogg", "", HARD}
+							       {"music/roundabout/notes.mid", "music/roundabout/song.ogg", "", HARD},
+							       {"music/sectoid/notes.mid", "music/sectoid/song.ogg", "music/sectoid/guitar.ogg", EXPERT},
 							  };
 
 const std::string wavFiles[] = { "bolt1", "bolt2", "lightning", "digital1", "explosion1", "fire1", "magic1", "magic2", "storm", "underwater", "underwater2", "water1", "water2", "waterfall" };

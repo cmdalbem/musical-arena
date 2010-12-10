@@ -88,11 +88,9 @@ void castSpell ()
 					break;
 			}
 			
-			for (int j = 0; j < casted->effects.size(); j++)
 			if (player[i].stamina > casted->cost)
 			{
 				player[i].staminaDecrease (casted->cost);
-				screen->effectFactory->queueEffect(100, casted->effectFunction, !i);
 				for (int j = 0; j < casted->effects.size(); j++)
 				{
 					switch (casted->effects[j].type)
@@ -369,7 +367,7 @@ int main(int argc, char *argv[])
 	/*
 	 * gets some music
 	 */
-	soundBank->selectMusic(0);
+	soundBank->selectMusic(1);
 	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
 	//decoder.printMusic(theMusic);
 	screen->musicTotalTime = theMusic.back().time;
