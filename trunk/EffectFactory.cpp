@@ -143,8 +143,8 @@ void EffectFactory::handleEffectsQueue()
 void EffectFactory::createFeedback( int i )
 {
 	IVolumeLightSceneNode * spellEffect = smgr->addVolumeLightSceneNode(0, -1,
-                                128,                              // Subdivisions on U axis
-                                128,                              // Subdivisions on V axis
+                                32,                              // Subdivisions on U axis
+                                32,                              // Subdivisions on V axis
                                 SColor(0, 50, 50, 80), 		// foot color
                                 SColor(0, 0, 0, 0),      		// tail color
                                 players[i]->track->getCentroid(),
