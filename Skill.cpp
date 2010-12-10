@@ -5,7 +5,7 @@ Skill::Skill()
 	name = "Undefined";
 }
 
-Skill::Skill( string _name, double _cooldown, double _cost, elementType _element, effectType _effects[], int neffects, visualEffectFunction _effectFunction, buttonType _keys[], int nkeys )
+Skill::Skill( string _name, double _cooldown, double _cost, elementType _element, effectStruct _effects[], int neffects, visualEffectFunction _effectFunction, buttonType _keys[], int nkeys )
 {
 	name = _name;
 	cooldown = _cooldown; 

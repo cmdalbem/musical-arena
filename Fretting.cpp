@@ -217,7 +217,7 @@ int Fretting::keyboardPreFretting(SEvent *event)
 	return usefullButton;
 }
 
-int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkill)
+int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkill, Skill* castedSpell)
 {
 	if ((event->EventType == irr::EET_JOYSTICK_INPUT_EVENT && type == JOYSTICK) || 
 		(event->EventType == irr::EET_KEY_INPUT_EVENT  && type == KEYBOARD))
@@ -296,14 +296,14 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 			// search skills
 			if (*usingSkill == 1)
 			{
-				Skill *cast = 0;
-				cast = findSkill( (buttonType)usefulButton );
+				castedSpell = findSkill( (buttonType)usefulButton );
 				
-				if(cast) {
+				if(castedSpell) {
 					//casted!
-					cout << "Player casted " << cast->name << "!!!" << "  usingSkill: " << *usingSkill << endl;
+					//cout << "Player casted " << cast->name << "!!!" << "  usingSkill: " << *usingSkill << endl;
 					*usingSkill = 0;
 				}
+				
 				else if( actualSkillNode == skillsTree.begin() ) 
 					//missed! aborting Solo
 					*usingSkill = 0;
