@@ -5,15 +5,22 @@
 
 Instrument::Instrument()
 {
-	// nothing to be done, actually, for now D=
+	init();
 }
 
 Instrument::Instrument( vector< Skill > newSkills, statusType newStatus)
 {
-	for (int i = 0; i < newSkills.size(); i++)
-		skills.push_back(&newSkills[i]);
-	
+	skills = newSkills;	
 	status = newStatus;
+	
+	init();
+}
+
+void Instrument::init ()
+{
+	sumHP = 100;
+	sumStamina = 150;
+	armor = 50;
 }
 
 Skill* Instrument::getSkill (int index)
@@ -32,7 +39,7 @@ statusType Instrument::getStatus()
 {	return status;	}
 
 void Instrument::setStatus(statusType newStatus)
-{	status = newStatus	}
+{	status = newStatus;	}
 
 void Instrument::addSkill(Skill newSkill)
 {
@@ -41,6 +48,6 @@ void Instrument::addSkill(Skill newSkill)
 	
 	// adds the skill
 	// if there is not an equivalent skill
-	skills.push_back(&newSkill);
+	skills.push_back(newSkill);
 }
 

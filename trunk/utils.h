@@ -20,6 +20,7 @@
 #define MAX_STONE_PER_TRACK 30
 #define STONE_RADIUS 1
 #define NECK_TEXTURE_PROPORTION 2 //how many texture copies fit on a neck
+#define UPDATE_STATUS_TIME 5
 
 #define NSTAMINALEVELS 2
 
