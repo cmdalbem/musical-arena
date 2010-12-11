@@ -17,14 +17,10 @@ EventReceiver::EventReceiver()
 bool EventReceiver::OnEvent(const SEvent& _event)
 {
 
-	if (enabled)
-	{
-		
+	
 		events.push_back(_event);
 		refreshArray(_event);
 		//sem_post(semaphore);
-	}
-	return false;
 }
 
 bool EventReceiver::refreshArray(const SEvent& _event)

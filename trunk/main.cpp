@@ -52,7 +52,7 @@ vector<musicEvent> 			theMusic;
 Player 						player[2];
 SkillBank					skillBank;
 SoundBank					*soundBank;
-bool						activateAI = false;
+bool						activateAI = true;
 
 bool 						endOfMusic =false; // indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
 double 						musicTime =0;
@@ -192,11 +192,13 @@ static void *updater(void *argument)
 			}
 		}
 		castSpell();
+		int tam = receiver.getEventsSize();
 		player[0].update();
 		player[1].update();
+		if (tam == receiver.getEventsSize())
+			receiver.clearEvents();
 		//if ((player[0].gotAnEvent == 0) && (player[1].gotAnEvent == 0))
 			//receiver.removeEvent();
-		receiver.clearEvents();
 		sem_post(&semaphore);
 		
 	}
@@ -264,9 +266,9 @@ void musa_init()
 	int eventsJoystick2[NFRETS] = {4,6,7,5,2};
 	cout << "1";
 	player[0].fretting->setEvents(eventsKeyboard1, irr::KEY_SPACE );
-	player[0].fretting->setEvents(eventsJoystick1, joystickInfo, 0, 3);	//comment this line to use keyboard for player 1
+	//player[0].fretting->setEvents(eventsJoystick1, joystickInfo, 0, 3);	//comment this line to use keyboard for player 1
 	player[1].fretting->setEvents(eventsKeyboard2, irr::KEY_KEY_C );
-	player[1].fretting->setEvents(eventsJoystick2, joystickInfo, 1, 3);	//comment this line to use keyboard for player 2
+	//player[1].fretting->setEvents(eventsJoystick2, joystickInfo, 1, 3);	//comment this line to use keyboard for player 2
 	
 	screen = new Screen(device,&musicTime,&player[0],&player[1]);
 						
