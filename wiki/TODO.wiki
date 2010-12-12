@@ -18,27 +18,27 @@ vector<event> aMusic;
  * <font color="green">*estudar Engines pra decidirmos uma pra nós!*</font> _(100%)_
 
  * <font color="orange">*sistema de pontuação*</font> _(70%)_
-   isto é baseado no sistema de fretting. basicamente é a implementação do HP e do XP.
+   precisamos fazer as variaveis do jogo depender dos acertos. isto é, variar: ganho de mana, dano causado. importante: implementar multiplicadores.
 
  * <font color="orange">*sistema skills*</font> _(80%)_
    esta é a segunda parte fundamental do trabalho. trata-se do sistema que interpretará os _solos_, que dispararão skills.
 
- * <font color="red">*sistema de instrumentos*</font> _(0%)_
+ * <font color="orange">*sistema de instrumentos*</font> _(90%)_
    sistema como os equipamentos de um jogo de RPG. irá influenciar no HP, nas skills que podem executadas e compradas, na precisão da execução do fretting, no som emitido pelas notas durante o solo (notas midi), etc.
 
- * <font color="red">*IA*</font> _(0%)_
+ * <font color="green">*IA*</font> _(80%)_
    inicialmente um sistema bem simples que simplesmente acerte ou erre notas de tempos em tempos. posteriormente, adicionamos uma IA que execute skills, etc.
 
  * <font color="orange">*Aparência*</font>
-   * <font color="red">*Menus*</font> _(20%)_
+   * <font color="red">*Menus*</font> _(0%)_
       Menus do jogo para selecionar musica e customizar os instrumentos com as skills.
-   * <font color="red">*Backgrounds*</font> _(0%)_
+   * <font color="green">*Backgrounds*</font> _(80%)_
       Fundos para o jogo (imagens paradas, imagens animadas, coisas em 3d, ...)
-   * <font color="orange">*Sound effects*</font> _(70%)_
+   * <font color="orange">*Sound effects*</font> _(90%)_
       Efeitos de som.
-   * <font color="red">*HUD*</font> _(40%)_
+   * <font color="green">*HUD*</font> _(90%)_
       Barrinhas e indicadores da tela.
-   * <font color="green">*Skills effects*</font> _(80%)_
+   * <font color="green">*Skills effects*</font> _(95%)_
       Efeitos visuais das skills.
 
  * <font color="red">*Multiplayer*</font> _(0%)_
