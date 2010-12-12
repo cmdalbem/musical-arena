@@ -18,9 +18,9 @@ TrackSceneNode::TrackSceneNode(scene::ISceneNode* parent, scene::ISceneManager* 
 	setPosition( vector3df(posx,posy,posz) );
 
 	Vertices[0] = video::S3DVertex(-sizex/2-2,0,0, 0,0,-1,
-					video::SColor(55,255,255,255), 0, 0);
+					video::SColor(255,255,255,255), 0, 0);
 	Vertices[1] = video::S3DVertex(sizex/2+2,0,0, 0,0,-1,
-					video::SColor(55,255,255,255), 1, 0);
+					video::SColor(255,255,255,255), 1, 0);
 	Vertices[2] = video::S3DVertex(-sizex/2-2,-sizey,0, 0,0,-1,
 					video::SColor(255,255,255,2555), 0, 1);
 	Vertices[3] = video::S3DVertex(sizex/2+2,-sizey,0, 0,0,-1,
@@ -33,7 +33,7 @@ TrackSceneNode::TrackSceneNode(scene::ISceneNode* parent, scene::ISceneManager* 
 			
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
 	Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-	Material.setTexture(0, driver->getTexture("img/neck.png")); 
+	Material.setTexture(0, driver->getTexture("img/neck_alpha.png")); 
 	Material.setFlag(video::EMF_TEXTURE_WRAP, video::ETC_REPEAT);
 	//Material.setFlag(video::EMF_ZWRITE_ENABLE, false);
 	Material.getTextureMatrix(0).setTextureScale(1,NECK_TEXTURE_PROPORTION);

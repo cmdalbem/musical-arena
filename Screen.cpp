@@ -17,12 +17,8 @@ Screen::Screen( IrrlichtDevice *_device, double *_musicTime, Player* player1, Pl
 	
 	initializeScreenElements();
 	
-	//abox = smgr->addCubeSceneNode(5);
-	//abox->setPosition(core::vector3df(0,0,-100));
-	//abox->addAnimator(smgr->createRotationAnimator(core::vector3df(0.3f, 0.3f,0)));
-	
-	
-	//effectFactory->queueEffect( 1000, CREATE_SWAMP_EFFECT, 1 );
+	//effectFactory->queueEffect( 0, CREATE_BALL_LIGHTNING, 1 );
+	//effectFactory->queueEffect( 0, CREATE_SWAMP_EFFECT, 1 );
 	//effectFactory->queueEffect( 300, CREATE_DRUNK_EFFECT, 1 );
 	//effectFactory->queueEffect( 0, CREATE_FLOOD_EFFECT, 1);
 	//effectFactory->queueEffect( 0, CREATE_WATER_BEAM, 1);
@@ -30,7 +26,7 @@ Screen::Screen( IrrlichtDevice *_device, double *_musicTime, Player* player1, Pl
 	//effectFactory->queueEffect(0, CREATE_BOLT, 1);
 	//effectFactory->queueEffect(0, CREATE_THUNDERSTORM, 0);
 	//effectFactory->queueEffect(0, CREATE_ELETRIC_GROUND, 0);
-	//effectFactory->queueEffect(0, CREATE_FIREBALL, 1);
+	//effectFactory->queueEffect(0, EFFECT_FIREBALL, 1);
 	//effectFactory->queueEffect( 0, CREATE_FIRE_RAIN, 1 );
 	//effectFactory->queueEffect(0, CREATE_BOLT, 1);
 	//effectFactory->queueEffect(1000, CREATE_BOLT, 0);
@@ -41,7 +37,7 @@ Screen::Screen( IrrlichtDevice *_device, double *_musicTime, Player* player1, Pl
 	//effectFactory->queueEffect( 0, CREATE_GLOW_AREA, 0 );
 	//effectFactory->queueEffect( 0, CREATE_ELECTRIC, 1 );
 	//for(int i=0;i<10;i++)
-		//effectFactory->queueEffect( 1000 + i*100, CREATE_FIREBALL, 0 );
+		//effectFactory->queueEffect( 1000 + i*100, EFFECT_FIREBALL, 0 );
 }
 
 Screen::~Screen()
@@ -58,9 +54,10 @@ void Screen::initializeScreenElements()
 	this->glowTex = driver->getTexture("img/glow2.bmp");
 	this->fireballTex = driver->getTexture("img/fireball.bmp");
 	
-	sky = smgr->addSkyDomeSceneNode( driver->getTexture("img/stars.tga"), 32, 32 );
-	sky->setMaterialFlag(video::EMF_TEXTURE_WRAP, video::ETC_REPEAT);
-	sky->getMaterial(0).getTextureMatrix(0).setTextureScale(6,6);
+	// background
+	//sky = smgr->addSkyDomeSceneNode( driver->getTexture("img/stars.tga"), 32, 32 );
+	//sky->setRotation( vector3df(90,0,0) );
+	//sky->getMaterial(0).getTextureMatrix(0).setTextureScale(6,6);
 	
 	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::recti(0, 0, 100, 10));
 	timeText = device->getGUIEnvironment()->addStaticText(L"", core::recti( position2di(SCREENX/2-50,5), dimension2di(100,50) ) , false);
@@ -81,9 +78,9 @@ void Screen::initializeScreenElements()
 			//device->getGUIEnvironment()->addImage( bloodSplit[i], core::position2d<s32>(xpos-256/2, 70-256/2) );
 
 			// smileys
-			good[i] = device->getGUIEnvironment()->addImage( goodTex, core::position2d<s32>(xpos,500), true );
-			bad[i] = device->getGUIEnvironment()->addImage( badTex, core::position2d<s32>(xpos,500), true );
-			neutral[i] = device->getGUIEnvironment()->addImage( neutralTex, core::position2d<s32>(xpos,500), true );
+			good[i] = device->getGUIEnvironment()->addImage( goodTex, core::position2d<s32>(xpos,SCREENY-100), true );
+			bad[i] = device->getGUIEnvironment()->addImage( badTex, core::position2d<s32>(xpos,SCREENY-100), true );
+			neutral[i] = device->getGUIEnvironment()->addImage( neutralTex, core::position2d<s32>(xpos,SCREENY-100), true );
 			
 			// health bars
 			healthBar[i] = new VxHealthSceneNode(
@@ -91,26 +88,29 @@ void Screen::initializeScreenElements()
 								smgr, // scene manager
 								-1, // id
 								i==0? 1:-1, false,
-								300, // width
-								20, // height
-								vector3df(xpos, 20, 0), // position in 2d
+								400, // width
+								30, // height
+								vector3df(xpos, 25, 0), // position in 2d
 								SColor(0,0,0,0), // bar color
-								SColor(255,220,0,0), // background color
-								SColor(200,255,255,255) ); // border color
+								SColor(200,220,0,0), // background color
+								SColor(100,255,255,255) ); // border color
 								
 			#define STAMINA_BAR_H 60
+			#define STAMINA_DISPLACEX 25
 			for(int k=0; k<NSTAMINALEVELS; k++)
 				staminaBar[i][k] = new VxHealthSceneNode(
 									smgr->getRootSceneNode(), // parent node
 									smgr, // scene manager
 									-1, // id
 									1, true,
-									10, // width
+									15, // width
 									STAMINA_BAR_H, // height
-									vector3df(i==0 ? 20 : SCREENX-20, SCREENY/3 + (k==0?(STAMINA_BAR_H/2):-(STAMINA_BAR_H/2)), 0), // position in 2d
+									vector3df(i==0 ? STAMINA_DISPLACEX : SCREENX-STAMINA_DISPLACEX,
+											  SCREENY/3 + (k==0?(STAMINA_BAR_H/2):-(STAMINA_BAR_H/2)),
+											  0), // position in 2d
 									SColor(0,0,0,0), // bar color
 									SColor(170,30,30,240), // background color
-									SColor(150,255,255,255) ); // border color								
+									SColor(150,200,200,255) ); // border color								
 			
 		}
 		
@@ -152,7 +152,7 @@ void Screen::drawKeys()
 			
 			int zdisplace = 0;
 			
-			if(player[i]->usingSkill) {
+			if(player[i]->isUsingSkill) {
 				glow[i][k]->setVisible(player[i]->fretting->_hitting[k]==2);				
 				
 				color = fretColors[k];
@@ -197,12 +197,14 @@ void Screen::update()
 // Here we check everything about the game that has to be drawn.
 // It's all about HUDs and special effects!
 {
-	drawHUD();
+	drawBars();
 	drawKeys();
 	drawHittingState();
 	drawSoloModeState();
+	drawSplitBlood();
 	
-	sky->getMaterial(0).getTextureMatrix(0).setTextureTranslate( 0, -*musicTime/3 );
+	// animate background
+	//sky->getMaterial(0).getTextureMatrix(0).setTextureTranslate( 0, -*musicTime/3 );
 	
 	effectFactory->handleEffectsQueue();
 	effectFactory->shieldmanager->drawAll();
@@ -211,11 +213,11 @@ void Screen::update()
 void Screen::drawSoloModeState()
 {
 	for(int i=0; i<NPLAYERS; i++)
-		if( player[i]->usingSkill )
+		if( player[i]->isUsingSkill )
 			effectFactory->createSoloEffect(i,glowTex,10);		
 }
 
-void Screen::drawHUD()
+void Screen::drawBars()
 {
 	char str[30];
 	sprintf(str,"%.1lf",musicTotalTime-*musicTime);
@@ -252,10 +254,16 @@ void Screen::drawHittingState()
 				showNeutral(i);
 				break;
 		}
+	}
+}
 		
+void Screen::drawSplitBlood()
+{
+	for(int i=0; i<NPLAYERS; i++) 
+	{
 		if( player[i]->damageTaken ) {
-			
 			E_GORE_LEVEL gore;
+			
 			if(player[i]->damageTaken>=50)
 				gore = EGL_INSANE;
 			else if(player[i]->damageTaken>=30)

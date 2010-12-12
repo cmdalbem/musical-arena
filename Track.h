@@ -35,7 +35,6 @@ class Track
 		int				sizex, sizey;
 		int				posx, posy, posz;
 		double 			spawnDelay;
-		double 			speed;
 		int				musicPos;
 		double 			*musicTime;
 		music			*theMusic;
@@ -49,8 +48,10 @@ class Track
 			
 		void			update();
 		void			destroyStone( int fret, int stone );
-		void			drawStoneTrails();		
+		void			draw();		
 		void 	 	 	processEvent( musicEvent event );
+		void 			setSpeed( double var );
+		double			getSpeed();
 		
 		double 			getStoneXPos( int track );
 		vector3df		getCentroid();
@@ -61,6 +62,8 @@ class Track
 		ISceneManager	*sceneManager;
 		IVideoDriver	*driver;
 		ITexture		*glowTex;
+		
+		double 			speed;
 		
 		void			insertStone( musicEvent event );
 		void			drawQuarters();

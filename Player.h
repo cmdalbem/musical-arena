@@ -15,8 +15,11 @@ class Player
 		
 		Fretting		*fretting;
 		Track			*track;
+		Instrument*		instrument;
+		
+		Skill*			castedSpell;
 		int				gotAnEvent;
-		bool			usingSkill;
+		bool			isUsingSkill;
 		int				damageTaken;
 
 		int				HP;
@@ -31,27 +34,26 @@ class Player
 		statusType		status;
 		double			timeInStatus;
 		bool			activateAI;
-
-//		statusType		status1;
 		
-		Instrument*		instrument;
-		
-		Skill*			castedSpell;
-		
-		void 			staminaDecrease(int howMuch);
+		void 			decreaseStamina(int howMuch);
+		void			decreaseArmor( double howMuch );
 		void 			initializeAtributes();
 		void			update();
-		void			HPRecover ( double howMuch );
+		void			recoverHP ( double howMuch );
 		void			takeDamage( double damage  );
 		void 			updateStatus();
 		void			setStatusNormal();
 		
 	private:
 		timeval			lastTimeUpdatedStatus;
-		int				counterPoison;
+		int				poisonCounter;
+		int				chaoticCounter;
+		bool			isChaotic;
+		int				speedBeforeChaotic;
+		bool			isTimePassenger;
 //		double			timeInStatus1;
-		bool			magicBarrier;
-		bool			mirror;
+		bool			hasMagicBarrier;
+		bool			hasMirror;
 		
 		void 			initialize();
 		void 			staminaRecover();

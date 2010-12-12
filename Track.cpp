@@ -116,7 +116,7 @@ vector3df Track::getRandomPos()
 
 void Track::insertStone( musicEvent event )
 {
-	Stone *newStone = new Stone(device, event, fretColors[event.button], glowTex, speed, getStoneXPos(event.button), this->posy, posz-0.1); //x,y,z
+	Stone *newStone = new Stone(device, event, fretColors[event.button], glowTex, &speed, getStoneXPos(event.button), this->posy, posz-0.1); //x,y,z
 	
 	stones[event.button].push_back(newStone);	
 }	
@@ -163,7 +163,7 @@ void Track::destroyStone( int fret, int stone )
 	stones[fret].erase(stones[fret].begin()+stone); //remove reference (should call stone's destructor, but sometimes it doesn't work)
 }
 
-void Track::drawStoneTrails()
+void Track::draw()
 {
 	drawStones();
 	//drawQuarters();
@@ -190,4 +190,19 @@ void Track::processEvent( musicEvent event )
 	}
 	
 	this->musicPos++;
+}
+
+void Track::setSpeed( double newSpeed )
+{
+	speed = newSpeed;
+	
+	if(speed<0)
+		speed = 0;
+	
+	spawnDelay = sizey/speed;
+}
+
+double Track::getSpeed()
+{
+	return speed;
 }

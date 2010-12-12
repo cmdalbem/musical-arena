@@ -71,12 +71,12 @@ void castSpell ()
 
 			if (player[i].stamina > casted->cost)
 			{			
-				player[i].staminaDecrease (casted->cost);
+				player[i].decreaseStamina (casted->cost);
 			
                 // sound effect
 				soundBank->playEffect(casted->soundEffect); 
 
-				player[i].staminaDecrease (casted->cost);
+				player[i].decreaseStamina (casted->cost);
 
                 if(player[!i].status == ST_MIRROR) {
                     player[i].fretting->castedSpell = NULL;
@@ -102,6 +102,18 @@ void castSpell ()
 				{
 					switch (casted->effects[j].type)
 					{
+					case T_TIME_WARP:
+						player[!i].status = ST_TIME_PASSENGER;
+						player[!i].timeInStatus = casted->effects[j].param1;
+						break;
+					case T_INVENCIBLE:
+						player[i].status = ST_INVENCIBLE;
+						player[i].timeInStatus = casted->effects[j].param1;
+						break;
+					case T_MAGIC_BARRIER:
+						player[i].status = ST_MAGIC_BARRIER;
+						player[i].timeInStatus = casted->effects[j].param1;
+						break;
 					case T_POISONOUS:
 						player[!i].status = ST_POISON;
 						player[!i].timeInStatus = casted->effects[j].param1;
@@ -110,20 +122,16 @@ void castSpell ()
 						player[!i].takeDamage(casted->effects[j].param1);
 						break;
 					case T_DEFENSE_DOWN:
-						player[!i].status = ST_DEFENSE_DOWN;
-						player[!i].timeInStatus = casted->effects[j].param1;
+						player[i].decreaseArmor(casted->effects[j].param1);						
 						break;
 					case T_HEAL:
-						player[i].HPRecover(casted->effects[j].param1);
+						player[i].recoverHP(casted->effects[j].param1);
 						break;
 					case T_ANTIDOTE:
 						player[i].setStatusNormal();
 						break;
 					case T_STAMINA_DOWN:
-						player[!i].staminaDecrease( casted->effects[j].param1 );
-						break;
-					case T_SHOCK:
-						//
+						player[!i].decreaseStamina( casted->effects[j].param1 );
 						break;
 					case T_BURN:
 						player[!i].status = ST_FIRE;
@@ -132,6 +140,9 @@ void castSpell ()
 					case T_FEEDBACK:
 						player[!i].takeDamage (player[!i].stamina);
 						player[!i].stamina = 0;
+						break;
+					case T_TOLERANCE_DOWN:
+						//temporarily, it is implemented on the Eletrify Effect.
 						break;
 					case T_ELETRIFY:
 						player[!i].status = ST_ELETRIFIED;
@@ -146,7 +157,13 @@ void castSpell ()
 						player[i].status = ST_MIRROR;
 						player[i].timeInStatus = casted->effects[j].param1;
 						break;
-					
+					case T_SPEED_UP:
+						player[!i].track->setSpeed( player[!i].track->getSpeed() + casted->effects[j].param1);
+						break;		
+					case T_CHAOTIC_SPEED:
+						player[!i].status = ST_CHAOTIC_SPEED;
+						player[!i].timeInStatus = casted->effects[j].param1;
+						break;		
 					}
 				}
 			}
@@ -218,16 +235,13 @@ void musa_init()
 	}
 	
 	player[0].track = new Track(&theMusic,&musicTime,device,23, -20);
-	player[1].track = new Track(&theMusic,&musicTime,device,7, 20);
+	player[1].track = new Track(&theMusic,&musicTime,device,23, 20);
 	
 	player[0].instrument = violin; 
 	player[1].instrument = drums;
 	
 	player[0].initializeAtributes();
 	player[1].initializeAtributes();
-	
-	player[0].track->fretting = player[0].fretting;
-	player[1].track->fretting = player[1].fretting;
 	
 	player[0].fretting->musicTime = &musicTime;
 	player[1].fretting->musicTime = &musicTime;
@@ -236,6 +250,7 @@ void musa_init()
 	player[1].fretting->receiver = &receiver;
 
 	player[1].activateAI = activateAI;
+	
 
 	if(device->activateJoysticks(joystickInfo))
 	{
@@ -264,7 +279,7 @@ void musa_init()
 	EKEY_CODE eventsKeyboard2[NFRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
 	int eventsJoystick1[NFRETS] = {4,6,7,5,2};
 	int eventsJoystick2[NFRETS] = {4,6,7,5,2};
-	cout << "1";
+
 	player[0].fretting->setEvents(eventsKeyboard1, irr::KEY_SPACE );
 	//player[0].fretting->setEvents(eventsJoystick1, joystickInfo, 0, 3);	//comment this line to use keyboard for player 1
 	player[1].fretting->setEvents(eventsKeyboard2, irr::KEY_KEY_C );
@@ -331,8 +346,8 @@ void initializeIrrlicht()
     // like the real game camera
     camera = smgr->addCameraSceneNode (
 				0,					  // Camera parent
-				vector3df(0, -90, -40), // Look from
-				vector3df(0, -30, 20), // Look to
+				vector3df(0, -95, -35), // Look from
+				vector3df(0, -25, 20), // Look to
 				1);						  // Camera ID
 	
 	// a FPS camera for debugging
@@ -385,7 +400,7 @@ int main(int argc, char *argv[])
 	/*
 	 * gets some music
 	 */
-	soundBank->selectMusic(2);
+	soundBank->selectMusic(0);
 	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
 	//decoder.printMusic(theMusic);
 	screen->musicTotalTime = theMusic.back().time;
@@ -398,39 +413,44 @@ int main(int argc, char *argv[])
 	pthread_t thread[3];
 	int arg = 1;
 	pthread_create(&thread[0], NULL, updater, (void *) arg);
-	pthread_create(&thread[1], NULL, debugger, (void *) arg);
+	//pthread_create(&thread[1], NULL, debugger, (void *) arg);
 	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
 	
 	soundBank->playSelectedMusic();
 
 	
-	SColor bgColor = SColor(255,113,113,133);
+	SColor bgColor = SColor(0,113,113,133);
 	/* 
 	 * Irrlicht Main Loop
 	 */	
 	while(device->run()) {
 		
 		driver->beginScene(true, true, bgColor);
+		ITexture *bgPic = driver->getTexture("img/bgs/bg20.jpg");
+		driver->draw2DImage( bgPic, recti(position2di(0,0),
+							position2di(SCREENX,SCREENY)),
+							recti(position2di(0,0),bgPic->getOriginalSize()) );
 
 		sem_wait(&semaphore);
 		
 		if(bloomEffect) {
-			driver->setRenderTarget(bloom->rt0, true, true, bgColor); 
+			driver->setRenderTarget(bloom->rt0, false, true, bgColor); 
 				smgr->drawAll();
 		}
 		if(blurEffect) {
-			driver->setRenderTarget(blur->rt0, true, true, bgColor);
+			driver->setRenderTarget(blur->rt0, false, true, bgColor);
 				smgr->drawAll();
 		}
 		if(invertEffect) {
-			driver->setRenderTarget(invert->rt0, true, true, bgColor);
+			driver->setRenderTarget(invert->rt0, false, true, bgColor);
 				smgr->drawAll();
 		}
-		driver->setRenderTarget(0, true, true, bgColor);
+		
+		driver->setRenderTarget(0, false, true, bgColor);
 			renderPostProcessEffects();
 			smgr->drawAll();
-			player[0].track->drawStoneTrails();
-			player[1].track->drawStoneTrails();
+			player[0].track->draw();
+			player[1].track->draw();
 		
 		screen->update();
 		

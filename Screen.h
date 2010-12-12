@@ -52,7 +52,8 @@ class Screen
 		void 						drawSoloModeState();
 		void						drawKeys();
 		void 						drawHittingState();
-		void 						drawHUD();
+		void 						drawBars();
+		void						drawSplitBlood();
 		
 		// Inner utility functions
 		void						initializeScreenElements();

@@ -15,9 +15,9 @@ using namespace irr;
 class Stone
 {
 	public:
-		Stone( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double speed, float x, float y, float z );
+		Stone( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double *speed, float x, float y, float z );
 
-		void initialize( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double _speed, float x, float y, float z );
+		void initialize( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double *speed, float x, float y, float z );
 
 		~Stone();
 
@@ -41,7 +41,7 @@ class Stone
 		
 	private:
 		irr::core::vector3df 	initPos;
-		double					speed;
+		double					*speed;
 		
 		void					drawTrail( IVideoDriver* driver );
 		
