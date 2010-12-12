@@ -62,6 +62,8 @@ class EffectFactory
 		void						createDrunkEffect ( int targetPlayer, int times );
 		void						createParticlesExplosion( vector3df pos, ITexture *tex );
 		void 						createFloodEffect( int targetPlayer );
-		void 						createSwampEffect( int targetPlayer, int timeMs=3000 );
+		void 						createSwampEffect( int targetPlayer, int timeMs );
+		void						createBallLightningEffect( int targetPlayer, int timeMs );
+		void						createImplantBomb( int targetPlayer );
 
 };

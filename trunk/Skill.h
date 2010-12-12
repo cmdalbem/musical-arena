@@ -23,7 +23,7 @@ class Skill
 		elementType				element;
 		skillTargetType			targetType;
 		visualEffectFunction 	effectFunction;
-		std::string					description;
+		std::string				description;
 		
 	private:
 		

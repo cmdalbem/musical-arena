@@ -81,14 +81,14 @@ void EffectFactory::handleEffectsQueue()
 		
 		switch( effectsQueue.begin()->first.second )
 		{
-			case CREATE_FIREBALL:
+			case EFFECT_FIREBALL:
 				createFireball(target,false);
 				break;			
 			case CREATE_FIRE_RAIN:
 				for(int i=0; i<50; i++)
-					queueEffect( i*150, CREATE_FIREBALL_SKY, target );
+					queueEffect( i*150, EFFECT_FIREBALL_SKY, target );
 				break;
-			case CREATE_FIREBALL_SKY:
+			case EFFECT_FIREBALL_SKY:
 				createFireRain(target);
 				break;
 			case CREATE_GLOW_AREA:
@@ -97,11 +97,11 @@ void EffectFactory::handleEffectsQueue()
 			case CREATE_FEEDBACK:
 				createFeedback(target);
 				break;
-			case SHOW_SHIELD:
+			case EFFECT_SHIELD:
 				for(int i=0; i<25; i++)
-					queueEffect( i*140, SHOW_SHIELD_SINGLE, target );
+					queueEffect( i*140, EFFECT_SHIELD_SINGLE, target );
 				break;
-			case SHOW_SHIELD_SINGLE:
+			case EFFECT_SHIELD_SINGLE:
 				createShield(target);
 				break;
 			case CREATE_BOLT:
@@ -138,7 +138,9 @@ void EffectFactory::handleEffectsQueue()
 			case CREATE_SWAMP_EFFECT:
 				createSwampEffect(target,8000);
 				break;
-				
+			case CREATE_BALL_LIGHTNING:
+				createBallLightningEffect(target,8000);
+				break;				
 		}
 		effectsQueue.erase( effectsQueue.begin() );
 	}
@@ -406,8 +408,9 @@ void EffectFactory::createFloodEffect( int player )
 		ps->setMaterialTexture(0, waterTex[i]);
 		ps->setMaterialType(EMT_TRANSPARENT_ALPHA_CHANNEL);
 		
-		new CDeleteParticleAffector(ps, 6000);
-		ps->addAnimator( smgr->createDeleteAnimator(12000) );
+		#define FLOOD_T 10000
+		new CDeleteParticleAffector(ps, FLOOD_T);
+		ps->addAnimator( smgr->createDeleteAnimator(FLOOD_T*2) );
 	}
 }
 
@@ -458,7 +461,6 @@ void EffectFactory::splitBlood( int targetPlayer, E_GORE_LEVEL gore )
 
 void EffectFactory::createDrunkEffect ( int targetPlayer, int times )
 {
-	srand(time(0));
 	int k;
 	for(int i=0; i<NFRETS; i++) {
 		vector<Stone*> stones = players[targetPlayer]->track->stones[i];
@@ -501,4 +503,56 @@ void EffectFactory::createParticlesExplosion( vector3df pos, ITexture *tex )
 	
 	new CDeleteParticleAffector(ps, 100);
 	ps->addAnimator( smgr->createDeleteAnimator(1000) );	
+}
+
+void EffectFactory::createBallLightningEffect( int target, int timeMs )
+{
+	vector3df initPos = players[target]->track->getCentroid() + vector3df(0,0,-10);
+	
+	ISceneNode* ball = smgr->addSphereSceneNode(1.75);
+	ball->setPosition(initPos);
+	ball->addAnimator( smgr->createDeleteAnimator(timeMs) );
+
+	scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false,ball);
+	
+	// create and set emitter
+	scene::IParticleEmitter* em = ps->createPointEmitter(
+			core::vector3df(0.1f,0.0f,0.1f),
+			500,800, // particles/second
+			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
+			200,200, // lifetime
+			360,
+			dimension2d<f32>(1, 1),
+			dimension2d<f32>(2, 2)
+			);
+	ps->setEmitter(em);
+	em->drop();
+	// adjust some material settings
+	ps->setMaterialFlag(video::EMF_LIGHTING, false);
+	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialTexture(0, glowTex);
+	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	new CDeleteParticleAffector(ps, timeMs);
+	ps->addAnimator( smgr->createDeleteAnimator(timeMs) );	
+	
+	/*IBillboardSceneNode* glow = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), core::dimension2d<f32>(40, 40));
+	glow->setMaterialFlag(video::EMF_LIGHTING, false);
+	glow->setMaterialTexture(0, feedbackTex[5]);
+	glow->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+	glow->setPosition(initPos);
+	glow->addAnimator( smgr->createDeleteAnimator(timeMs) );
+	glow->addAnimator( smgr->createTextureAnimator(feedbackTex, 80) );*/
+	
+	#define SUBDIV 10
+	#define BALLR 35
+	for(int i=0; i<SUBDIV; i++) {
+		CBoltSceneNode* beam = new CBoltSceneNode(ball, smgr, -1, laserTex); 
+		// start, end, updateTime, height, parts, bolts, steddyend = true, thick=5.0f , color
+		beam->setLine( vector3df(0,0,0),
+					   //vector3df(cos((2*M_PI/SUBDIV)*i)*BALLR, sin((2*M_PI/SUBDIV)*i)*BALLR, 0), //horizontal
+					   vector3df(cos((2*M_PI/SUBDIV)*i)*BALLR, 0, sin((2*M_PI/SUBDIV)*i)*BALLR),  //vertical
+					   70, 7, 6, 2, false, 3, SColor(255,0,0,255)); 
+					   
+		beam->addAnimator( smgr->createDeleteAnimator(timeMs) );
+	}
 }

@@ -9,13 +9,13 @@ using namespace irr::scene;
 using namespace irr::core;
 using namespace irr::video;
 
-Stone::Stone( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double _speed, 
+Stone::Stone( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double *_speed, 
 		float x, float y, float z)
 {
 	initialize( device, event, stoneColor, glowTex, _speed, x, y, z );
 }
 
-void Stone::initialize( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double _speed, float x, float y, float z )
+void Stone::initialize( IrrlichtDevice *device, musicEvent event, SColor stoneColor, ITexture *glowTex, double *_speed, float x, float y, float z )
 {
 	ISceneManager *sceneManager = device->getSceneManager();
 	
@@ -62,11 +62,11 @@ void Stone::update( double musicTime )
 {
 	// utilizes MRU equation to determine position of the stone
 	vector3df pos = node->getPosition();
-	pos.Y = initPos.Y - howLongActive(musicTime)*speed;
+	pos.Y = initPos.Y - howLongActive(musicTime)*(*speed);
 	node->setPosition(pos+displace);
 	
 	trailEndPos.X = pos.X + displace.X;
-	trailEndPos.Y = pos.Y + (destroyTime - event.time)*speed;
+	trailEndPos.Y = pos.Y + (destroyTime - event.time)*(*speed);
 	// culling of the ending of the line
 	if( trailEndPos.Y > initPos.Y )
 		trailEndPos.Y = initPos.Y;
@@ -100,7 +100,7 @@ void Stone::draw( IVideoDriver* driver )
 	/*#define TOLERANCE (0.1)
 	//tolerance box
 	m.Thickness = 1;
-	driver->draw3DBox(  irr::core::aabbox3df( node->getPosition().X-2, node->getPosition().Y-TOLERANCE*speed, node->getPosition().Z,
-											  node->getPosition().X+2, node->getPosition().Y+TOLERANCE*speed, node->getPosition().Z),
+	driver->draw3DBox(  irr::core::aabbox3df( node->getPosition().X-2, node->getPosition().Y-TOLERANCE*(*speed), node->getPosition().Z,
+											  node->getPosition().X+2, node->getPosition().Y+TOLERANCE*(*speed), node->getPosition().Z),
 					   node->getMaterial(0).EmissiveColor );*/
 }

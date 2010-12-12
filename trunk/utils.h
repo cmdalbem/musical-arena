@@ -24,8 +24,8 @@
 
 #define NSTAMINALEVELS 2
 
-#define SCREENX 800 
-#define SCREENY 600
+#define SCREENX 1024 
+#define SCREENY 768
 
 #define TRACK_SIZE_X 30
 #define TRACK_SIZE_Y 70
