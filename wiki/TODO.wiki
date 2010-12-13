@@ -21,20 +21,21 @@ vector<event> aMusic;
    precisamos fazer as variaveis do jogo depender dos acertos. isto é, variar: ganho de mana, dano causado. importante: implementar multiplicadores.
 
  * <font color="orange">*sistema skills*</font> _(80%)_
-   esta é a segunda parte fundamental do trabalho. trata-se do sistema que interpretará os _solos_, que dispararão skills.
 
  * <font color="orange">*sistema de instrumentos*</font> _(90%)_
-   sistema como os equipamentos de um jogo de RPG. irá influenciar no HP, nas skills que podem executadas e compradas, na precisão da execução do fretting, no som emitido pelas notas durante o solo (notas midi), etc.
+   * <font color="red">*Sistema de Aura*</font> _(0%)_
+      ManaRegen, HPRegen, Vampiric, ...
+   * <font color="red">*InstrumentsBank*</font> _(0%)_
+      Igual a SkillsBank.
 
  * <font color="green">*IA*</font> _(80%)_
-   inicialmente um sistema bem simples que simplesmente acerte ou erre notas de tempos em tempos. posteriormente, adicionamos uma IA que execute skills, etc.
 
  * <font color="orange">*Aparência*</font>
    * <font color="red">*Menus*</font> _(0%)_
       Menus do jogo para selecionar musica e customizar os instrumentos com as skills.
    * <font color="green">*Backgrounds*</font> _(80%)_
       Fundos para o jogo (imagens paradas, imagens animadas, coisas em 3d, ...)
-   * <font color="orange">*Sound effects*</font> _(90%)_
+   * <font color="green">*Sound effects*</font> _(90%)_
       Efeitos de som.
    * <font color="green">*HUD*</font> _(90%)_
       Barrinhas e indicadores da tela.
@@ -42,4 +43,3 @@ vector<event> aMusic;
       Efeitos visuais das skills.
 
  * <font color="red">*Multiplayer*</font> _(0%)_
-   Infelizmente é uma das coisas que botamos no nosso planejamento, pode dar problema se não implementarmos isso logo.
