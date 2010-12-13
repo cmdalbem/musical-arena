@@ -20,7 +20,6 @@
 #define MAX_STONE_PER_TRACK 30
 #define STONE_RADIUS 1
 #define NECK_TEXTURE_PROPORTION 2 //how many texture copies fit on a neck
-#define UPDATE_STATUS_TIME 5
 
 #define NSTAMINALEVELS 2
 
@@ -31,6 +30,21 @@
 #define TRACK_SIZE_Y 70
 
 #define SKILLBUTTON_INDEX 10
+
+///////////////////////////////////
+// GAME BALANCE VARIABLES
+///////////////////////////////////
+
+#define UPDATE_STATUS_TIME 4
+#define DEFAULT_HP 400
+#define DEFAULT_STAMINA 300
+#define DEFAULT_ARMOR 10
+#define DEFAULT_TOLERANCE 0.2
+
+#define STAMINA_LOST_ON_SOLO 2.5
+#define STAMINA_GAINED_BY_NOTE 1
+#define DAMAGE_PER_NOTE_MISSED 15
+
 
 #ifdef HAVE_FMOD
   #include <fmod.hpp>

@@ -157,6 +157,13 @@ void Track::drawStones()
 			stones[i][k]->draw(driver);
 }
 
+void Track::destroyAllStones()
+{
+	for (int i = 0; i < NFRETS; i++)
+		for(unsigned int k = 0; k < stones[i].size(); k++)
+			destroyStone(i,k);
+}
+
 void Track::destroyStone( int fret, int stone )
 {
 	delete stones[fret][stone]; //call class destructor
@@ -200,6 +207,12 @@ void Track::setSpeed( double newSpeed )
 		speed = 0;
 	
 	spawnDelay = sizey/speed;
+	
+	// cleanup stones that should not be spawned yet
+	/*for(int i = 0; i < NFRETS; i++)
+		for(unsigned int k = 0; k < stones[i].size(); k++)
+			if( stones[i][k]->event.time > (*musicTime + spawnDelay) )
+				destroyStone(i,k);*/
 }
 
 double Track::getSpeed()

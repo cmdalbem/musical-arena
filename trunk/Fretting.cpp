@@ -253,8 +253,7 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 	if (usefulButton == -1)
 		return 0;
 	
-	// treatment of the SkillButton (toggle the usingSkill variable
-	// collateral effect: starts to decrease stamina
+	// treatment of the SkillButton (toggle the usingSkill variable)
 	if (usefulButton == SKILLBUTTON_INDEX)
 	{
 		if ((type == KEYBOARD && event->KeyInput.PressedDown) || 
@@ -454,8 +453,8 @@ int Fretting::verifyEventsAI(SEvent *event, Stone* stones[NFRETS])
 		{
 			if ((*musicTime >= noteCreationTime - (tolerance/2)) && (stones[i]->pressed == false))
 			{
-				int prob = rand()%100;
-				if(prob<60) {
+				int prob = rand()%1000;
+				if(prob<10) {
 					_hitting[i] = 1;
 					stones[i]->pressed = true;
 				}

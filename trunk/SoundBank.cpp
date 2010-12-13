@@ -3,7 +3,7 @@
 SoundBank::SoundBank()
 {
 	FMOD_RESULT result;
-	result = FMOD::System_Create(&system);		// Create the main system object.
+	result = FMOD::System_Create(&system);		//  the main system object.
 	ERRCHECK(result)
 	result = system->init(100, FMOD_INIT_NORMAL, 0);	// Initialize FMOD.
 	ERRCHECK(result)
@@ -14,7 +14,14 @@ SoundBank::SoundBank()
 	char filename[128];
 	for(int i=0; i<S_TOTAL; i++) {
 		sprintf(filename,"sound/%s.wav",wavFiles[i].c_str());
-		system->createSound(filename, FMOD_DEFAULT, 0, &effects[i]);
+		result = system->createSound(filename, FMOD_DEFAULT, 0, &effects[i]);
+		ERRCHECK(result);
+	}
+	
+	for(int i=0; i<6; i++) {
+		sprintf(filename,"sound/%s.ogg",missFiles[i].c_str());
+		result = system->createSound(filename, FMOD_DEFAULT, 0, &missEffects[i]);
+		ERRCHECK(result);
 	}
 }
 
@@ -50,4 +57,9 @@ void SoundBank::playSelectedMusic()
 void SoundBank::playEffect( soundEffectType which )
 {
 	system->playSound(FMOD_CHANNEL_FREE, effects[which], false, &ch);
+}
+
+void SoundBank::playMissEffect()
+{
+	system->playSound(FMOD_CHANNEL_FREE, missEffects[ rand()%6 ], false, &ch);
 }
