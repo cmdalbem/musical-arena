@@ -96,14 +96,10 @@ void castSpell ()
 						break;
 				}
 
-				for (int j = 0; j < casted->effects.size(); j++)
+				for (unsigned int j = 0; j < casted->effects.size(); j++)
 				{
 					switch (casted->effects[j].type)
 					{
-					case T_TIME_WARP:
-						player[!i].status = ST_TIME_PASSENGER;
-						player[!i].timeInStatus = casted->effects[j].param1;
-						break;
 					case T_INVENCIBLE:
 						player[i].status = ST_INVENCIBLE;
 						player[i].timeInStatus = casted->effects[j].param1;
@@ -120,7 +116,7 @@ void castSpell ()
 						player[!i].takeDamage(casted->effects[j].param1);
 						break;
 					case T_DEFENSE_DOWN:
-						player[i].decreaseArmor(casted->effects[j].param1);						
+						player[!i].decreaseArmor(casted->effects[j].param1);						
 						break;
 					case T_HEAL:
 						player[i].recoverHP(casted->effects[j].param1);
@@ -165,7 +161,10 @@ void castSpell ()
 					case T_BREAK_DEFENSE:
 						player[!i].status = ST_BROKEN_DEFENSE;
 						player[!i].timeInStatus = casted->effects[j].param1;
-						break;		
+						break;
+					case T_CLEAR_STONES:
+						player[i].track->destroyAllStones();
+						break;
 					}
 				}
 			}
@@ -187,6 +186,7 @@ void handleHittingStates()
 				player[i].fretting->frettingState = 0;
 				break;
 			case 0:
+			case -2:
 				break;
 		}
 	}
@@ -199,7 +199,7 @@ static void *updater(void *argument)
 	// get the time before starting the music (so we can know how much time passed in each note)
 	gettimeofday(&start, NULL);
 	  
-	 while( !endOfMusic ) {
+	 while(1) {
 		usleep(1);
 		musicTime = time_diff(start);
  
@@ -212,7 +212,7 @@ static void *updater(void *argument)
 		
 		// spawning on track2
 		while( (unsigned int)player[1].track->musicPos < theMusic.size() &&
-			   (musicTime + player[1].track->spawnDelay) > theMusic[player[1].track->musicPos].time ) {
+			   (musicTime + player[1].track->spawnDelay) > theMusic[player[1].track->musicPos].time) {
 			
 			player[1].track->processEvent(theMusic[player[1].track->musicPos]);
 		}

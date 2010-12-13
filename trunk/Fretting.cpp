@@ -161,17 +161,8 @@ void Fretting::generateSkillsTree( vector<Skill> *skills )
 	kptree::print_tree_bracketed(skillsTree);
 	cout<<endl<<endl;
 	
-	// set actual searching node to the top (root)
+	// set actual searching node to the top (root) 
 	actualSkillNode = top;
-}
-
-int	Fretting::getFrettingState()
-{
-	switch( frettingState )
-	{
-		case -2: return 0; 				break;
-		default: return frettingState;	break;
-	}
 }
 
 void Fretting::lostNote()

@@ -31,19 +31,23 @@
 
 #define SKILLBUTTON_INDEX 10
 
+
+
 ///////////////////////////////////
 // GAME BALANCE VARIABLES
 ///////////////////////////////////
 
 #define UPDATE_STATUS_TIME 4
-#define DEFAULT_HP 400
+#define DEFAULT_HP 800
 #define DEFAULT_STAMINA 300
 #define DEFAULT_ARMOR 10
-#define DEFAULT_TOLERANCE 0.2
+#define DEFAULT_TOLERANCE 0.25
 
 #define STAMINA_LOST_ON_SOLO 2.5
-#define STAMINA_GAINED_BY_NOTE 1
+#define STAMINA_GAINED_BY_NOTE 2
 #define DAMAGE_PER_NOTE_MISSED 15
+
+
 
 
 #ifdef HAVE_FMOD

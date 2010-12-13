@@ -16,7 +16,8 @@ enum visualEffectFunction
 	EFFECT_DRUNK_EFFECT, EFFECT_DRUNK_EFFECT_SINGLE, EFFECT_EXPLOSION,
 	EFFECT_THUNDERSTORM_BOLT, EFFECT_THUNDERSTORM, EFFECT_FLOOD,
 	EFFECT_SHIELD_SINGLE, EFFECT_SWAMP, EFFECT_BALL_LIGHTNING,
-	EFFECT_IMPLANT_BOMB, EFFECT_SUN, EFFECT_DARK_STORM_BOLT, EFFECT_DARK_STORM
+	EFFECT_IMPLANT_BOMB, EFFECT_SUN, EFFECT_DARK_STORM_BOLT, EFFECT_DARK_STORM,
+	EFFECT_FREEZE
 };
 
 typedef pair<pair<unsigned int,visualEffectFunction>,int> effectEvent;
@@ -26,26 +27,27 @@ enum soundEffectType
 	S_BOLT1, S_BOLT2, S_LIGHTNING, S_DIGITAL, S_EXPLOSION, S_FIRE1, S_FIRE2,
 	S_MAGIC1, S_MAGIC2, S_STORM, S_UNDERWATER1, S_UNDERWATER2, S_STREAM1, 
 	S_STREAM2, S_STREAM3, S_WATERFALL, S_FIRERUMBLE, S_HORROR1, S_HORROR2, 
-	S_EARTHQUAKE, S_ELECTRIC1, S_ELECTRIC2, 
+	S_EARTHQUAKE, S_ELECTRIC1, S_ELECTRIC2, S_ICE1, S_ICE2, S_BIG,
 	
 	S_TOTAL
 };
 const std::string wavFiles[] = { "bolt1", "bolt2", "lightning", "digital1", 
 "explosion1", "fire1", "fire2", "magic1", "magic2", "storm", "underwater", "underwater2", 
 "stream1", "stream2","stream3", "waterfall","firerumble","horror1","horror2",
-"earthquake", "electric1","electric2" };
+"earthquake", "electric1","electric2","ice1","ice2","big" };
 const std::string missFiles[] = { "miss1", "miss2", "miss3", "miss4", "miss5", "miss6"};
 
 enum elementType
 {
-	FIRE, THUNDER, WATER, ECO, SPIRITUAL
+	FIRE, THUNDER, WATER, ECO, SPIRITUAL, DARK
 };
 
 enum skillId
 {
 	FIREBALL, CURE, EXPLOSION, LIGHTNING_BOLT, FIRE_RAIN, FEEDBACK,
 	ELETRIFIED_GROUND, FLOOD, WATER_BEAM, THUNDERSTORM, MIRROR, SWAMP, 
-	TIME_WARP, BALL_LIGHTNING, IMPLANT_BOMB, SUNBIRTH,
+	WORM_HOLE, BALL_LIGHTNING, IMPLANT_BOMB, SUNBIRTH, DIVINE_SILENCE,
+	FROZEN_FINGERS,
 	
 	SKILLS_TOTAL
 };
@@ -68,9 +70,9 @@ enum statusType
 	ST_DROWNED,		// stamina will start to decrease, and when it's all gone player will start getting damage per time
 					// /\ inspired on Tomb Raider, when Lara Croft is swimming u.u
 	ST_DEFENSE_DOWN, // lose armor temporarily
-	ST_TIME_PASSENGER,	// player has to play notes from other part of the music
 	ST_CHAOTIC_SPEED,	// track speed will change randomically it's speed while the player is in this state
 	ST_BROKEN_DEFENSE,  // zero armor
+	ST_FROZEN,			// player cannot fret, neither solo
 	
 	ST_TOTAL	
 };
@@ -84,6 +86,7 @@ enum effectType
 	T_HEAL,					// increase caster HP
 	T_ANTIDOTE,				// heals from current effects
 	T_DEFENSE_UP,			// increase caster defense
+	T_CLEAR_STONES,			// clear all stones in the screen
 	
 	//* SKILLS DE ATAQUE*
 	T_DAMAGE,				// decrease enemy's HP
@@ -93,7 +96,6 @@ enum effectType
 	T_MIRROR,				// puts caster on Mirror Status
 	T_POISONOUS,			// puts enemy on Poison status
 	T_BREAK_DEFENSE,		// puts enemy on Broken Defense Status
-	T_TIME_WARP,			// puts enemy on Time Passenger Status
 	T_BURN,					// puts enemy on Burn Status
 	T_DROWN,				// puts enemy on Drowned Status
 	T_ELETRIFY,				// puts enemy on Eletrified Status
@@ -103,6 +105,7 @@ enum effectType
 	T_REMOVE_CHORD,			// removes a chord from the enemy, making him misses all those notes until it comes back again.
 	T_SPEED_UP,				// increases enemy's track speed
 	T_CHAOTIC_SPEED,		// put's enemy on Chaotic Speed Status
+	T_FREEZE,				// put's enemy on Frozen Status
 	
 	
 	T_EFFECTS_TOTAL
