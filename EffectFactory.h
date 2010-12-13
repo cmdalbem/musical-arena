@@ -35,11 +35,14 @@ class EffectFactory
 		void						splitBlood( int targetPlayer, E_GORE_LEVEL gore );
 		void						soloEffect(int player, ITexture *tex, int timeMs=700 );
 		void						areaEffect(int player, ITexture *tex, int timeMs=700 );		
+		void						effectParticlesExplosion( vector3df pos, ITexture *tex );
 		
-		
+	
 		// works in progress
 		void 						effectVampireAttack( int player, int timeMs );
 		void						effectBlackHole( int targetPlayer, int timeMs );
+		void 						effectIce( int targetPlayer, int timeMs );	
+	
 	private:
 		vector<Player*>				players;
 		set<effectEvent>			effectsQueue;
@@ -50,8 +53,10 @@ class EffectFactory
 		
 		CBloodEffect				*blood;
 		IMeshSceneNode 				*shields[NPLAYERS];
-		ITexture 					*blackTex, *lensFlareTex, *fireballTex, *glowTex, *electricTex, *laserTex1, *laserTex2, *laserTex3, *bloodTex[5], *waterTex[5];
-		array<ITexture*> 			feedbackTex, explosion;
+		ITexture 					*blackTex, *lensFlareTex, *fireballTex, *iceTex, *glowTex, *electricTex, *laserTex1, *laserTex2, *laserTex3, *bloodTex[5], *waterTex[5];
+		array<ITexture*> 			feedbackTex, explosion, ice1, magic1;
+		
+		IMesh						*iceStone;
 		
 		
 		void 						effectShield( int targetPlayer );
@@ -66,7 +71,6 @@ class EffectFactory
 		void						effectEletrifiedGround( int targetPlayer, int timeMs );
 		void						effectWaterBeam( int targetPlayer );
 		void						effectDrunkEffect ( int targetPlayer, int times );
-		void						effectParticlesExplosion( vector3df pos, ITexture *tex );
 		void 						effectFloodEffect( int targetPlayer );
 		void 						effectSwampEffect( int targetPlayer, int timeMs );
 		void						effectBallLightningEffect( int targetPlayer, int timeMs );

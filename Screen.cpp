@@ -35,9 +35,11 @@ Screen::Screen( IrrlichtDevice *_device, double *_musicTime, Player* player1, Pl
 	
 	initializeScreenElements();
 	
-	// effectFactory->VampireAttack(1,2000);
+	//effectFactory->effectIce(1,10000);
+	
+	//effectFactory->effectVampireAttack(1,2000);
 					
-	//effectFactory->BlackHole(1,10000);
+	//effectFactory->effectBlackHole(1,10000);
 	//effectFactory->queueEffect( 1000, EFFECT_SUN, 1 );
 	//effectFactory->queueEffect( 0, _BALL_LIGHTNING, 0 );
 	//effectFactory->queueEffect( 0, _SWAMP_EFFECT, 1 );
@@ -81,7 +83,10 @@ void Screen::initializeScreenElements()
 	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::recti(0, 0, 100, 20));
 	fpsText->setOverrideColor( SColor(255,255,255,255) );
 	
-	timeText = device->getGUIEnvironment()->addStaticText(L"", core::recti( position2di(SCREENX/2-50, SCREENY-40), dimension2di(100,SCREENY-20) ) , false);
+	
+	#define HUD_BARS_Y (SCREENY-80)
+	
+	timeText = device->getGUIEnvironment()->addStaticText(L"", core::recti( position2di(SCREENX/2-50, HUD_BARS_Y-10), dimension2di(100,50) ) , false);
 	timeText->setTextAlignment( EGUIA_CENTER,EGUIA_CENTER );
 	timeText->setOverrideColor( SColor(255,255,255,255) );
 	
@@ -92,7 +97,7 @@ void Screen::initializeScreenElements()
 		
 			int xpos = SCREENX/4 + i*SCREENX/2;
 			
-			hpText[i] = device->getGUIEnvironment()->addStaticText(L"", recti(position2di(xpos-35,SCREENY-40),position2di(xpos+35,SCREENY-20)));
+			hpText[i] = device->getGUIEnvironment()->addStaticText(L"", recti(position2di(xpos-35,HUD_BARS_Y+10),position2di(xpos+35,HUD_BARS_Y+25)));
 			hpText[i]->setOverrideColor( SColor(200,255,255,255) );
 			
 			// health bars
@@ -103,7 +108,7 @@ void Screen::initializeScreenElements()
 								i==0? 1:-1, false,
 								400, // width
 								30, // height
-								vector3df(xpos, SCREENY-50, 0), // position in 2d
+								vector3df(xpos, HUD_BARS_Y, 0), // position in 2d
 								SColor(0,0,0,0), // bar color
 								SColor(150,0,220,0), // background color
 								SColor(0,255,255,255) ); // border color				
@@ -114,7 +119,7 @@ void Screen::initializeScreenElements()
 								i==0? 1:-1, false,
 								400, // width
 								30, // height
-								vector3df(xpos, SCREENY-50, 0), // position in 2d
+								vector3df(xpos, HUD_BARS_Y, 0), // position in 2d
 								SColor(0,0,0,0), // bar color
 								SColor(200,220,0,0), // background color
 								SColor(100,255,255,255) ); // border color							
@@ -190,6 +195,7 @@ void Screen::drawKeys()
 				switch( player[i]->fretting->_hitting[k] )
 				{
 					case 0:
+					case 2:
 						// idle
 						color = fretColors[k];
 						color.setAlpha(255);
@@ -200,7 +206,7 @@ void Screen::drawKeys()
 						color.setAlpha(255);
 						zdisplace=3;
 						break;
-					default:
+					case -1:
 						// mising
 						color.setAlpha(128);
 						color = SColor(255,0,0,0);

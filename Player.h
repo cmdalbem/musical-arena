@@ -26,7 +26,8 @@ class Player
 		int				maxHP;
 		int				stamina;
 		int				maxStamina;
-				
+		
+		int				multiplier;
 		int				XP;
 		int				level;
 		int				gold;
@@ -53,7 +54,6 @@ class Player
 		int				poisonCounter;
 		int				chaoticCounter;
 		bool			isChaotic;
-		bool			isTimePassenger;
 //		double			timeInStatus1;
 		bool			hasMagicBarrier;
 		bool			hasMirror;

@@ -28,16 +28,17 @@ void Player::initialize()
 	gettimeofday (&lastTimeUpdatedStatus, NULL);
 	hasMagicBarrier = false;
 	hasMirror = false; 
-	isTimePassenger = false;
 	isChaotic = false;
 	
 	chaoticCounter = 0;
 	poisonCounter = 0;
 	timeInStatus = 0;
 	XP = 0;
-	level = 1;
 	gold = 0;
 	gotAnEvent = 0;
+	
+	multiplier = 1;
+	level = 1;
 	
 	status = ST_NORMAL;
 }
@@ -188,12 +189,6 @@ void Player::updateStatus()
 			break;
 		case ST_BROKEN_DEFENSE:
 			armor = 0;
-			break;
-		case ST_TIME_PASSENGER:
-			if(!isTimePassenger)
-				track->musicPos = track->musicPos*2;
-			else
-				isTimePassenger = true;
 			break;
 		case ST_POISON:
 			poisonCounter = (poisonCounter + 1) % 5;

@@ -160,8 +160,10 @@ void Track::drawStones()
 void Track::destroyAllStones()
 {
 	for (int i = 0; i < NFRETS; i++)
-		for(unsigned int k = 0; k < stones[i].size(); k++)
+		for(unsigned int k = 0; k < stones[i].size(); k++) {
 			destroyStone(i,k);
+			--k;
+		}
 }
 
 void Track::destroyStone( int fret, int stone )
@@ -200,7 +202,7 @@ void Track::processEvent( musicEvent event )
 }
 
 void Track::setSpeed( double newSpeed )
-{
+{		
 	speed = newSpeed;
 	
 	if(speed<0)
@@ -209,10 +211,13 @@ void Track::setSpeed( double newSpeed )
 	spawnDelay = sizey/speed;
 	
 	// cleanup stones that should not be spawned yet
-	/*for(int i = 0; i < NFRETS; i++)
+	for(int i = 0; i < NFRETS; i++)
 		for(unsigned int k = 0; k < stones[i].size(); k++)
-			if( stones[i][k]->event.time > (*musicTime + spawnDelay) )
-				destroyStone(i,k);*/
+			if( stones[i][k]->event.time > (*musicTime + spawnDelay) ) {
+				destroyStone(i,k);
+				--k;
+				musicPos -= 2;
+			}
 }
 
 double Track::getSpeed()
