@@ -1,8 +1,11 @@
 #include "Screen.h"
 #include "utils.h"
 
+#include "RibbonTrailSceneNode.h"
+
 using namespace irr::core;
 using namespace irr::video;
+
 
 Screen::Screen( IrrlichtDevice *_device, double *_musicTime, Player* player1, Player* player2 )
 {
@@ -11,31 +14,50 @@ Screen::Screen( IrrlichtDevice *_device, double *_musicTime, Player* player1, Pl
 	this->smgr = device->getSceneManager();
 	player.push_back(player1);
 	player.push_back(player2);
-	musicTime = _musicTime;
+	musicTime = _musicTime;	
+	
+	/*scene::ISceneNode* ball = smgr->addSphereSceneNode(5);
+	ball->addAnimator( smgr->FlyCircleAnimator( vector3df(0,0,0), 20) );
+	
+	ITexture* beamTex = driver->getTexture( "img/beam.png" );
+
+	RibbonTrailSceneNode* rt = new RibbonTrailSceneNode( device, ball, -1 );
+	rt->setPosition( core::vector3df( 0, 0, 0 ) );
+	rt->setMaterialTexture( 0, beamTex );
+	rt->setMaxDistance( 0 );
+	rt->setMaxQuads( 10000 );
+	rt->setStartingAlpha( 255 );
+	rt->setEnabled( true );
+	rt->getMaterial(0).MaterialType=video::EMT_TRANSPARENT_ADD_COLOR;*/
+	
 	
 	effectFactory = new EffectFactory(device,driver,smgr,player);
 	
 	initializeScreenElements();
 	
-	//effectFactory->queueEffect( 0, CREATE_BALL_LIGHTNING, 1 );
-	//effectFactory->queueEffect( 0, CREATE_SWAMP_EFFECT, 1 );
-	//effectFactory->queueEffect( 300, CREATE_DRUNK_EFFECT, 1 );
-	//effectFactory->queueEffect( 0, CREATE_FLOOD_EFFECT, 1);
-	//effectFactory->queueEffect( 0, CREATE_WATER_BEAM, 1);
-	//effectFactory->queueEffect( 0, CREATE_FLOOD_EFFECT, 1);
-	//effectFactory->queueEffect(0, CREATE_BOLT, 1);
-	//effectFactory->queueEffect(0, CREATE_THUNDERSTORM, 0);
-	//effectFactory->queueEffect(0, CREATE_ELETRIC_GROUND, 0);
+	// effectFactory->VampireAttack(1,2000);
+					
+	//effectFactory->BlackHole(1,10000);
+	//effectFactory->queueEffect( 1000, EFFECT_SUN, 1 );
+	//effectFactory->queueEffect( 0, _BALL_LIGHTNING, 0 );
+	//effectFactory->queueEffect( 0, _SWAMP_EFFECT, 1 );
+	//effectFactory->queueEffect( 300, _DRUNK_EFFECT, 1 );
+	//effectFactory->queueEffect( 0, _FLOOD_EFFECT, 1);
+	//effectFactory->queueEffect( 0, _WATER_BEAM, 1);
+	//effectFactory->queueEffect( 0, _FLOOD_EFFECT, 1);
+	//effectFactory->queueEffect(0, _BOLT, 1);
+	//effectFactory->queueEffect(0, _THUNDERSTORM, 0);
+	//effectFactory->queueEffect(0, _ELETRIC_GROUND, 0);
 	//effectFactory->queueEffect(0, EFFECT_FIREBALL, 1);
-	//effectFactory->queueEffect( 0, CREATE_FIRE_RAIN, 1 );
-	//effectFactory->queueEffect(0, CREATE_BOLT, 1);
-	//effectFactory->queueEffect(1000, CREATE_BOLT, 0);
-	//effectFactory->queueEffect( 800, CREATE_EXPLOSION, 0 );
-	//effectFactory->queueEffect( 0, CREATE_FEEDBACK, 1 );
-	//effectFactory->queueEffect( 2000, CREATE_DRUNK_EFFECT_SINGLE, 0 );
-	//effectFactory->queueEffect( 0, CREATE_EXPLOSION, 1 );
-	//effectFactory->queueEffect( 0, CREATE_GLOW_AREA, 0 );
-	//effectFactory->queueEffect( 0, CREATE_ELECTRIC, 1 );
+	//effectFactory->queueEffect( 0, _FIRE_RAIN, 1 );
+	//effectFactory->queueEffect(0, _BOLT, 1);
+	//effectFactory->queueEffect(1000, _BOLT, 0);
+	//effectFactory->queueEffect( 800, _EXPLOSION, 0 );
+	//effectFactory->queueEffect( 0, _FEEDBACK, 1 );
+	//effectFactory->queueEffect( 2000, _DRUNK_EFFECT_SINGLE, 0 );
+	//effectFactory->queueEffect( 0, _EXPLOSION, 1 );
+	//effectFactory->queueEffect( 0, _GLOW_AREA, 0 );
+	//effectFactory->queueEffect( 0, _ELECTRIC, 1 );
 	//for(int i=0;i<10;i++)
 		//effectFactory->queueEffect( 1000 + i*100, EFFECT_FIREBALL, 0 );
 }
@@ -48,9 +70,6 @@ Screen::~Screen()
 void Screen::initializeScreenElements()
 {
 	// Pre-load textures
-	ITexture *goodTex = driver->getTexture("img/good.png");
-	ITexture *badTex = driver->getTexture("img/bad.png");
-	ITexture *neutralTex = driver->getTexture("img/neutral.png");
 	this->glowTex = driver->getTexture("img/glow2.bmp");
 	this->fireballTex = driver->getTexture("img/fireball.bmp");
 	
@@ -59,30 +78,35 @@ void Screen::initializeScreenElements()
 	//sky->setRotation( vector3df(90,0,0) );
 	//sky->getMaterial(0).getTextureMatrix(0).setTextureScale(6,6);
 	
-	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::recti(0, 0, 100, 10));
-	timeText = device->getGUIEnvironment()->addStaticText(L"", core::recti( position2di(SCREENX/2-50,5), dimension2di(100,50) ) , false);
+	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::recti(0, 0, 100, 20));
+	fpsText->setOverrideColor( SColor(255,255,255,255) );
+	
+	timeText = device->getGUIEnvironment()->addStaticText(L"", core::recti( position2di(SCREENX/2-50, SCREENY-40), dimension2di(100,SCREENY-20) ) , false);
 	timeText->setTextAlignment( EGUIA_CENTER,EGUIA_CENTER );
 	timeText->setOverrideColor( SColor(255,255,255,255) );
 	
-	// create render target
+	//  render target
 	for(int i=0;i<NPLAYERS;i++) {
 		{
 			// GUI Elements
 		
 			int xpos = SCREENX/4 + i*SCREENX/2;
 			
-			hpTxt[i] = device->getGUIEnvironment()->addStaticText(L"", recti(position2di(xpos-35,40),position2di(xpos+35,60)));
-			hpTxt[i]->setOverrideColor( SColor(200,255,255,255) );
-			
-			//bloodSplit[i] = driver->addRenderTargetTexture(core::dimension2d<u32>(256,256), "RTT1");
-			//device->getGUIEnvironment()->addImage( bloodSplit[i], core::position2d<s32>(xpos-256/2, 70-256/2) );
-
-			// smileys
-			good[i] = device->getGUIEnvironment()->addImage( goodTex, core::position2d<s32>(xpos,SCREENY-100), true );
-			bad[i] = device->getGUIEnvironment()->addImage( badTex, core::position2d<s32>(xpos,SCREENY-100), true );
-			neutral[i] = device->getGUIEnvironment()->addImage( neutralTex, core::position2d<s32>(xpos,SCREENY-100), true );
+			hpText[i] = device->getGUIEnvironment()->addStaticText(L"", recti(position2di(xpos-35,SCREENY-40),position2di(xpos+35,SCREENY-20)));
+			hpText[i]->setOverrideColor( SColor(200,255,255,255) );
 			
 			// health bars
+			armorBar[i] = new VxHealthSceneNode(
+								smgr->getRootSceneNode(), // parent node
+								smgr, // scene manager
+								-1, // id
+								i==0? 1:-1, false,
+								400, // width
+								30, // height
+								vector3df(xpos, SCREENY-50, 0), // position in 2d
+								SColor(0,0,0,0), // bar color
+								SColor(150,0,220,0), // background color
+								SColor(0,255,255,255) ); // border color				
 			healthBar[i] = new VxHealthSceneNode(
 								smgr->getRootSceneNode(), // parent node
 								smgr, // scene manager
@@ -90,10 +114,10 @@ void Screen::initializeScreenElements()
 								i==0? 1:-1, false,
 								400, // width
 								30, // height
-								vector3df(xpos, 25, 0), // position in 2d
+								vector3df(xpos, SCREENY-50, 0), // position in 2d
 								SColor(0,0,0,0), // bar color
 								SColor(200,220,0,0), // background color
-								SColor(100,255,255,255) ); // border color
+								SColor(100,255,255,255) ); // border color							
 								
 			#define STAMINA_BAR_H 60
 			#define STAMINA_DISPLACEX 25
@@ -106,7 +130,7 @@ void Screen::initializeScreenElements()
 									15, // width
 									STAMINA_BAR_H, // height
 									vector3df(i==0 ? STAMINA_DISPLACEX : SCREENX-STAMINA_DISPLACEX,
-											  SCREENY/3 + (k==0?(STAMINA_BAR_H/2):-(STAMINA_BAR_H/2)),
+											  SCREENY*1.5/3 + (k==0?(STAMINA_BAR_H/2):-(STAMINA_BAR_H/2)),
 											  0), // position in 2d
 									SColor(0,0,0,0), // bar color
 									SColor(170,30,30,240), // background color
@@ -114,7 +138,7 @@ void Screen::initializeScreenElements()
 			
 		}
 		
-		// glowing when you hit correclty a fret
+		// glowing when you correclty hit the fret note
 		for(int k=0;k<NFRETS;k++) {
 			glow[i][k] = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), dimension2d<float>(10, 10));
 			glow[i][k]->setMaterialFlag(EMF_LIGHTING, false);
@@ -193,13 +217,12 @@ void Screen::drawKeys()
 	}
 }	
 
-void Screen::update()
+void Screen::update() 
 // Here we check everything about the game that has to be drawn.
 // It's all about HUDs and special effects!
 {
 	drawBars();
 	drawKeys();
-	drawHittingState();
 	drawSoloModeState();
 	drawSplitBlood();
 	
@@ -210,11 +233,20 @@ void Screen::update()
 	effectFactory->shieldmanager->drawAll();
 }
 
+void Screen::drawStatus()
+{
+	for(int i=0; i<NPLAYERS; i++) 
+	{
+		if( player[i]->status==ST_FIRE )
+			effectFactory->areaEffect(i, fireballTex, 50);
+	}
+}
+
 void Screen::drawSoloModeState()
 {
 	for(int i=0; i<NPLAYERS; i++)
 		if( player[i]->isUsingSkill )
-			effectFactory->createSoloEffect(i,glowTex,10);		
+			effectFactory->soloEffect(i,glowTex,10);		
 }
 
 void Screen::drawBars()
@@ -225,6 +257,8 @@ void Screen::drawBars()
 	
 	for(int i=0; i<NPLAYERS; i++) {
 		healthBar[i]->setProgress( player[i]->HP*100/player[i]->maxHP );
+		armorBar[i]->setProgress( (player[i]->HP+player[i]->getArmor())*100/player[i]->maxHP );
+		
 		
 		staminaBar[i][1]->setProgress( ((player[i]->stamina)-(player[i]->maxStamina/2))*100 / (player[i]->maxStamina/2) );
 		
@@ -233,30 +267,12 @@ void Screen::drawBars()
 		else
 			staminaBar[i][0]->setProgress( player[i]->stamina*100 / (player[i]->maxStamina/2) );
 		
+		
 		sprintf(str,"%i/%i",player[i]->HP,player[i]->maxHP);
-		hpTxt[i]->setText( stringw(str).c_str() );
+		hpText[i]->setText( stringw(str).c_str() );
 	}
 }
 
-void Screen::drawHittingState()
-{
-	for(int i=0; i<NPLAYERS; i++) 
-	{
-		switch( player[i]->fretting->frettingState )
-		{
-			case 1:
-				showGood(i);
-				break;
-			case -1:
-				showBad(i);
-				break;
-			case 0:
-				showNeutral(i);
-				break;
-		}
-	}
-}
-		
 void Screen::drawSplitBlood()
 {
 	for(int i=0; i<NPLAYERS; i++) 
@@ -268,7 +284,7 @@ void Screen::drawSplitBlood()
 				gore = EGL_INSANE;
 			else if(player[i]->damageTaken>=30)
 				gore = EGL_BRUTAL;
-			else if(player[i]->damageTaken>=20)
+			else if(player[i]->damageTaken>=10)
 				gore = EGL_MEDIUM;
 			else
 				gore = EGL_MILD;
@@ -276,33 +292,8 @@ void Screen::drawSplitBlood()
 			effectFactory->splitBlood(i, gore);
 			player[i]->damageTaken = 0;
 		}
-
-		if( player[i]->status==ST_FIRE )
-			effectFactory->createAreaEffect(i, fireballTex, 50);
 	}
 }
-
-void Screen::showGood( int i )
-{	
-	good[i]->setVisible(true);
-	bad[i]->setVisible(false);
-	neutral[i]->setVisible(false);
-}
-
-void Screen::showBad( int i )
-{	
-	
-	bad[i]->setVisible(true);	
-	good[i]->setVisible(false);
-	neutral[i]->setVisible(false);
-}
-
-void Screen::showNeutral( int i )
-{
-	bad[i]->setVisible(false);	
-	good[i]->setVisible(false);
-	neutral[i]->setVisible(true);
-}	
 
 void Screen::setFps( int fps )
 {

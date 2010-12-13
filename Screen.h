@@ -41,25 +41,21 @@ class Screen
 		ISceneManager				*smgr;
 		double						*musicTime;
 		
-		IGUIImage 					*good[NPLAYERS], *bad[NPLAYERS], *neutral[NPLAYERS];
 		ISceneNode					*glow[NPLAYERS][NFRETS];
-		IGUIStaticText 				*fpsText, *hpTxt[NPLAYERS], *timeText;
-		VxHealthSceneNode			*healthBar[NPLAYERS], *staminaBar[NPLAYERS][NSTAMINALEVELS];
+		IGUIStaticText 				*fpsText, *hpText[NPLAYERS], *timeText;
+		VxHealthSceneNode			*healthBar[NPLAYERS], *armorBar[NPLAYERS], *staminaBar[NPLAYERS][NSTAMINALEVELS];
 		ITexture 					*glowTex, *fireballTex;
 		ISceneNode 					*sky;
 		
 		// HUD drawing
 		void 						drawSoloModeState();
 		void						drawKeys();
-		void 						drawHittingState();
 		void 						drawBars();
 		void						drawSplitBlood();
+		void 						drawStatus();
 		
 		// Inner utility functions
 		void						initializeScreenElements();
-		void						showGood( int targetPlayer );
-		void						showBad( int targetPlayer );
-		void						showNeutral( int targetPlayer );
 		
 
 };

@@ -47,6 +47,7 @@ class Track
 		int				notesOnChord;		// how many notes did we have on the chord??
 			
 		void			update();
+		void 			destroyAllStones();
 		void			destroyStone( int fret, int stone );
 		void			draw();		
 		void 	 	 	processEvent( musicEvent event );

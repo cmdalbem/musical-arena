@@ -11,6 +11,9 @@ using namespace irr;
 #include "CBloodShader.h"
 #include "CShieldManager.h"
 #include "CDeleteParticleAffector.h"
+#include "LavaShader.h"
+#include "CSceneNodeAnimatorScale.h"
+#include "CLensFlareSceneNode.h"
 
 using namespace irr::core;
 using namespace irr::gui;
@@ -30,10 +33,13 @@ class EffectFactory
 		void						handleEffectsQueue();
 		
 		void						splitBlood( int targetPlayer, E_GORE_LEVEL gore );
-		void						createSoloEffect(int player, ITexture *tex, int timeMs=700 );
-		void						createAreaEffect(int player, ITexture *tex, int timeMs=700 );		
+		void						soloEffect(int player, ITexture *tex, int timeMs=700 );
+		void						areaEffect(int player, ITexture *tex, int timeMs=700 );		
 		
-	
+		
+		// works in progress
+		void 						effectVampireAttack( int player, int timeMs );
+		void						effectBlackHole( int targetPlayer, int timeMs );
 	private:
 		vector<Player*>				players;
 		set<effectEvent>			effectsQueue;
@@ -44,26 +50,28 @@ class EffectFactory
 		
 		CBloodEffect				*blood;
 		IMeshSceneNode 				*shields[NPLAYERS];
-		ITexture 					*fireballTex, *glowTex, *laserTex, *bloodTex[5], *waterTex[5];
+		ITexture 					*blackTex, *lensFlareTex, *fireballTex, *glowTex, *electricTex, *laserTex1, *laserTex2, *laserTex3, *bloodTex[5], *waterTex[5];
 		array<ITexture*> 			feedbackTex, explosion;
 		
 		
-		void 						createShield( int targetPlayer );
-		void 						createFeedback( int targetPlayer );
-		void						createExplosion( vector3df pos );
-		void						createFireRain( int targetPlayer );
-		void						createFireball( int targetPlayer, bool randomizeTarget );
-		void						createFireball( array<vector3df> path );
-		void						createLaserBeam( int target );
-		void						createBolt( int targetPlayer );
-		void						createThunderstormBolt( int targetPlayer );
-		void						createEletrifiedGround( int targetPlayer );
-		void						createWaterBeam( int targetPlayer );
-		void						createDrunkEffect ( int targetPlayer, int times );
-		void						createParticlesExplosion( vector3df pos, ITexture *tex );
-		void 						createFloodEffect( int targetPlayer );
-		void 						createSwampEffect( int targetPlayer, int timeMs );
-		void						createBallLightningEffect( int targetPlayer, int timeMs );
-		void						createImplantBomb( int targetPlayer );
+		void 						effectShield( int targetPlayer );
+		void 						effectFeedback( int targetPlayer );
+		void						effectExplosion( vector3df pos );
+		void						effectFireRain( int targetPlayer );
+		void						effectFireball( int targetPlayer, bool randomizeTarget );
+		void						effectFireball( array<vector3df> path );
+		void						effectLaserBeam( int target );
+		void						effectBolt( int targetPlayer );
+		void						effectThunderstormBolt( int targetPlayer );
+		void						effectEletrifiedGround( int targetPlayer, int timeMs );
+		void						effectWaterBeam( int targetPlayer );
+		void						effectDrunkEffect ( int targetPlayer, int times );
+		void						effectParticlesExplosion( vector3df pos, ITexture *tex );
+		void 						effectFloodEffect( int targetPlayer );
+		void 						effectSwampEffect( int targetPlayer, int timeMs );
+		void						effectBallLightningEffect( int targetPlayer, int timeMs );
+		void						effectImplantBomb( int targetPlayer );
+		void 						effectSun( int target, int timeMs );
+		void						effectDarkStormBolt( int target);
 
 };

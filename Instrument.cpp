@@ -17,10 +17,10 @@ Instrument::Instrument( statusType newStatus)
 
 void Instrument::init ()
 {
-	sumHP = 150;
-	sumStamina = 50;
-	armor = 50;
-	tolerance = 0.2;
+	sumHP = DEFAULT_HP;
+	sumStamina = DEFAULT_STAMINA;
+	armor = DEFAULT_ARMOR;
+	tolerance = DEFAULT_TOLERANCE;
 }
 
 statusType Instrument::getStatus()

@@ -71,12 +71,10 @@ void castSpell ()
 
 			if (player[i].stamina > casted->cost)
 			{			
-				player[i].decreaseStamina (casted->cost);
+				player[i].changeStamina (-casted->cost);
 			
                 // sound effect
 				soundBank->playEffect(casted->soundEffect); 
-
-				player[i].decreaseStamina (casted->cost);
 
                 if(player[!i].status == ST_MIRROR) {
                     player[i].fretting->castedSpell = NULL;
@@ -131,14 +129,14 @@ void castSpell ()
 						player[i].setStatusNormal();
 						break;
 					case T_STAMINA_DOWN:
-						player[!i].decreaseStamina( casted->effects[j].param1 );
+						player[!i].changeStamina( -casted->effects[j].param1 );
 						break;
 					case T_BURN:
 						player[!i].status = ST_FIRE;
 						player[!i].timeInStatus = casted->effects[j].param1;
 						break;
 					case T_FEEDBACK:
-						player[!i].takeDamage (player[!i].stamina);
+						player[!i].takeDamage (player[!i].stamina/2);
 						player[!i].stamina = 0;
 						break;
 					case T_TOLERANCE_DOWN:
@@ -164,6 +162,10 @@ void castSpell ()
 						player[!i].status = ST_CHAOTIC_SPEED;
 						player[!i].timeInStatus = casted->effects[j].param1;
 						break;		
+					case T_BREAK_DEFENSE:
+						player[!i].status = ST_BROKEN_DEFENSE;
+						player[!i].timeInStatus = casted->effects[j].param1;
+						break;		
 					}
 				}
 			}
@@ -171,6 +173,24 @@ void castSpell ()
 		player[i].fretting->castedSpell = NULL;
 	}
 }
+
+void handleHittingStates()
+{
+	for(int i=0; i<NPLAYERS; i++) 
+	{
+		switch( player[i].fretting->frettingState )
+		{
+			case 1:
+				break;
+			case -1:
+				//soundBank->playMissEffect();
+				player[i].fretting->frettingState = 0;
+				break;
+			case 0:
+				break;
+		}
+	}
+}	
 
 static void *updater(void *argument) 
 {
@@ -197,25 +217,27 @@ static void *updater(void *argument)
 			player[1].track->processEvent(theMusic[player[1].track->musicPos]);
 		}
 		
-		
+		handleHittingStates();
 		sem_wait(&semaphore);
-		if (player[1].activateAI == true)
-		{
-			double chance = rand() % 30000;
-			if (chance == 0)
+			if (player[1].activateAI == true)
 			{
-				int random = rand() % (player[1].instrument->skills.size());
-				player[1].fretting->castedSpell = &(player[1].instrument->skills[random]);	
+				double chance = rand() % 30000;
+				if (chance == 0)
+				{
+					int random = rand() % (player[1].instrument->skills.size());
+					player[1].fretting->castedSpell = &(player[1].instrument->skills[random]);	
+				}
 			}
-		}
-		castSpell();
-		int tam = receiver.getEventsSize();
-		player[0].update();
-		player[1].update();
-		if (tam == receiver.getEventsSize())
-			receiver.clearEvents();
-		//if ((player[0].gotAnEvent == 0) && (player[1].gotAnEvent == 0))
-			//receiver.removeEvent();
+			
+			castSpell();
+			
+			int tam = receiver.getEventsSize();
+			player[0].update();
+			player[1].update();
+			if (tam == receiver.getEventsSize())
+				receiver.clearEvents();
+			//if ((player[0].gotAnEvent == 0) && (player[1].gotAnEvent == 0))
+				//receiver.removeEvent();
 		sem_post(&semaphore);
 		
 	}
@@ -346,8 +368,8 @@ void initializeIrrlicht()
     // like the real game camera
     camera = smgr->addCameraSceneNode (
 				0,					  // Camera parent
-				vector3df(0, -95, -35), // Look from
-				vector3df(0, -25, 20), // Look to
+				vector3df(0, -90, -40), // Look from
+				vector3df(0, -30, 20), // Look to
 				1);						  // Camera ID
 	
 	// a FPS camera for debugging

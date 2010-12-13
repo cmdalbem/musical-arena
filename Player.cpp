@@ -29,8 +29,8 @@ void Player::initialize()
 	hasMagicBarrier = false;
 	hasMirror = false; 
 	isTimePassenger = false;
+	isChaotic = false;
 	
-	isChaotic = 0;
 	chaoticCounter = 0;
 	poisonCounter = 0;
 	timeInStatus = 0;
@@ -44,13 +44,12 @@ void Player::initialize()
 
 void Player::initializeAtributes()
 {
-	maxHP = 300 + (rand() % 150) + instrument->sumHP;
+	maxHP = instrument->sumHP;
 	HP = maxHP;
-	maxStamina = 200 + (rand() % 100) + instrument->sumStamina;
-	stamina = maxStamina;
+	maxStamina = instrument->sumStamina;
+	stamina = maxStamina;///2;
 	armor = instrument->armor;
-	castedSpell = NULL;
-	
+	castedSpell = NULL;	
 	
 	fretting = new Fretting(&instrument->skills);
 	track->fretting = fretting;	
@@ -66,24 +65,31 @@ void Player::update()
 	
 	track->update();
 	
-	// Apply Status effects
+	// This part is executed only 4 times per second
 	if (elapsedTime >= ( 1.0 / UPDATE_STATUS_TIME ))
 	{
 		//cout << "elapsedTime: " << elapsedTime << endl;
 		updateStatus();
+		
+		if( isUsingSkill )
+			changeStamina(-STAMINA_LOST_ON_SOLO);
+		
+		if( fretting->frettingState==1 )
+			changeStamina(STAMINA_GAINED_BY_NOTE);
+		
 		gettimeofday (&lastTimeUpdatedStatus, NULL);
 	}
 	
 	// Handle when the player left behind notes he should have played
-	if ( track->nonPressedChord && (!activateAI) )
+	if ( track->nonPressedChord )
 	{
 		fretting->lostNote();
-		takeDamage (track->notesOnChord);
+		takeDamage(track->notesOnChord * DAMAGE_PER_NOTE_MISSED); //multiplier of doom!
 		//cout << "the player left " << track->notesOnChord << " behind" << endl;
 	}
 	else
 	{
-		// Creates an vector with only the interesting stones on the screen
+		// s an vector with only the interesting stones on the screen
 		Stone* firstStones[NFRETS];
 		gotAnEvent = 1;
 		for(unsigned int i=0; i<NFRETS; i++)
@@ -131,11 +137,14 @@ void Player::update()
 
 void Player::takeDamage( double damage )
 {
-	damageTaken = damage; //used in Screen
+	damage -= armor;
 	
-	HP = HP - damage;
-	if (HP < 0)
-		HP = 0;
+	if( damage>0 ) {
+		damageTaken = damage; //used in Screen
+		HP = HP - damage;
+		if (HP < 0)
+			HP = 0;
+	}
 }
 
 void Player::recoverHP( double howMuch )
@@ -145,11 +154,18 @@ void Player::recoverHP( double howMuch )
 		HP = maxHP;
 }
 
-void Player::decreaseStamina( int howMuch )
+void Player::changeStamina( int howMuch )
 {
-	stamina = stamina - howMuch;
+	stamina = stamina + howMuch;
 	if (stamina < 0)
 		stamina = 0;
+	else if(stamina>maxStamina)
+			stamina = maxStamina;
+}
+
+int Player::getArmor()
+{
+	return armor;
 }
 
 void Player::decreaseArmor( double howMuch )
@@ -163,19 +179,15 @@ void Player::decreaseArmor( double howMuch )
 		armor = 0;
 }
 
-void Player::staminaRecover()
-{
-	stamina++;
-	if (stamina > maxStamina)
-		stamina = maxStamina;
-}
-
 void Player::updateStatus()
 /* Handle all players status cases */
 {
 	switch (status)
 	{
 		case ST_NORMAL:
+			break;
+		case ST_BROKEN_DEFENSE:
+			armor = 0;
 			break;
 		case ST_TIME_PASSENGER:
 			if(!isTimePassenger)
@@ -189,7 +201,7 @@ void Player::updateStatus()
 				takeDamage( this->HP*0.10 ); //percentage of the HP
 			break;
 		case ST_FIRE:
-			takeDamage (10);
+			takeDamage(8);
 			break;
 		case ST_INVENCIBLE:
 			armor = INT_MAX;
@@ -201,19 +213,19 @@ void Player::updateStatus()
 			hasMirror = true;
 			break;
 		case ST_ELETRIFIED:
-			takeDamage(3);
+			takeDamage(13);
 			break;
 		case ST_DROWNED:
-			decreaseStamina(7);
+			changeStamina(-7);
 			if (stamina == 0)
-				takeDamage (7);
+				takeDamage (17);
 			break;
 		case ST_DEFENSE_DOWN:
 			// decrease armor
 			break;
 		case ST_CHAOTIC_SPEED:
 			if(!isChaotic) {
-				speedBeforeChaotic = track->getSpeed();
+				lastSpeed = track->getSpeed();
 				isChaotic = true;
 			}
 			else {
@@ -225,11 +237,6 @@ void Player::updateStatus()
 			break;
 		
 	}
-	
-	if( isUsingSkill )
-		decreaseStamina(2.5);
-	else
-		staminaRecover();
 		
 	// handle finish time of a status
 	timeInStatus = timeInStatus - (1.0 / UPDATE_STATUS_TIME);
@@ -242,8 +249,8 @@ void Player::setStatusNormal()
 	status = ST_NORMAL;
 	
 	//resets atributes that may have been modified by the status
-	armor = instrument->armor;
 	fretting->tolerance = instrument->tolerance;
+	armor = instrument->armor;
 
 	if(hasMagicBarrier) {
 		hasMagicBarrier = false;
@@ -251,10 +258,9 @@ void Player::setStatusNormal()
 	if(hasMirror) {
 		hasMirror = false;
 	}
-	
 	if(isChaotic) {
 		isChaotic = false;
-		track->setSpeed(speedBeforeChaotic);
+		track->setSpeed(lastSpeed);
 	}
 }
 

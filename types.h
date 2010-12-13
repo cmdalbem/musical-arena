@@ -10,23 +10,31 @@ typedef unsigned char u_char;
 
 enum visualEffectFunction
 {
-	EFFECT_FIREBALL, EFFECT_FIREBALL_SKY, CREATE_FIRE_RAIN,
-	CREATE_GLOW_AREA, CREATE_FEEDBACK, EFFECT_SHIELD,
-	CREATE_BOLT, CREATE_ELETRIC_GROUND, CREATE_WATER_BEAM,
-	CREATE_DRUNK_EFFECT, CREATE_DRUNK_EFFECT_SINGLE, CREATE_EXPLOSION,
-	CREATE_THUNDERSTORM_BOLT, CREATE_THUNDERSTORM, CREATE_FLOOD_EFFECT,
-	EFFECT_SHIELD_SINGLE, CREATE_SWAMP_EFFECT, CREATE_BALL_LIGHTNING,
-	CREATE_IMPLANT_BOMB
+	EFFECT_FIREBALL, EFFECT_FIREBALL_SKY, EFFECT_FIRE_RAIN,
+	EFFECT_GLOW_AREA, EFFECT_FEEDBACK, EFFECT_SHIELD,
+	EFFECT_BOLT, EFFECT_ELETRIC_GROUND, EFFECT_WATER_BEAM,
+	EFFECT_DRUNK_EFFECT, EFFECT_DRUNK_EFFECT_SINGLE, EFFECT_EXPLOSION,
+	EFFECT_THUNDERSTORM_BOLT, EFFECT_THUNDERSTORM, EFFECT_FLOOD,
+	EFFECT_SHIELD_SINGLE, EFFECT_SWAMP, EFFECT_BALL_LIGHTNING,
+	EFFECT_IMPLANT_BOMB, EFFECT_SUN, EFFECT_DARK_STORM_BOLT, EFFECT_DARK_STORM
 };
 
 typedef pair<pair<unsigned int,visualEffectFunction>,int> effectEvent;
 
 enum soundEffectType
 {
-	S_BOLT1, S_BOLT2, S_LIGHTNING, S_DIGITAL, S_EXPLOSION, S_FIRE, S_MAGIC1, S_MAGIC2, S_STORM, S_UNDERWATER1, S_UNDERWATER2, S_WATER1, S_WATER2, S_WATERFALL,
+	S_BOLT1, S_BOLT2, S_LIGHTNING, S_DIGITAL, S_EXPLOSION, S_FIRE1, S_FIRE2,
+	S_MAGIC1, S_MAGIC2, S_STORM, S_UNDERWATER1, S_UNDERWATER2, S_STREAM1, 
+	S_STREAM2, S_STREAM3, S_WATERFALL, S_FIRERUMBLE, S_HORROR1, S_HORROR2, 
+	S_EARTHQUAKE, S_ELECTRIC1, S_ELECTRIC2, 
 	
 	S_TOTAL
 };
+const std::string wavFiles[] = { "bolt1", "bolt2", "lightning", "digital1", 
+"explosion1", "fire1", "fire2", "magic1", "magic2", "storm", "underwater", "underwater2", 
+"stream1", "stream2","stream3", "waterfall","firerumble","horror1","horror2",
+"earthquake", "electric1","electric2" };
+const std::string missFiles[] = { "miss1", "miss2", "miss3", "miss4", "miss5", "miss6"};
 
 enum elementType
 {
@@ -35,9 +43,9 @@ enum elementType
 
 enum skillId
 {
-	FIREBALL, CURE, EXPLOSION, LIGHTNING_BOLT, FIRE_RAIN, FEEDBACK, ELETRIFIED_GROUND,
-	FLOOD, WATER_BEAM, THUNDERSTORM, MIRROR, SWAMP, TIME_WARP, BALL_LIGHTNING,
-	IMPLANT_BOMB,
+	FIREBALL, CURE, EXPLOSION, LIGHTNING_BOLT, FIRE_RAIN, FEEDBACK,
+	ELETRIFIED_GROUND, FLOOD, WATER_BEAM, THUNDERSTORM, MIRROR, SWAMP, 
+	TIME_WARP, BALL_LIGHTNING, IMPLANT_BOMB, SUNBIRTH,
 	
 	SKILLS_TOTAL
 };
@@ -62,6 +70,7 @@ enum statusType
 	ST_DEFENSE_DOWN, // lose armor temporarily
 	ST_TIME_PASSENGER,	// player has to play notes from other part of the music
 	ST_CHAOTIC_SPEED,	// track speed will change randomically it's speed while the player is in this state
+	ST_BROKEN_DEFENSE,  // zero armor
 	
 	ST_TOTAL	
 };
@@ -79,14 +88,15 @@ enum effectType
 	//* SKILLS DE ATAQUE*
 	T_DAMAGE,				// decrease enemy's HP
 	T_DEFENSE_DOWN,			// decrease enemy's defense
-	T_POISONOUS,			// puts enemy on Poison status
 	T_STAMINA_DOWN,			// decrease enemy's stamina
 	T_FEEDBACK,				// decrease enemy's stamina and decrease this amount of his HP
-	T_MIRROR,				// casts the last casted speel by the enemy on him	
+	T_MIRROR,				// puts caster on Mirror Status
+	T_POISONOUS,			// puts enemy on Poison status
+	T_BREAK_DEFENSE,		// puts enemy on Broken Defense Status
 	T_TIME_WARP,			// puts enemy on Time Passenger Status
-	T_BURN,					// puts the enemy on Burn Status
-	T_DROWN,				// puts the enemy on Drowned Status
-	T_ELETRIFY,				// puts the enemy on Eletrified Status
+	T_BURN,					// puts enemy on Burn Status
+	T_DROWN,				// puts enemy on Drowned Status
+	T_ELETRIFY,				// puts enemy on Eletrified Status
 	T_INCREASE_DIFFICULTY,	// increases enemy's difficulty
 	T_DOUBLE_NOTES,			// doubles the notes appearing on enemy's track
 	T_TOLERANCE_DOWN,		// decreases enemy's tolerance

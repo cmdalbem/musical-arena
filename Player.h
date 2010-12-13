@@ -26,7 +26,6 @@ class Player
 		int				maxHP;
 		int				stamina;
 		int				maxStamina;
-		int				armor;
 				
 		int				XP;
 		int				level;
@@ -34,8 +33,9 @@ class Player
 		statusType		status;
 		double			timeInStatus;
 		bool			activateAI;
-		
-		void 			decreaseStamina(int howMuch);
+
+		int 			getArmor();
+		void 			changeStamina(int howMuch);
 		void			decreaseArmor( double howMuch );
 		void 			initializeAtributes();
 		void			update();
@@ -45,11 +45,14 @@ class Player
 		void			setStatusNormal();
 		
 	private:
+		int				armor;
+		
+				
 		timeval			lastTimeUpdatedStatus;
+		int				lastSpeed;
 		int				poisonCounter;
 		int				chaoticCounter;
 		bool			isChaotic;
-		int				speedBeforeChaotic;
 		bool			isTimePassenger;
 //		double			timeInStatus1;
 		bool			hasMagicBarrier;

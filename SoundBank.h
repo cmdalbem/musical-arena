@@ -17,9 +17,6 @@ const musicLibEntry musicLib[] = { {"music/api/notes.mid", "music/api/song.ogg",
 							       {"music/sectoid/notes.mid", "music/sectoid/song.ogg", "music/sectoid/guitar.ogg", EXPERT},
 							  };
 
-const std::string wavFiles[] = { "bolt1", "bolt2", "lightning", "digital1", "explosion1", "fire1", "magic1", "magic2", "storm", "underwater", "underwater2", "water1", "water2", "waterfall" };
-const std::string oggFiles[] = { "miss1", "miss2", "miss3", "miss4", "miss5", "miss6", "start" };
-
 class SoundBank
 {
 	public:
@@ -31,6 +28,7 @@ class SoundBank
 		void 			selectMusic( int n );
 		void 			playSelectedMusic();
 		void			playEffect( soundEffectType which );
+		void			playMissEffect();
 		
 		
 	private:
@@ -41,6 +39,6 @@ class SoundBank
 		FMOD::Sound 	*song, *guitar;
 		
 		// sound effects
-		FMOD::Sound		*effects[S_TOTAL];
+		FMOD::Sound		*effects[S_TOTAL], *missEffects[6];
 
 };
