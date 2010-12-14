@@ -10,22 +10,23 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 	smgr = _smgr;
 	players = _players;
 	
-	iceStone = smgr->getMesh("stone.3ds");
+	stoneMesh1 = smgr->getMesh("stone1.3ds");
+	stoneMesh2 = smgr->getMesh("stone2.3ds");
 	
 	ITexture *shieldTex0 = driver->getTexture("img/blanktex.png");
 	ITexture *shieldTex1 = driver->getTexture("img/gradient.png");
 	CBloodShader::instance().createMaterial(device);
+	this->starTex = driver->getTexture("img/stars.tga");
 	this->fireballTex = driver->getTexture("img/fireball.bmp");
 	this->glowTex = driver->getTexture("img/glow2.bmp");
+	this->glowTex2 = driver->getTexture("img/glowpurple.png");
+	this->glowTex3 = driver->getTexture("img/glowblack.png");
 	this->blackTex = driver->getTexture("img/black.png");
 	this->iceTex = driver->getTexture("img/icetex.png");
 	this->laserTex1 = driver->getTexture("img/laser1.png");
 	this->laserTex2 = driver->getTexture("img/laser2.png");
 	this->laserTex3 = driver->getTexture("img/laser3.png");
-	//this->electricTex = driver->getTexture("img/electrictex.png");
 	this->lensFlareTex = driver->getTexture("img/flares.jpg");
-	//this->smokeTex1 = driver->getTexture("img/smoke1.jpg");
-	//this->smokeTex2 = driver->getTexture("img/smoke2.jpg");
 	char c[50];
 	for(int i=0; i<5; i++) {
 		sprintf(c,"img/water%i.png", i+1);
@@ -35,7 +36,7 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 	}
 	#define NFEEDBACKTEX 7
 	for(int i=0; i<NFEEDBACKTEX; i++) {
-		sprintf(c,"img/portal%i.bmp", NFEEDBACKTEX-i);
+		sprintf(c,"img/anim/portal%i.bmp", NFEEDBACKTEX-i);
 		feedbackTex.push_back( driver->getTexture(c) );
 	}
 	#define NEXPLOSIONTEX 36
@@ -48,7 +49,21 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 		sprintf(c,"img/anim/ice_001_%i.png", i+1);
 		ice1.push_back( driver->getTexture(c) );
 	}
-	cout << ice1[0]->getColorFormat() << endl;
+	#define NMAGICTEX 29
+	for(int i=0; i<NMAGICTEX; i++) {
+		sprintf(c,"img/anim/magic1_%i.png", i);
+		magic1.push_back( driver->getTexture(c) );
+	}
+	#define NMAGIC2TEX 35
+	for(int i=0; i<NMAGIC2TEX; i++) {
+		sprintf(c,"img/anim/magic2_%i.png", i);
+		magic2.push_back( driver->getTexture(c) );
+	}	
+	#define NSNOWTEX 3
+	for(int i=0; i<NSNOWTEX; i++) {
+		sprintf(c,"img/snow%i.png", i+1);
+		snowFlakes.push_back( driver->getTexture(c) );
+	}
 	
 	/*IImage *iceSprites = driver->createImageFromFile("img/anim/magic_004.png");
 	int xs = 5, ys=7;
@@ -62,7 +77,7 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 	}*/	
 	
 	
-	scene::IMeshManipulator *manipulator = smgr->getMeshManipulator();
+	IMeshManipulator *manipulator = smgr->getMeshManipulator();
 	
 	shieldmanager = new CShieldManager(smgr,device->getTimer());  
 
@@ -77,7 +92,7 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 		//shields[i]->setScale( vector3df(TRACK_SIZE_X,TRACK_SIZE_Y,7) );
 		
 		shields[i]->setPosition(vector3df(players[i]->track->posx,-TRACK_SIZE_Y/2,players[i]->track->posz));
-		shields[i]->setMaterialFlag(video::EMF_BACK_FACE_CULLING,false);
+		shields[i]->setMaterialFlag(EMF_BACK_FACE_CULLING,false);
 		shields[i]->setMaterialTexture(0,shieldTex0);
 		shields[i]->setMaterialTexture(1,shieldTex1);
 		manipulator->scaleTCoords(shields[i]->getMesh(),core::vector2df(6,6),1);
@@ -135,8 +150,8 @@ void EffectFactory::handleEffectsQueue()
 				break;
 			case EFFECT_THUNDERSTORM:
 				srand(device->getTimer()->getRealTime());
-				for(int i=0; i<50; i++)
-					queueEffect( rand()%3000, EFFECT_THUNDERSTORM_BOLT, target );
+				for(int i=0; i<40; i++)
+					queueEffect( rand()%8000, EFFECT_THUNDERSTORM_BOLT, target );
 				break;
 			case EFFECT_THUNDERSTORM_BOLT:
 				effectThunderstormBolt(target);
@@ -165,7 +180,7 @@ void EffectFactory::handleEffectsQueue()
 				effectSwampEffect(target,8000);
 				break;
 			case EFFECT_BALL_LIGHTNING:
-				effectBallLightningEffect(target,8000);
+				effectBallLightning(target,8000);
 				break;
 			case EFFECT_SUN:
 				effectSun(target,20000);
@@ -176,6 +191,20 @@ void EffectFactory::handleEffectsQueue()
 				break;
 			case EFFECT_DARK_STORM_BOLT:
 				effectDarkStormBolt(target);
+				break;
+			case EFFECT_FREEZE:
+				effectIce(target,10000);
+				break;
+			case EFFECT_BLACKHOLE:
+				effectBlackHole(target,10000);
+				for(int i=0; i<50; i++)
+					queueEffect( 2000 + rand()%8000, EFFECT_BLACKHOLE_BOLT, 1 );
+				break;
+			case EFFECT_BLACKHOLE_BOLT:
+				effectBlackHoleBolt(target);
+				break;
+			case EFFECT_AURORA:
+				effectAurora(target);
 				break;
 		}
 		effectsQueue.erase( effectsQueue.begin() );
@@ -194,12 +223,36 @@ void EffectFactory::effectFeedback( int i )
                                 32,                              // Subdivisions on U axis
                                 32,                              // Subdivisions on V axis
                                 SColor(0, 100, 100, 130), 		// foot color
-                                SColor(0, 0, 0, 0),      		// tail color
+                                SColor(0, 10, 10, 20),      		// tail color
                                 players[i]->track->getCentroid(),
                                 vector3df(-90,0,0),
                                 vector3df(70,40,70));
-	spellEffect->addAnimator( smgr->createTextureAnimator(feedbackTex, 120) );
-	spellEffect->addAnimator( smgr->createDeleteAnimator(NFEEDBACKTEX*120*1.7) );
+	spellEffect->addAnimator( smgr->createTextureAnimator(feedbackTex, 150) );
+	spellEffect->addAnimator( smgr->createDeleteAnimator(NFEEDBACKTEX*150*1.7) );
+}
+
+void EffectFactory::effectAurora( int target )
+{
+	vector3df pos = players[target]->track->getCentroid();
+	
+	/*ISceneNode * bill = smgr->addBillboardSceneNode(smgr->getRootSceneNode(),
+                                core::dimension2d<f32>(70, 70),
+                                pos);
+	bill->setMaterialFlag(EMF_LIGHTING, false);
+	bill->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
+	bill->addAnimator( smgr->createTextureAnimator(ice1, iceAnimTime, false) );
+	bill->addAnimator( smgr->createDeleteAnimator(NICETEX*iceAnimTime) );*/
+	
+	IVolumeLightSceneNode * spellEffect = smgr->addVolumeLightSceneNode(0, -1,
+                                128,                              // Subdivisions on U axis
+                                128,                              // Subdivisions on V axis
+                                SColor(0, 0, 0, 0), 		// foot color
+                                SColor(0, 50, 50, 50),      		// tail color
+                                pos,
+                                vector3df(-90,0,0),
+                                vector3df(40,20,40));
+	spellEffect->addAnimator( smgr->createTextureAnimator(magic1, 80, false) );
+	spellEffect->addAnimator( smgr->createDeleteAnimator(NMAGICTEX*80) );
 }
 
 void EffectFactory::effectIce( int target, int timeMs )
@@ -207,40 +260,71 @@ void EffectFactory::effectIce( int target, int timeMs )
 	vector3df pos = players[target]->track->getCentroid() + vector3df(0,-TRACK_SIZE_Y/2,0);
 	
 	#define iceAnimTime 45
-
-	ISceneNode * bill = smgr->addBillboardSceneNode(smgr->getRootSceneNode(),
-                                core::dimension2d<f32>(70, 70),
-                                pos);
-	bill->setMaterialFlag(video::EMF_LIGHTING, false);
-	bill->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
-	bill->addAnimator( smgr->createTextureAnimator(ice1, iceAnimTime, false) );
-	bill->addAnimator( smgr->createDeleteAnimator(NICETEX*iceAnimTime) );
 	
-	/*IVolumeLightSceneNode * spellEffect = smgr->addVolumeLightSceneNode(0, -1,
-                                64,                              // Subdivisions on U axis
-                                64,                              // Subdivisions on V axis
-                                SColor(100, 100, 100, 130), 		// foot color
-                                SColor(0, 0, 0, 0),      		// tail color
-                                players[i]->track->getCentroid(),
-                                vector3df(-90,0,0),
-                                vector3df(40,20,40));
-	spellEffect->addAnimator( smgr->createTextureAnimator(ice1, 60) );
-	spellEffect->addAnimator( smgr->createDeleteAnimator(NICETEX*60*1.7) );
-	spellEffect->setMaterialType(EMT_TRANSPARENT_ADD_COLOR );*/	
-	
-	IMeshSceneNode* stone = smgr->addMeshSceneNode(iceStone,
+	IAnimatedMeshSceneNode* stone = smgr->addAnimatedMeshSceneNode(stoneMesh1,
 										0,-1,
 										pos,
-										vector3df(-90,0,0)
+										vector3df(-90,0,0),
+										vector3df(0,0,0)
 										);
 	stone->setMaterialTexture( 0, iceTex );
 	stone->setMaterialType(EMT_TRANSPARENT_ALPHA_CHANNEL);
-	stone->setScale( vector3df(100,100,100) );
+	stone->setMaterialFlag(EMF_LIGHTING, false);
 	
-	/*ISceneNodeAnimator* appear = new CSceneNodeAnimatorScale(vector3df(0,0,0), vector3df(30,30,30), 2000, false, device->getTimer()->getTime() );
+	IVolumeLightSceneNode * spellEffect = smgr->addVolumeLightSceneNode(0, -1,
+                                64,                              // Subdivisions on U axis
+                                64,                              // Subdivisions on V axis
+                                SColor(0, 100, 100, 100), 		// foot color
+                                SColor(0, 0, 0, 0),      		// tail color
+                                pos,
+                                vector3df(-90,0,0),
+                                vector3df(35,7,35));
+	spellEffect->addAnimator( smgr->createTextureAnimator(ice1, 80) );
+	spellEffect->addAnimator( smgr->createDeleteAnimator(NICETEX*80) );
+	spellEffect->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
+	
+	#define FINALSCALE vector3df(3,3,2)
+	//stone->setScale( FINALSCALE );
+	
+	#define TIME_ANIM1 700
+	#define TIME_ANIM2 1500
+	ISceneNodeAnimator* appear = new CSceneNodeAnimatorScale(vector3df(2,0,1), FINALSCALE, TIME_ANIM1, false, device->getTimer()->getTime()+1000 );
 	stone->addAnimator( appear );
-	ISceneNodeAnimator* disappear = new CSceneNodeAnimatorScale(vector3df(30,30,30), vector3df(0,0,0), 2000, false, device->getTimer()->getTime()+timeMs-4000 );
-	stone->addAnimator( disappear );*/
+	ISceneNodeAnimator* disappear = new CSceneNodeAnimatorScale(FINALSCALE, vector3df(3,0,0), TIME_ANIM2, false, device->getTimer()->getTime()+timeMs-(TIME_ANIM1+TIME_ANIM2) );
+	stone->addAnimator( disappear );
+	stone->addAnimator( smgr->createDeleteAnimator(timeMs) );
+	
+	for(int i=0; i<3; i++)
+	{
+		// add particle system
+		IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false,0,-1,pos);
+		
+		IParticleEmitter* em = ps->createPointEmitter(
+				vector3df(0,0,-0.02),
+				100,700,
+				SColor(0,200,200,255), SColor(0,255,255,255),
+				1,100+ i*1000,
+				180,
+				dimension2d<f32>(0.5, 0.5),
+				dimension2d<f32>(4, 4));
+		ps->setEmitter(em);
+		em->drop();
+
+		// adjust some material settings
+		ps->setMaterialFlag(EMF_LIGHTING, false);
+		ps->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
+		if(i<2) {
+			ps->setMaterialTexture(0, snowFlakes[i]);
+			ps->setMaterialType(EMT_TRANSPARENT_ALPHA_CHANNEL);
+		}
+		else {
+			ps->setMaterialTexture(0, glowTex);
+			ps->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
+		}
+		
+		new CDeleteParticleAffector(ps, TIME_ANIM1);
+		ps->addAnimator( smgr->createDeleteAnimator(TIME_ANIM1+5000) );
+	}
 }
 
 void EffectFactory::effectExplosion( vector3df pos )
@@ -250,7 +334,7 @@ void EffectFactory::effectExplosion( vector3df pos )
 	ISceneNode * spellEffect = smgr->addBillboardSceneNode(smgr->getRootSceneNode(),
                                 core::dimension2d<f32>(70, 70),
                                 pos);
-	spellEffect->setMaterialFlag(video::EMF_LIGHTING, false);
+	spellEffect->setMaterialFlag(EMF_LIGHTING, false);
 	spellEffect->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
 	spellEffect->addAnimator( smgr->createTextureAnimator(explosion, expTime, false) );
 	spellEffect->addAnimator( smgr->createDeleteAnimator(NEXPLOSIONTEX*expTime) );
@@ -297,20 +381,20 @@ void EffectFactory::effectFireball( array<vector3df> path )
 {
 	float speed = 2;
 	
-	scene::ISceneNode* ball = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), core::dimension2d<f32>(10, 10));
-	ball->setMaterialFlag(video::EMF_LIGHTING, false);
+	ISceneNode* ball = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), core::dimension2d<f32>(10, 10));
+	ball->setMaterialFlag(EMF_LIGHTING, false);
 	ball->setMaterialTexture(0, fireballTex);
-	ball->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+	ball->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
 	
 	// add particle system
-	scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false, ball);
+	IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false, ball);
 
 	//  and set emitter
-	scene::IParticleEmitter* em = ps->createBoxEmitter(
+	IParticleEmitter* em = ps->createBoxEmitter(
 			core::aabbox3d<f32>(-3,0,-3,3,1,3),
 			core::vector3df(0.0f,0.03f,0.0f),
 			80,100,
-			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
+			SColor(0,255,255,255), SColor(0,255,255,255),
 			400,1100);
 	em->setMinStartSize(core::dimension2d<f32>(5.0f, 7.0f));
 	em->setMaxStartSize(core::dimension2d<f32>(5.0f, 7.0f));
@@ -324,10 +408,10 @@ void EffectFactory::effectFireball( array<vector3df> path )
 	ps->addAffector( ps->createFadeOutParticleAffector() );
 
 	// adjust some material settings
-	ps->setMaterialFlag(video::EMF_LIGHTING, false);
-	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialFlag(EMF_LIGHTING, false);
+	ps->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 	ps->setMaterialTexture(0, fireballTex);
-	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	ps->setMaterialType(EMT_TRANSPARENT_VERTEX_ALPHA);
 	
 	// set animators
 	ball->addAnimator( smgr->createFollowSplineAnimator( device->getTimer()->getTime(),path,speed,1,false) );
@@ -340,15 +424,15 @@ void EffectFactory::areaEffect( int player, ITexture *tex, int timeMs )
 	vector3df pos = players[player]->track->getCentroid();
 	
 	// add particle system
-	scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false);
+	IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false);
 	ps->setPosition( pos );	
 	
 	//  and set emitter
-	scene::IParticleEmitter* em = ps->createBoxEmitter(
+	IParticleEmitter* em = ps->createBoxEmitter(
 			core::aabbox3d<f32>(-TRACK_SIZE_X/2,-TRACK_SIZE_Y/2,0,TRACK_SIZE_X/2,TRACK_SIZE_Y/2,1), //minx, miny, minz, maxx, maxy, maxz
 			core::vector3df(0.0f,0.015f,0.0f),
 			180,200,
-			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
+			SColor(0,255,255,255), SColor(0,255,255,255),
 			400,2000);
 	em->setMinStartSize(core::dimension2d<f32>(3.0f, 3.0f));
 	em->setMaxStartSize(core::dimension2d<f32>(6.0f, 6.0f));
@@ -358,10 +442,10 @@ void EffectFactory::areaEffect( int player, ITexture *tex, int timeMs )
 	ps->addAffector( ps->createFadeOutParticleAffector() );
 
 	// adjust some material settings
-	ps->setMaterialFlag(video::EMF_LIGHTING, false);
-	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialFlag(EMF_LIGHTING, false);
+	ps->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 	ps->setMaterialTexture(0, tex);
-	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	ps->setMaterialType(EMT_TRANSPARENT_VERTEX_ALPHA);
 	
 	new CDeleteParticleAffector(ps, timeMs);
 	ps->addAnimator( smgr->createDeleteAnimator(timeMs+1300) );
@@ -372,15 +456,15 @@ void EffectFactory::soloEffect( int player, ITexture *tex, int timeMs )
 	vector3df pos = players[player]->track->getCentroid();
 	
 	// add particle system
-	scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false);
+	IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false);
 	ps->setPosition( pos );	
 	
 	//  and set emitter
-	scene::IParticleEmitter* em = ps->createBoxEmitter(
+	IParticleEmitter* em = ps->createBoxEmitter(
 			core::aabbox3d<f32>(-TRACK_SIZE_X/2,-TRACK_SIZE_Y/2,0,TRACK_SIZE_X/2,TRACK_SIZE_Y/2,0.5), //minx, miny, minz, maxx, maxy, maxz
 			core::vector3df(0.0f,0.015f,0.0f),
 			80,80,
-			video::SColor(0,100,100,255), video::SColor(0,200,100,255),
+			SColor(0,100,100,255), SColor(0,200,100,255),
 			400,2000);			
 	em->setMinStartSize(core::dimension2d<f32>(4.0f, 4.0f));
 	em->setMaxStartSize(core::dimension2d<f32>(6.0f, 6.0f));
@@ -390,10 +474,10 @@ void EffectFactory::soloEffect( int player, ITexture *tex, int timeMs )
 	ps->addAffector( ps->createFadeOutParticleAffector() );
 
 	// adjust some material settings
-	ps->setMaterialFlag(video::EMF_LIGHTING, false);
-	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialFlag(EMF_LIGHTING, false);
+	ps->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 	ps->setMaterialTexture(0, tex);
-	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	ps->setMaterialType(EMT_TRANSPARENT_VERTEX_ALPHA);
 	
 	new CDeleteParticleAffector(ps, timeMs);
 	ps->addAnimator( smgr->createDeleteAnimator(timeMs+500) );
@@ -405,9 +489,9 @@ void EffectFactory::effectBolt( int target )
 	vector3df endPos = players[target]->track->getCentroid() * vector3df(2,1,1);
 	
 	IBillboardSceneNode* ball = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), core::dimension2d<f32>(20, 20));
-	ball->setMaterialFlag(video::EMF_LIGHTING, false);
+	ball->setMaterialFlag(EMF_LIGHTING, false);
 	ball->setMaterialTexture(0, glowTex);
-	ball->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+	ball->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
 	ball->setPosition(initPos);
 	
 	CBoltSceneNode* beam = new CBoltSceneNode(smgr->getRootSceneNode(), smgr, -1, laserTex1, EMT_TRANSPARENT_ADD_COLOR); 
@@ -422,23 +506,28 @@ void EffectFactory::effectBolt( int target )
 
 void EffectFactory::effectThunderstormBolt( int target )
 {
-	vector3df endPos = players[target]->track->getRandomPos();
-	vector3df initPos = endPos + vector3df(0,0,-20);
+	vector3df endPos = players[target]->track->getRandomPos()+vector3df(0,0,10);
+	vector3df initPos = endPos + vector3df(0,0,-30);
 	
-	IBillboardSceneNode* ball = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), core::dimension2d<f32>(20, 20));
-	ball->setMaterialFlag(video::EMF_LIGHTING, false);
+	/*vector3df initPos = players[target]->track->getCentroid() + vector3df(0,0,-30);
+	vector3df endPos = players[target]->track->getRandomPos() + vector3df(0,0,10);*/
+	
+	int time = rand()%1500;
+	
+	IBillboardSceneNode* ball = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), core::dimension2d<f32>(15, 15));
+	ball->setMaterialFlag(EMF_LIGHTING, false);
 	ball->setMaterialTexture(0, glowTex);
-	ball->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+	ball->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
 	ball->setPosition(initPos);
+	ball->addAnimator( smgr->createDeleteAnimator(time) );
 	
 	CBoltSceneNode* beam = new CBoltSceneNode(smgr->getRootSceneNode(), smgr, -1, laserTex1, EMT_TRANSPARENT_ADD_COLOR); 
 	// start, end, updateTime = 300, height = 10, parts = 10, bolts = 1, steddyend = true, thick=5.0f , color
 	beam->setLine( initPos,
 				   endPos,
-				   80, 10, 4, 2, false, 5, SColor(255,0,0,255)); 
+				   80, 7, 6, 2, false, 5, SColor(255,0,0,255)); 
 				   
-	beam->addAnimator( smgr->createDeleteAnimator(1000) );
-	ball->addAnimator( smgr->createDeleteAnimator(1000) );
+	beam->addAnimator( smgr->createDeleteAnimator(time) );
 }
 
 void EffectFactory::effectEletrifiedGround( int targetPlayer, int timeMs )
@@ -458,9 +547,9 @@ void EffectFactory::effectEletrifiedGround( int targetPlayer, int timeMs )
 void EffectFactory::effectWaterBeam( int targetPlayer )
 {
 	vector3df initPos = players[!targetPlayer]->track->getCentroid()  + vector3df(0,0,-20);
-	vector3df direction(targetPlayer*2-1,0,1);
+	vector3df direction(targetPlayer*2-1,-1,0);
 	
-	new CBloodEffect(device->getSceneManager(), waterTex, EGL_INSANE, initPos, direction, 3000);
+	new CBloodEffect(device->getSceneManager(), waterTex, EGL_INSANE, initPos, direction, 2000);
 }
 
 void EffectFactory::effectFloodEffect( int player )
@@ -471,13 +560,13 @@ void EffectFactory::effectFloodEffect( int player )
 	for(int i=0; i<5; i++)
 	{
 		// add particle system
-		scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false,0,-1,pos);
+		IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false,0,-1,pos);
 		
-		scene::IParticleEmitter* em = ps->createBoxEmitter(
+		IParticleEmitter* em = ps->createBoxEmitter(
 				core::aabbox3d<f32>(-TRACK_SIZE_X/2,-TRACK_SIZE_Y/2,0,TRACK_SIZE_X/2,TRACK_SIZE_Y/2,1), //minx, miny, minz, maxx, maxy, maxz
 				core::vector3df(0.0f,0.015f,0.0f),
 				20,80,
-				video::SColor(0,255,255,255), video::SColor(0,255,255,255),
+				SColor(0,255,255,255), SColor(0,255,255,255),
 				400,3000,
 				10,
 				dimension2d<f32>(0.5f, 0.5f),
@@ -507,9 +596,9 @@ void EffectFactory::effectSwampEffect( int player, int timeMs )
 	for(int i=0; i<5; i++)
 	{
 		// add particle system
-		scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false,0,-1,pos);
+		IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false,0,-1,pos);
 		
-		scene::IParticleEmitter* em = ps->createBoxEmitter(
+		IParticleEmitter* em = ps->createBoxEmitter(
 				aabbox3d<f32>(-TRACK_SIZE_X/2,-TRACK_SIZE_Y/2,0,TRACK_SIZE_X/2,TRACK_SIZE_Y/2,1), //minx, miny, minz, maxx, maxy, maxz
 				vector3df(0.0f,0.002f,0.0f),
 				20,30,
@@ -562,13 +651,13 @@ void EffectFactory::effectDrunkEffect ( int targetPlayer, int times )
 void EffectFactory::effectParticlesExplosion( vector3df pos, ITexture *tex )
 {
 	// add particle system
-	scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false,0,-1,pos);
+	IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false,0,-1,pos);
 	
 	//  and set emitter
-	scene::IParticleEmitter* em = ps->createPointEmitter(
+	IParticleEmitter* em = ps->createPointEmitter(
 			core::vector3df(0.0f,0.08f,0.0f),
 			20,40, // particles/second
-			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
+			SColor(0,255,255,255), SColor(0,255,255,255),
 			100,300, // lifetime
 			10,
 			dimension2d<f32>(0.5, 0.5),
@@ -581,16 +670,16 @@ void EffectFactory::effectParticlesExplosion( vector3df pos, ITexture *tex )
 	ps->addAffector( ps->createGravityAffector(vector3df(0, -0.25, 0)) );
 
 	// adjust some material settings
-	ps->setMaterialFlag(video::EMF_LIGHTING, false);
-	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialFlag(EMF_LIGHTING, false);
+	ps->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 	ps->setMaterialTexture(0, tex);
-	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	ps->setMaterialType(EMT_TRANSPARENT_VERTEX_ALPHA);
 	
 	new CDeleteParticleAffector(ps, 100);
 	ps->addAnimator( smgr->createDeleteAnimator(1000) );	
 }
 
-void EffectFactory::effectBallLightningEffect( int target, int timeMs )
+void EffectFactory::effectBallLightning( int target, int timeMs )
 {
 	vector3df initPos = players[target]->track->getCentroid() + vector3df(0,0,-15);
 	
@@ -598,13 +687,13 @@ void EffectFactory::effectBallLightningEffect( int target, int timeMs )
 	ball->setPosition(initPos);
 	ball->addAnimator( smgr->createDeleteAnimator(timeMs) );
 
-	scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false,ball);
+	IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false,ball);
 	
 	//  and set emitter
-	scene::IParticleEmitter* em = ps->createPointEmitter(
+	IParticleEmitter* em = ps->createPointEmitter(
 			core::vector3df(0.0f,0.0f,0.1f),
 			200,400, // particles/second
-			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
+			SColor(0,200,200,255), SColor(0,200,200,255),
 			300,300, // lifetime
 			360,
 			dimension2d<f32>(1, 1),
@@ -612,18 +701,19 @@ void EffectFactory::effectBallLightningEffect( int target, int timeMs )
 			);
 	ps->setEmitter(em);
 	em->drop();
+	
 	// adjust some material settings
-	ps->setMaterialFlag(video::EMF_LIGHTING, false);
-	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialFlag(EMF_LIGHTING, false);
+	ps->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 	ps->setMaterialTexture(0, glowTex);
-	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	ps->setMaterialType(EMT_TRANSPARENT_VERTEX_ALPHA);
 	new CDeleteParticleAffector(ps, timeMs);
 	ps->addAnimator( smgr->createDeleteAnimator(timeMs) );	
 	
 	/*IBillboardSceneNode* glow = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), core::dimension2d<f32>(40, 40));
-	glow->setMaterialFlag(video::EMF_LIGHTING, false);
+	glow->setMaterialFlag(EMF_LIGHTING, false);
 	glow->setMaterialTexture(0, feedbackTex[5]);
-	glow->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+	glow->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
 	glow->setPosition(initPos);
 	glow->addAnimator( smgr->createDeleteAnimator(timeMs) );
 	glow->addAnimator( smgr->createTextureAnimator(feedbackTex, 80) );*/
@@ -648,41 +738,58 @@ void EffectFactory::effectSun( int target, int timeMs )
 	ISceneNode* ball = smgr->addSphereSceneNode(1, 32, smgr->getRootSceneNode(), -1, pos, vector3df(90,0,0));
 	ball->getMaterial(0).EmissiveColor = SColor(0,255,255,80);
 	
-	// add particle system
-	IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false, ball);
+	for(int i=0; i<3; i++) {
+		// add particle system
+		IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false, ball);
 
-	//  and set emitter
-	IParticleEmitter* em = ps->createSphereEmitter(
-			vector3df(0,0,0), 0.8,
-			vector3df(0.001,0.001,0.001),
-			1500,2500,
-			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
-			100,2000,
-			360,
-			dimension2d<f32>(0.0f, 0.0f),
-			dimension2d<f32>(8.0f, 8.0f) );
-	ps->setEmitter(em);
-	em->drop();
+		//  and set emitter
+		IParticleEmitter* em = ps->createSphereEmitter(
+				vector3df(0,0,0), 0.8,
+				vector3df(0.001,0.001,0.001),
+				1500/3,2500/3,
+				SColor(0,255,255,255), SColor(0,255,255,255),
+				100,2000,
+				360,
+				dimension2d<f32>(0.0f, 0.0f),
+				dimension2d<f32>(8.0f, 8.0f) );
+		ps->setEmitter(em);
+		em->drop();
 
+		// adjust some material settings
+		ps->setMaterialFlag(EMF_LIGHTING, false);
+		ps->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
+		ps->setMaterialTexture(0, fireballTex);
+		ps->setMaterialType(EMT_TRANSPARENT_VERTEX_ALPHA);
+		
+		new CDeleteParticleAffector(ps, timeMs/3 * (i+1));
+	}
+	
 	//  a lens flare node
 	CLensFlareSceneNode* lensFlare = new CLensFlareSceneNode(ball, smgr, -1);
-	lensFlare->getMaterial(0).setTexture(0, lensFlareTex);
-
-	// adjust some material settings
-	ps->setMaterialFlag(video::EMF_LIGHTING, false);
-	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
-	ps->setMaterialTexture(0, fireballTex);
-	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	lensFlare->getMaterial(0).setTexture(0, lensFlareTex);	
 	
 	// set animators
-	ISceneNodeAnimator* appear = new CSceneNodeAnimatorScale(vector3df(0,0,0), vector3df(30,30,30), 1000, false, device->getTimer()->getTime() );
+	ISceneNodeAnimator* appear = new CSceneNodeAnimatorScale(vector3df(0,0,0), vector3df(30,30,30), 1500, false, device->getTimer()->getTime() );
 	ball->addAnimator( appear );
-	ISceneNodeAnimator* disappear = new CSceneNodeAnimatorScale(vector3df(30,30,30), vector3df(0,0,0), timeMs, false, device->getTimer()->getTime()+1000 );
+	ISceneNodeAnimator* disappear = new CSceneNodeAnimatorScale(vector3df(30,30,30), vector3df(0,0,0), timeMs, false, device->getTimer()->getTime()+1500 );
 	ball->addAnimator( disappear );
-	new CDeleteParticleAffector(ps, timeMs);
 	lensFlare->addAnimator( smgr->createFlyCircleAnimator( vector3df(0,0,0), 0.1) );
 	lensFlare->addAnimator( smgr->createDeleteAnimator( timeMs ) );
 	ball->addAnimator( smgr->createDeleteAnimator( timeMs+5000 ) );
+}
+
+void EffectFactory::effectBlackHoleBolt( int target )
+{
+	vector3df initPos = players[target]->track->getCentroid() + vector3df(0,0,-10);
+	vector3df endPos = initPos + vector3df(rand()%120-60, rand()%120-60, rand()%120-60);
+	
+	CBoltSceneNode* beam = new CBoltSceneNode(smgr->getRootSceneNode(), smgr, -1, laserTex3, EMT_TRANSPARENT_ALPHA_CHANNEL); 
+	// start, end, updateTime, height, parts, bolts, steddyend = true, thick=5.0f , color
+	beam->setLine( initPos,
+				   endPos,
+				   100, 6, 7, 1, false, 6, SColor(0,0,0,255)); 
+				   
+	beam->addAnimator( smgr->createDeleteAnimator(1000+rand()%3000) );
 }
 
 void EffectFactory::effectBlackHole( int target, int timeMs )
@@ -690,32 +797,42 @@ void EffectFactory::effectBlackHole( int target, int timeMs )
 	vector3df pos = players[target]->track->getCentroid() + vector3df(0,0,-10);
 	
 	ISceneNode* ball = smgr->addSphereSceneNode(1, 64, smgr->getRootSceneNode(), -1, pos, vector3df(0,0,0) );
-	ball->setMaterialFlag(video::EMF_LIGHTING, false);
-	ball->setMaterialTexture(0, blackTex);
+	ball->setMaterialFlag(EMF_LIGHTING, false);
+	ball->setMaterialTexture(0, starTex);
+	//ball->getMaterial(0).getTextureMatrix(0).setTextureScale(4,4);
 	
-	/*// add particle system
+	IBillboardSceneNode* glow = smgr->addBillboardSceneNode(ball, core::dimension2d<f32>(30, 30));
+	glow->setMaterialFlag(EMF_LIGHTING, false);
+	glow->setMaterialTexture(0, glowTex);
+	glow->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
+	glow->addAnimator( smgr->createDeleteAnimator(timeMs) );
+	
+	// add particle system
 	IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false, ball);
 	//  and set emitter
-	IParticleEmitter* em = ps->SphereEmitter(
-			vector3df(0,0,0), 0.8,
-			vector3df(0.001,0.001,0.001),
-			1500,2500,
-			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
-			100,2000,
+	ps->setEmitter( ps->createPointEmitter(
+			vector3df(0.01,0.01,0.01),
+			10,300,
+			SColor(0,255,255,255), SColor(0,255,255,255),
+			1000,3000,
 			360,
-			dimension2d<f32>(0.0f, 0.0f),
-			dimension2d<f32>(8.0f, 8.0f) );
-	ps->setEmitter(em);
-	em->drop();
-	// adjust some material settings
-	ps->setMaterialFlag(video::EMF_LIGHTING, false);
-	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
-	ps->setMaterialTexture(0, fireballTex);
-	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
-	new CDeleteParticleAffector(ps, timeMs);*/
+			dimension2d<f32>(10.0f, 10.0f),
+			dimension2d<f32>(15.0f, 15.0f) ));
+			
+	ps->setMaterialFlag(EMF_LIGHTING, false);
+	ps->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialTexture(0, glowTex3);
+	ps->setMaterialType(EMT_TRANSPARENT_ALPHA_CHANNEL);
+	
+	//ball->addAnimator( smgr->createRotationAnimator(vector3df(0.2,0.3,0.5)) );
+	
+	ps->addAffector( ps->createScaleParticleAffector(dimension2df(-10,-10)) );
+	//ps->addAffector( ps->createScaleParticleAffector(dimension2df(11,11)) );
+	//ps->addAffector( ps->createAttractionAffector( pos, 70 ) );
+	new CDeleteParticleAffector(ps, timeMs);
 	
 	// set animators
-	ISceneNodeAnimator* appear = new CSceneNodeAnimatorScale(vector3df(0,0,0), vector3df(25,0,25), timeMs-1000, false, device->getTimer()->getTime() );
+	ISceneNodeAnimator* appear = new CSceneNodeAnimatorScale(vector3df(0,0,0), vector3df(10,10,10), timeMs-1000, false, device->getTimer()->getTime() );
 	ball->addAnimator( appear );
 	//ISceneNodeAnimator* disappear = new CSceneNodeAnimatorScale(vector3df(25,25,25), vector3df(0,0,0), 1000, false, device->getTimer()->getTime()+timeMs );
 	//ball->addAnimator( disappear );
@@ -739,31 +856,38 @@ void EffectFactory::effectDarkStormBolt( int target )
 void EffectFactory::effectVampireAttack( int target, int timeMs )
 {
 	vector3df pos = players[target]->track->getCentroid();
+	vector3df pos2 = players[!target]->track->getCentroid()+vector3df(0,0,-10);
 	
+	CBoltSceneNode* beam = new CBoltSceneNode(smgr->getRootSceneNode(), smgr, -1, laserTex2, EMT_TRANSPARENT_ALPHA_CHANNEL); 
+	// start, end, updateTime, height, parts, bolts, steddyend = true, thick=5.0f , color
+	beam->setLine( pos,
+				   pos2,
+				   150, 4, 6, 3, true, 10, SColor(0,0,0,255)); 
+	beam->addAnimator( smgr->createDeleteAnimator(timeMs+2500) );
+
 	// add particle system
-	scene::IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false);
+	IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false);
 	ps->setPosition( pos );	
 	
 	//  and set emitter
-	scene::IParticleEmitter* em = ps->createBoxEmitter(
+	ps->setEmitter( ps->createBoxEmitter(
 			core::aabbox3d<f32>(-TRACK_SIZE_X/2,-TRACK_SIZE_Y/2,0,TRACK_SIZE_X/2,TRACK_SIZE_Y/2,1), //minx, miny, minz, maxx, maxy, maxz
-			core::vector3df(0.0f,0.0f,0.0f),
-			500,700,
-			video::SColor(0,255,255,255), video::SColor(0,255,255,255),
-			700,700);
-	em->setMinStartSize(core::dimension2d<f32>(2.0f, 2.0f));
-	em->setMaxStartSize(core::dimension2d<f32>(4.0f, 4.0f));
-	ps->setEmitter(em);
-	em->drop();
-
-	ps->addAffector( ps->createGravityAffector(vector3df(0, 0, -0.1)) );
+			core::vector3df(0.02f,0.02f,0.02f),
+			100,300,
+			SColor(0,255,255,255), SColor(0,255,255,255),
+			2000,2000,
+			180,
+			dimension2d<f32>(2.0f, 2.0f),
+			dimension2d<f32>(4.0f, 4.0f)
+			));
+	ps->addAffector( ps->createAttractionAffector( pos2, 70 ) );
 
 	// adjust some material settings
-	ps->setMaterialFlag(video::EMF_LIGHTING, false);
-	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialFlag(EMF_LIGHTING, false);
+	ps->setMaterialFlag(EMF_ZWRITE_ENABLE, false);
 	ps->setMaterialTexture(0, glowTex);
-	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	ps->setMaterialType(EMT_TRANSPARENT_VERTEX_ALPHA);
 	
 	new CDeleteParticleAffector(ps, timeMs);
-	ps->addAnimator( smgr->createDeleteAnimator(timeMs+3000) );
+	ps->addAnimator( smgr->createDeleteAnimator(timeMs+5000) );
 }

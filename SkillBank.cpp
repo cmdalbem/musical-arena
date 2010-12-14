@@ -99,7 +99,7 @@ void SkillBank::makeSkills()
 	/////////////////////////////	
 	{
 		buttonType k[] = {B1,B2,B5,B4,B1,B2,B5,B4};
-		effectStruct e[] = {{T_HEAL, 50, -1},{T_ANTIDOTE, -1}};
+		effectStruct e[] = {{T_HEAL, 200, -1},{T_ANTIDOTE, -1}};
 		Skill s("Cure", DEFENSE, S_MAGIC1, 70, SPIRITUAL, e, 2, EFFECT_GLOW_AREA, k, 8, "Cures all illness of the body and soul.");
 		skills[CURE] = s;
 	}
@@ -118,7 +118,7 @@ void SkillBank::makeSkills()
 		skills[MIRROR] = s;
 	}
 	{
-		buttonType k[] = {B4,B5,B3,B4,B5,B3};
+		buttonType k[] = {B4,B5,B3,B4,B1,B2};
 		effectStruct e[] = {{T_CLEAR_STONES, -1, -1}};
 		Skill s("Divine Silence", DEFENSE, S_FIRERUMBLE, 130, SPIRITUAL, e, 1, EFFECT_GLOW_AREA, k, 6,
 		"...");
@@ -152,9 +152,9 @@ void SkillBank::makeSkills()
 	{
 		buttonType k[] = {B4,B4,B5,B5,B3,B3,B2,B2,B1,B1};
 		effectStruct e[] = {};
-		Skill s("Worm Hole", ATTACK, S_HORROR2, 90, DARK, e, 0, EFFECT_GLOW_AREA, k, 10,
-		"A sweet trip in the eleventh dimension.");
-		skills[WORM_HOLE] = s;
+		Skill s("Black Hole", ATTACK, S_HORROR2, 90, DARK, e, 0, EFFECT_GLOW_AREA, k, 10,
+		"");
+		skills[BLACK_HOLE] = s;
 	}
 	
 	
@@ -163,7 +163,7 @@ void SkillBank::makeSkills()
 	/////////////////////////////
 	{
 		buttonType k[] = {B3,B4,B5,B3,B4,B5};
-		effectStruct e[] = {{T_DAMAGE, 50, -1},{T_STAMINA_DOWN, 50, -1}};
+		effectStruct e[] = {{T_DAMAGE, 50, -1},{T_STAMINA_DOWN, 60, -1}};
 		Skill s("Water Beam", ATTACK, S_STREAM2, 30, WATER, e, 2, EFFECT_WATER_BEAM, k, 6,
 		"TORTOOOOOOOIIIIIIIIISEEEEEEEEEEEEEEEEEEEEEEEEEE");
 		skills[WATER_BEAM] = s;
