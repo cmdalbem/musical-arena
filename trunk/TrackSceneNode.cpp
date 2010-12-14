@@ -25,7 +25,6 @@ TrackSceneNode::TrackSceneNode(scene::ISceneNode* parent, scene::ISceneManager* 
 					video::SColor(255,255,255,2555), 0, 1);
 	Vertices[3] = video::S3DVertex(sizex/2+2,-sizey,0, 0,0,-1,
 					video::SColor(255,255,255,255), 1, 1);
-					//video::SColor(255,84,36,55), 0, 0);
 					
 	Box.reset(Vertices[0].Pos);
 	for (s32 i=1; i<4; ++i)
@@ -35,7 +34,6 @@ TrackSceneNode::TrackSceneNode(scene::ISceneNode* parent, scene::ISceneManager* 
 	Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 	Material.setTexture(0, driver->getTexture("img/neck_alpha.png")); 
 	Material.setFlag(video::EMF_TEXTURE_WRAP, video::ETC_REPEAT);
-	//Material.setFlag(video::EMF_ZWRITE_ENABLE, false);
 	Material.getTextureMatrix(0).setTextureScale(1,NECK_TEXTURE_PROPORTION);
 }
 

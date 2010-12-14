@@ -35,11 +35,12 @@ Screen::Screen( IrrlichtDevice *_device, double *_musicTime, Player* player1, Pl
 	
 	initializeScreenElements();
 	
-	//effectFactory->effectIce(1,10000);
+	//effectFactory->queueEffect( 2000, EFFECT_FREEZE, 1 );
+	//effectFactory->effectVampireAttack(1,5000);
+	//effectFactory->queueEffect( 1000, EFFECT_EXPLOSION, 1 );
 	
-	//effectFactory->effectVampireAttack(1,2000);
-					
-	//effectFactory->effectBlackHole(1,10000);
+	//effectFactory->queueEffect( 1000, EFFECT_BLACKHOLE, 1 );
+	
 	//effectFactory->queueEffect( 1000, EFFECT_SUN, 1 );
 	//effectFactory->queueEffect( 0, _BALL_LIGHTNING, 0 );
 	//effectFactory->queueEffect( 0, _SWAMP_EFFECT, 1 );
