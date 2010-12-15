@@ -90,16 +90,15 @@ void castSpell ()
 					case DEFENSE:
 						screen->effectFactory->queueEffect(0, casted->effectFunction, i);
 						break;
-					case GLOBAL:
-						screen->effectFactory->queueEffect(0, casted->effectFunction, !i);
-						screen->effectFactory->queueEffect(0, casted->effectFunction, i);
-						break;
 				}
 
 				for (unsigned int j = 0; j < casted->effects.size(); j++)
 				{
 					switch (casted->effects[j].type)
 					{
+					case T_DEFENSE_UP:
+						player[i].changeArmor( casted->effects[j].param1 );
+						break;
 					case T_INVENCIBLE:
 						player[i].status = ST_INVENCIBLE;
 						player[i].timeInStatus = casted->effects[j].param1;
@@ -116,7 +115,7 @@ void castSpell ()
 						player[!i].takeDamage(casted->effects[j].param1);
 						break;
 					case T_DEFENSE_DOWN:
-						player[!i].decreaseArmor(casted->effects[j].param1);						
+						player[!i].changeArmor( - casted->effects[j].param1 );
 						break;
 					case T_HEAL:
 						player[i].recoverHP(casted->effects[j].param1);
@@ -164,6 +163,17 @@ void castSpell ()
 						break;
 					case T_CLEAR_STONES:
 						player[i].track->destroyAllStones();
+						break;
+					case T_FREEZE:
+						player[!i].status = ST_FROZEN;
+						player[!i].timeInStatus = casted->effects[j].param1;
+						break;
+					case T_VAMPIRIC:
+						player[i].recoverHP( player[!i].takeDamage(casted->effects[j].param1) );
+						break;
+					case T_BLESS:
+						player[i].status = ST_BLESSED;
+						player[i].timeInStatus = casted->effects[j].param1;
 						break;
 					}
 				}
@@ -440,7 +450,7 @@ int main(int argc, char *argv[])
 	
 	soundBank->playSelectedMusic();
 
-	
+	ITexture *bgPic = driver->getTexture("img/bgs/bg20.jpg");
 	SColor bgColor = SColor(0,113,113,133);
 	/* 
 	 * Irrlicht Main Loop
@@ -448,7 +458,7 @@ int main(int argc, char *argv[])
 	while(device->run()) {
 		
 		driver->beginScene(true, true, bgColor);
-		ITexture *bgPic = driver->getTexture("img/bgs/bg20.jpg");
+		
 		driver->draw2DImage( bgPic, recti(position2di(0,0),
 							position2di(SCREENX,SCREENY)),
 							recti(position2di(0,0),bgPic->getOriginalSize()) );

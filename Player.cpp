@@ -136,15 +136,23 @@ void Player::update()
 	}
 }
 
-void Player::takeDamage( double damage )
+double Player::takeDamage( double damage )
 {
-	damage -= armor;
-	
-	if( damage>0 ) {
-		damageTaken = damage; //used in Screen
-		HP = HP - damage;
-		if (HP < 0)
-			HP = 0;
+	if( status==ST_BLESSED ) {
+		recoverHP(damage);
+		return 0;
+	}
+	else {
+		damage -= armor;
+		
+		if( damage>0 ) {
+			damageTaken = damage; //used in Screen
+			HP = HP - damage;
+			if (HP < 0)
+				HP = 0;
+		}
+		
+		return damage;
 	}
 }
 
@@ -169,10 +177,10 @@ int Player::getArmor()
 	return armor;
 }
 
-void Player::decreaseArmor( double howMuch )
+void Player::changeArmor( double howMuch )
 {
-	instrument->armor -= howMuch;
-	armor -= howMuch;
+	instrument->armor += howMuch;
+	armor += howMuch;
 	
 	if( instrument->armor < 0 )
 		instrument->armor = 0;
@@ -199,7 +207,7 @@ void Player::updateStatus()
 			takeDamage(8);
 			break;
 		case ST_INVENCIBLE:
-			armor = INT_MAX;
+			armor = 9999;
 			break;
 		case ST_MAGIC_BARRIER:
 			hasMagicBarrier = true;
@@ -207,9 +215,18 @@ void Player::updateStatus()
 		case ST_MIRROR:
 			hasMirror = true;
 			break;
-		case ST_ELETRIFIED:
+		case ST_ELETRIFIED: {
+			int k, times=2;
+			for(int i=0; i<NFRETS; i++) {					
+				for(int xtimes=0;xtimes<times; xtimes++)
+					if(track->stones[i].size()) {
+						k = rand()%track->stones[i].size();
+						track->stones[i][k]->displace = vector3df(rand()%4-2,0,0);
+					}
+			}
 			takeDamage(13);
 			break;
+		}
 		case ST_DROWNED:
 			changeStamina(-7);
 			if (stamina == 0)
@@ -229,6 +246,9 @@ void Player::updateStatus()
 					track->setSpeed( rand()%50 + 1 );
 				}
 			}
+			break;
+		case ST_BLESSED:
+			//look in takeDamage()
 			break;
 		
 	}

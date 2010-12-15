@@ -41,7 +41,7 @@ void SkillBank::makeSkills()
 	{
 		buttonType k[] = {B5,B4,B3,B2,B1,B5,B4,B3,B2,B1,B5,B4,B3,B2,B1};
 		effectStruct e[] = {{T_DAMAGE, 120, -1},{T_DEFENSE_DOWN, 2, 5},{T_BURN, 15, -1}};
-		Skill s("Fire Rain", ATTACK, S_EXPLOSION, 150, FIRE, e, 3, EFFECT_FIRE_RAIN, k, 15,
+		Skill s("Fire Rain", ATTACK, S_FIRESTORM, 150, FIRE, e, 3, EFFECT_FIRE_RAIN, k, 15,
 		"The skies are on fire! Causes damage, lowers defense and put your enemy on fire. Also, all that fire makes the fretting harder to see...");
 		skills[FIRE_RAIN] = s;
 	}
@@ -58,6 +58,13 @@ void SkillBank::makeSkills()
 		Skill s("Sunbirth", ATTACK, S_BIG, 200, FIRE, e, 2, EFFECT_SUN, k, 16,
 		"");
 		skills[SUNBIRTH] = s;
+	}
+	{
+		buttonType k[] = {B1,B2,B1,B3,B1,B4,B1,B5};
+		effectStruct e[] = {{T_DAMAGE, 300, -1},{T_DEFENSE_DOWN, 3, 6}};
+		Skill s("Explosion", ATTACK, S_EXPLOSION, 250, FIRE, e, 2, EFFECT_EXPLOSION, k, 8,
+		"A big explosion comes from the ground! Causes lots of damage, lowers the defense and knocks the enemy into the ground, causing him to lose stamina");
+		skills[EXPLOSION] = s;
 	}	
 	
 	
@@ -80,18 +87,18 @@ void SkillBank::makeSkills()
 	}
 	{
 		buttonType k[] = {B1,B3,B4,B5,B1,B3,B4,B5,B1,B3,B4,B5};
-		effectStruct e[] = {{T_DAMAGE, 200, -1},{T_ELETRIFY, 4, 0.05}};
-		Skill s("Thunder Storm", ATTACK, S_STORM, 190, THUNDER, e, 2, EFFECT_THUNDERSTORM, k, 12,
+		effectStruct e[] = {{T_DAMAGE, 200, -1},{T_ELETRIFY, 8, 0.05},{T_SPEED_UP, 4, -1}};
+		Skill s("Thunder Storm", ATTACK, S_STORM, 190, THUNDER, e, 3, EFFECT_THUNDERSTORM, k, 12,
 		"A powerfull thunder storm which causes a lot of damage and yet eletrifies the opponent.");
 		skills[THUNDERSTORM] = s;
 	}
 	{
 		buttonType k[] = {B3,B3,B4,B4,B5,B5};
-		effectStruct e[] = {{T_CHAOTIC_SPEED, 8, -1}/*,{T_ELETRIFY, 8, 0.05}*/};
+		effectStruct e[] = {{T_CHAOTIC_SPEED, 8, -1}};
 		Skill s("Ball Lightning", ATTACK, S_ELECTRIC1, 110, THUNDER, e, 1, EFFECT_BALL_LIGHTNING, k, 6,
 		"And ancient tecnique, taught by the Zen masters who could also control Thunder. It shummons an electric begin from another dimension, which can eletrify the body and the mind of the opponent.");
 		skills[BALL_LIGHTNING] = s;
-	}	
+	}
 	
 	
 	/////////////////////////////
@@ -99,51 +106,31 @@ void SkillBank::makeSkills()
 	/////////////////////////////	
 	{
 		buttonType k[] = {B1,B2,B5,B4,B1,B2,B5,B4};
-		effectStruct e[] = {{T_HEAL, 200, -1},{T_ANTIDOTE, -1}};
-		Skill s("Cure", DEFENSE, S_MAGIC1, 70, SPIRITUAL, e, 2, EFFECT_GLOW_AREA, k, 8, "Cures all illness of the body and soul.");
-		skills[CURE] = s;
+		effectStruct e[] = {{T_HEAL, 200, -1},{T_ANTIDOTE, -1, -1},{T_DEFENSE_UP, 2, -1}};
+		Skill s("Inspiration", DEFENSE, S_MAGIC1, 70, SPIRITUAL, e, 3, EFFECT_GLOW_AREA, k, 8, "Cures all illness of the body and soul.");
+		skills[INSPIRATION] = s;
 	}
 	{
-		buttonType k[] = {B1,B3,B2,B4};
-		effectStruct e[] = {{T_FEEDBACK, -1, -1}};
-		Skill s("Feedback", ATTACK, S_MAGIC2, 170, SPIRITUAL, e, 1, EFFECT_FEEDBACK, k, 4,
-		"From the world of Starcraft, this will make your enemy pretty irritated when he was so much time saving his stamina...");
-		skills[FEEDBACK] = s;
-	}	
-	{
-		buttonType k[] = {B1,B2,B3,B4,B5,B5,B4,B3,B2,B1};
-		effectStruct e[] = {{T_MIRROR, 4, -1}};
-		Skill s("Mirror", DEFENSE, S_DIGITAL, 120, SPIRITUAL, e, 1, EFFECT_SHIELD, k, 10,
+		buttonType k[] = {B1,B2,B3,B4,B5,B5,B4,B3,B2,B1,B1,B2,B3,B4,B5};
+		effectStruct e[] = {{T_MIRROR, 4, -1},{T_DEFENSE_UP, 2, -1}};
+		Skill s("Mirror", DEFENSE, S_DIGITAL, 120, SPIRITUAL, e, 2, EFFECT_SHIELD, k, 15,
 		"... Still, be like a mirror. Respond like an echo.");
 		skills[MIRROR] = s;
 	}
 	{
-		buttonType k[] = {B4,B5,B3,B4,B1,B2};
-		effectStruct e[] = {{T_CLEAR_STONES, -1, -1}};
-		Skill s("Divine Silence", DEFENSE, S_FIRERUMBLE, 130, SPIRITUAL, e, 1, EFFECT_GLOW_AREA, k, 6,
+		buttonType k[] = {B4,B5,B3,B4,B5,B1,B2};
+		effectStruct e[] = {{T_CLEAR_STONES, -1, -1},{T_DEFENSE_UP, 2, -1}};
+		Skill s("Divine Silence", DEFENSE, S_FIRERUMBLE, 160, SPIRITUAL, e, 2, EFFECT_GLOW_AREA, k, 7,
 		"...");
 		skills[DIVINE_SILENCE] = s;
 	}
-	
-	
-	/////////////////////////////
-	// ECO
-	/////////////////////////////	
 	{
-		buttonType k[] = {B1,B2,B1,B3,B1,B4,B1,B5,B5,B5};
-		effectStruct e[] = {{T_DAMAGE, 300, -1},{T_DEFENSE_DOWN, 3, 6},{T_STAMINA_DOWN, 25, -1}};
-		Skill s("Earth Explosion", ATTACK, S_EXPLOSION, 250, ECO, e, 3, EFFECT_EXPLOSION, k, 10,
-		"A big explosion comes from the ground! Causes lots of damage, lowers the defense and knocks the enemy into the ground, causing him to lose stamina");
-		skills[EXPLOSION] = s;
+		buttonType k[] = {B4,B5,B3,B4,B5,B3};
+		effectStruct e[] = {{T_BLESS, 5, -1},{T_DEFENSE_UP, 3, -1}};
+		Skill s("Aurora", DEFENSE, S_MAGIC1, 270, SPIRITUAL, e, 2, EFFECT_AURORA, k, 6,
+		"A beautifull bless.");
+		skills[AURORA] = s;
 	}
-	/*{
-		buttonType k[] = {B1,B2,B1,B3,B1,B4,B1,B5,B5,B5};
-		effectStruct e[] = {{T_INVENCIBLE, 300, -1},{T_DEFENSE_DOWN, 3, 6},{T_STAMINA_DOWN, 25, -1}};
-		Skill s("Ancient Shield", DEFENSE, S_EXPLOSION, 250, ECO, e, 3, EFFECT_EXPLOSION, k, 10,
-		"A big explosion comes from the ground! Causes lots of damage, lowers the defense and knocks the enemy into the ground, causing him to lose stamina");
-		skills[EXPLOSION] = s;
-	}	*/
-	// Create some forest-related skills here!
 	
 	
 	/////////////////////////////
@@ -151,20 +138,41 @@ void SkillBank::makeSkills()
 	/////////////////////////////	
 	{
 		buttonType k[] = {B4,B4,B5,B5,B3,B3,B2,B2,B1,B1};
-		effectStruct e[] = {};
-		Skill s("Black Hole", ATTACK, S_HORROR2, 90, DARK, e, 0, EFFECT_GLOW_AREA, k, 10,
+		effectStruct e[] = {{T_CURSE, 10, -1}};
+		Skill s("Soul Corruption", ATTACK, S_HORROR1, 90, DARK, e, 0, EFFECT_GLOW_AREA, k, 10,
 		"");
-		skills[BLACK_HOLE] = s;
+		skills[SOUL_CORRUPTION] = s;
 	}
+	{
+		buttonType k[] = {B1,B3,B2,B4};
+		effectStruct e[] = {{T_FEEDBACK, -1, -1}};
+		Skill s("Feedback", ATTACK, S_MAGIC2, 170, DARK, e, 1, EFFECT_FEEDBACK, k, 4,
+		"From the world of Starcraft, this will make your enemy pretty irritated when he was so much time saving his stamina...");
+		skills[FEEDBACK] = s;
+	}
+	{
+		buttonType k[] = {B5,B4,B3,B3,B4,B5,B5,B4,B3,B2,B1,B1,B1};
+		effectStruct e[] = {{T_VAMPIRIC, 100, -1}};
+		Skill s("Vampiric", ATTACK, S_HORROR2, 90, DARK, e, 1, EFFECT_VAMPIRIC, k, 13,
+		"");
+		skills[VAMPIRIC] = s;
+	}	
+	/*{
+		buttonType k[] = {B1,B2,B1,B3,B1,B4,B1,B5,B5,B5};
+		effectStruct e[] = {{T_INVENCIBLE, 300, -1},{T_DEFENSE_DOWN, 3, 6},{T_STAMINA_DOWN, 25, -1}};
+		Skill s("Ancient Shield", DEFENSE, S_EXPLOSION, 250, DARK, e, 3, EFFECT_EXPLOSION, k, 10,
+		"A big explosion comes from the ground! Causes lots of damage, lowers the defense and knocks the enemy into the ground, causing him to lose stamina");
+		skills[EXPLOSION] = s;
+	}	*/	
 	
 	
 	/////////////////////////////
 	// WATER
 	/////////////////////////////
 	{
-		buttonType k[] = {B3,B4,B5,B3,B4,B5};
-		effectStruct e[] = {{T_DAMAGE, 50, -1},{T_STAMINA_DOWN, 60, -1}};
-		Skill s("Water Beam", ATTACK, S_STREAM2, 30, WATER, e, 2, EFFECT_WATER_BEAM, k, 6,
+		buttonType k[] = {B3,B4,B5};
+		effectStruct e[] = {{T_DAMAGE, 30, -1},{T_STAMINA_DOWN, 50, -1},{T_DROWN, 3, -1}};
+		Skill s("Water Beam", ATTACK, S_STREAM2, 30, WATER, e, 3, EFFECT_WATER_BEAM, k, 3,
 		"TORTOOOOOOOIIIIIIIIISEEEEEEEEEEEEEEEEEEEEEEEEEE");
 		skills[WATER_BEAM] = s;
 	}
@@ -183,11 +191,11 @@ void SkillBank::makeSkills()
 		skills[SWAMP] = s;
 	}
 	{
-		buttonType k[] = {B3,B4,B5,B1,B2,B3,B4,B5,B1,B2};
+		buttonType k[] = {B3,B3,B4,B4,B5,B5};
 		effectStruct e[] = {{T_FREEZE, 8, -1}};
-		Skill s("Frozen Fingers", ATTACK, S_ICE1, 120, WATER, e, 2, EFFECT_FREEZE, k, 10,
+		Skill s("Siberian", ATTACK, S_ICE1, 120, WATER, e, 1, EFFECT_FREEZE, k, 6,
 		"");
-		skills[FROZEN_FINGERS] = s;
+		skills[SIBERIAN] = s;
 	}	
 	
 }

@@ -37,11 +37,11 @@ class Player
 
 		int 			getArmor();
 		void 			changeStamina(int howMuch);
-		void			decreaseArmor( double howMuch );
+		void			changeArmor( double howMuch );
 		void 			initializeAtributes();
 		void			update();
 		void			recoverHP ( double howMuch );
-		void			takeDamage( double damage  );
+		double			takeDamage( double damage  );
 		void 			updateStatus();
 		void			setStatusNormal();
 		

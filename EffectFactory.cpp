@@ -13,9 +13,10 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 	stoneMesh1 = smgr->getMesh("stone1.3ds");
 	stoneMesh2 = smgr->getMesh("stone2.3ds");
 	
-	ITexture *shieldTex0 = driver->getTexture("img/blanktex.png");
+	ITexture *shieldTex0 = driver->getTexture("img/shield_tex.png");
 	ITexture *shieldTex1 = driver->getTexture("img/gradient.png");
 	CBloodShader::instance().createMaterial(device);
+	this->gridTex = driver->getTexture("img/grid.jpg");
 	this->starTex = driver->getTexture("img/stars.tga");
 	this->fireballTex = driver->getTexture("img/fireball.bmp");
 	this->glowTex = driver->getTexture("img/glow2.bmp");
@@ -34,15 +35,17 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 		sprintf(c,"img/blood%i.png", i+1);
 		bloodTex[i] = driver->getTexture(c);
 	}
+	#define NSNOWTEX 3
+	for(int i=0; i<NSNOWTEX; i++) {
+		sprintf(c,"img/snow%i.png", i+1);
+		snowFlakes.push_back( driver->getTexture(c) );
+	}
+	
+	// ANIMATIONS
 	#define NFEEDBACKTEX 7
 	for(int i=0; i<NFEEDBACKTEX; i++) {
 		sprintf(c,"img/anim/portal%i.bmp", NFEEDBACKTEX-i);
 		feedbackTex.push_back( driver->getTexture(c) );
-	}
-	#define NEXPLOSIONTEX 36
-	for(int i=0; i<NEXPLOSIONTEX; i++) {
-		sprintf(c,"img/explosion/explosion%i.png", i);
-		explosion.push_back( driver->getTexture(c) );
 	}
 	#define NICETEX 30
 	for(int i=0; i<NICETEX; i++) {
@@ -58,12 +61,18 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 	for(int i=0; i<NMAGIC2TEX; i++) {
 		sprintf(c,"img/anim/magic2_%i.png", i);
 		magic2.push_back( driver->getTexture(c) );
-	}	
-	#define NSNOWTEX 3
-	for(int i=0; i<NSNOWTEX; i++) {
-		sprintf(c,"img/snow%i.png", i+1);
-		snowFlakes.push_back( driver->getTexture(c) );
 	}
+	#define NWATERTEX 10
+	for(int i=0; i<NWATERTEX; i++) {
+		sprintf(c,"img/anim/water_001_%i.png", i);
+		water1.push_back( driver->getTexture(c) );
+	}
+	#define NFIRETEX 20
+	for(int i=0; i<NFIRETEX; i++) {
+		sprintf(c,"img/anim/fire_001_%i.png", i);
+		fire1.push_back( driver->getTexture(c) );
+	}		
+	
 	
 	/*IImage *iceSprites = driver->createImageFromFile("img/anim/magic_004.png");
 	int xs = 5, ys=7;
@@ -139,7 +148,7 @@ void EffectFactory::handleEffectsQueue()
 				effectFeedback(target);
 				break;
 			case EFFECT_SHIELD:
-				for(int i=0; i<25; i++)
+				for(int i=0; i<5; i++)
 					queueEffect( i*140, EFFECT_SHIELD_SINGLE, target );
 				break;
 			case EFFECT_SHIELD_SINGLE:
@@ -159,18 +168,10 @@ void EffectFactory::handleEffectsQueue()
 			case EFFECT_WATER_BEAM:
 				effectWaterBeam(target);
 				break;	
-			case EFFECT_DRUNK_EFFECT:
-				for(int i=0; i<10; i++)
-					queueEffect( i*500, EFFECT_DRUNK_EFFECT_SINGLE, target );
-				break;
-			case EFFECT_DRUNK_EFFECT_SINGLE:
-				effectDrunkEffect(target,5);
-				break;
 			case EFFECT_EXPLOSION:
 				effectExplosion(players[target]->track->getCentroid());
 				break;
 			case EFFECT_ELETRIC_GROUND:
-				queueEffect( 0, EFFECT_DRUNK_EFFECT, target );
 				effectEletrifiedGround(target, 6000);
 				break;
 			case EFFECT_FLOOD:
@@ -205,6 +206,9 @@ void EffectFactory::handleEffectsQueue()
 				break;
 			case EFFECT_AURORA:
 				effectAurora(target);
+				break;
+			case EFFECT_VAMPIRIC:
+				effectVampiric(target,2000);
 				break;
 		}
 		effectsQueue.erase( effectsQueue.begin() );
@@ -257,14 +261,14 @@ void EffectFactory::effectAurora( int target )
 
 void EffectFactory::effectIce( int target, int timeMs )
 {
-	vector3df pos = players[target]->track->getCentroid() + vector3df(0,-TRACK_SIZE_Y/2,0);
+	vector3df pos = players[target]->track->getCentroid();// + vector3df(0,-TRACK_SIZE_Y/2,0);
 	
-	#define iceAnimTime 45
+	#define iceAnimTime 50
 	
 	IAnimatedMeshSceneNode* stone = smgr->addAnimatedMeshSceneNode(stoneMesh1,
 										0,-1,
 										pos,
-										vector3df(-90,0,0),
+										vector3df(-90,0,90),
 										vector3df(0,0,0)
 										);
 	stone->setMaterialTexture( 0, iceTex );
@@ -278,16 +282,16 @@ void EffectFactory::effectIce( int target, int timeMs )
                                 SColor(0, 0, 0, 0),      		// tail color
                                 pos,
                                 vector3df(-90,0,0),
-                                vector3df(35,7,35));
+                                vector3df(45,10,45));
 	spellEffect->addAnimator( smgr->createTextureAnimator(ice1, 80) );
 	spellEffect->addAnimator( smgr->createDeleteAnimator(NICETEX*80) );
 	spellEffect->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
 	
-	#define FINALSCALE vector3df(3,3,2)
+	#define FINALSCALE vector3df(6,6,4)
 	//stone->setScale( FINALSCALE );
 	
-	#define TIME_ANIM1 700
-	#define TIME_ANIM2 1500
+	#define TIME_ANIM1 2300
+	#define TIME_ANIM2 700
 	ISceneNodeAnimator* appear = new CSceneNodeAnimatorScale(vector3df(2,0,1), FINALSCALE, TIME_ANIM1, false, device->getTimer()->getTime()+1000 );
 	stone->addAnimator( appear );
 	ISceneNodeAnimator* disappear = new CSceneNodeAnimatorScale(FINALSCALE, vector3df(3,0,0), TIME_ANIM2, false, device->getTimer()->getTime()+timeMs-(TIME_ANIM1+TIME_ANIM2) );
@@ -305,8 +309,8 @@ void EffectFactory::effectIce( int target, int timeMs )
 				SColor(0,200,200,255), SColor(0,255,255,255),
 				1,100+ i*1000,
 				180,
-				dimension2d<f32>(0.5, 0.5),
-				dimension2d<f32>(4, 4));
+				dimension2d<f32>(2, 2),
+				dimension2d<f32>(6, 6));
 		ps->setEmitter(em);
 		em->drop();
 
@@ -323,21 +327,21 @@ void EffectFactory::effectIce( int target, int timeMs )
 		}
 		
 		new CDeleteParticleAffector(ps, TIME_ANIM1);
-		ps->addAnimator( smgr->createDeleteAnimator(TIME_ANIM1+5000) );
+		ps->addAnimator( smgr->createDeleteAnimator(TIME_ANIM1+3000) );
 	}
 }
 
 void EffectFactory::effectExplosion( vector3df pos )
 {
-	#define expTime 45
+	#define expTime 60
 
 	ISceneNode * spellEffect = smgr->addBillboardSceneNode(smgr->getRootSceneNode(),
-                                core::dimension2d<f32>(70, 70),
+                                core::dimension2d<f32>(80, 80),
                                 pos);
 	spellEffect->setMaterialFlag(EMF_LIGHTING, false);
 	spellEffect->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
-	spellEffect->addAnimator( smgr->createTextureAnimator(explosion, expTime, false) );
-	spellEffect->addAnimator( smgr->createDeleteAnimator(NEXPLOSIONTEX*expTime) );
+	spellEffect->addAnimator( smgr->createTextureAnimator(fire1, expTime, false) );
+	spellEffect->addAnimator( smgr->createDeleteAnimator(NFIRETEX*expTime) );
 }
 
 void EffectFactory::effectShield( int player )
@@ -547,7 +551,17 @@ void EffectFactory::effectEletrifiedGround( int targetPlayer, int timeMs )
 void EffectFactory::effectWaterBeam( int targetPlayer )
 {
 	vector3df initPos = players[!targetPlayer]->track->getCentroid()  + vector3df(0,0,-20);
-	vector3df direction(targetPlayer*2-1,-1,0);
+	vector3df direction(targetPlayer==0?-0.7:0.7,-1,0);
+	
+	#define waterAnimTime 70
+
+	ISceneNode * spellEffect = smgr->addBillboardSceneNode(smgr->getRootSceneNode(),
+                                core::dimension2d<f32>(70, 70),
+                                initPos);
+	spellEffect->setMaterialFlag(EMF_LIGHTING, false);
+	spellEffect->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
+	spellEffect->addAnimator( smgr->createTextureAnimator(water1, waterAnimTime, false) );
+	spellEffect->addAnimator( smgr->createDeleteAnimator(NWATERTEX*waterAnimTime) );
 	
 	new CBloodEffect(device->getSceneManager(), waterTex, EGL_INSANE, initPos, direction, 2000);
 }
@@ -631,21 +645,6 @@ void EffectFactory::splitBlood( int targetPlayer, E_GORE_LEVEL gore )
 							vector3df(0, -0.0f, -3), //direction
 							35); //duration
 	blood->setVisible(false);
-}
-
-void EffectFactory::effectDrunkEffect ( int targetPlayer, int times )
-{
-	int k;
-	for(int i=0; i<NFRETS; i++) {
-		vector<Stone*> stones = players[targetPlayer]->track->stones[i];
-		
-		for(int xtimes=0;xtimes<times; xtimes++)
-			if(stones.size()) {
-				k = rand()%stones.size();
-				stones[k]->displace = vector3df(rand()%4-2,0,0);
-				effectParticlesExplosion( stones[k]->getPosition()+stones[k]->displace,glowTex );
-			}
-	}
 }
 
 void EffectFactory::effectParticlesExplosion( vector3df pos, ITexture *tex )
@@ -789,7 +788,7 @@ void EffectFactory::effectBlackHoleBolt( int target )
 				   endPos,
 				   100, 6, 7, 1, false, 6, SColor(0,0,0,255)); 
 				   
-	beam->addAnimator( smgr->createDeleteAnimator(1000+rand()%3000) );
+	beam->addAnimator( smgr->createDeleteAnimator(200+rand()%3000) );
 }
 
 void EffectFactory::effectBlackHole( int target, int timeMs )
@@ -799,20 +798,14 @@ void EffectFactory::effectBlackHole( int target, int timeMs )
 	ISceneNode* ball = smgr->addSphereSceneNode(1, 64, smgr->getRootSceneNode(), -1, pos, vector3df(0,0,0) );
 	ball->setMaterialFlag(EMF_LIGHTING, false);
 	ball->setMaterialTexture(0, starTex);
-	//ball->getMaterial(0).getTextureMatrix(0).setTextureScale(4,4);
-	
-	IBillboardSceneNode* glow = smgr->addBillboardSceneNode(ball, core::dimension2d<f32>(30, 30));
-	glow->setMaterialFlag(EMF_LIGHTING, false);
-	glow->setMaterialTexture(0, glowTex);
-	glow->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
-	glow->addAnimator( smgr->createDeleteAnimator(timeMs) );
+	ball->getMaterial(0).getTextureMatrix(0).setTextureScale(4,4);
 	
 	// add particle system
 	IParticleSystemSceneNode* ps = smgr->addParticleSystemSceneNode(false, ball);
 	//  and set emitter
 	ps->setEmitter( ps->createPointEmitter(
 			vector3df(0.01,0.01,0.01),
-			10,300,
+			1,30,
 			SColor(0,255,255,255), SColor(0,255,255,255),
 			1000,3000,
 			360,
@@ -853,7 +846,7 @@ void EffectFactory::effectDarkStormBolt( int target )
 	beam->addAnimator( smgr->createDeleteAnimator(1000) );
 }
 
-void EffectFactory::effectVampireAttack( int target, int timeMs )
+void EffectFactory::effectVampiric( int target, int timeMs )
 {
 	vector3df pos = players[target]->track->getCentroid();
 	vector3df pos2 = players[!target]->track->getCentroid()+vector3df(0,0,-10);
@@ -890,4 +883,15 @@ void EffectFactory::effectVampireAttack( int target, int timeMs )
 	
 	new CDeleteParticleAffector(ps, timeMs);
 	ps->addAnimator( smgr->createDeleteAnimator(timeMs+5000) );
+}
+
+void EffectFactory::effectAnotherDimension( int target, int timeMs )
+{
+	ISceneNode *sky = smgr->addSkyDomeSceneNode( gridTex, 2, 2, 0.9, 2, 10 );
+	sky->setRotation( vector3df(90,0,0) );
+	sky->setMaterialType(EMT_TRANSPARENT_ADD_COLOR);
+	sky->getMaterial(0).getTextureMatrix(0).setTextureScale(10,10);
+	
+	sky->addAnimator( smgr->createRotationAnimator( vector3df(0,0,0.1) ) );
+	sky->addAnimator( smgr->createDeleteAnimator(timeMs) );
 }

@@ -43,10 +43,12 @@ class Screen
 		
 		ISceneNode					*glow[NPLAYERS][NFRETS];
 		IGUIStaticText 				*fpsText, *hpText[NPLAYERS], *timeText;
-		VxHealthSceneNode			*healthBar[NPLAYERS], *armorBar[NPLAYERS], *staminaBar[NPLAYERS][NSTAMINALEVELS];
-		ITexture 					*glowTex, *fireballTex;
+		VxHealthSceneNode			*healthBar[NPLAYERS], *armorBar[NPLAYERS], *staminaBar[NPLAYERS];
+		IGUIImage					*statusIcon[NPLAYERS], *statusCircle[NPLAYERS];
+		IGUIInOutFader				*screenFader;
+		ITexture 					*koTex, *glowTex, *statusCircleTex, *poisonTex, *fireTex, *magicBarrierTex, *eletrifiedTex, *drownedTex, *frozenTex, *mirrorTex;
 		ISceneNode 					*sky;
-		
+			
 		// HUD drawing
 		void 						drawSoloModeState();
 		void						drawKeys();
