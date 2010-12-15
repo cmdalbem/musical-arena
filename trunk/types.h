@@ -13,11 +13,11 @@ enum visualEffectFunction
 	EFFECT_FIREBALL, EFFECT_FIREBALL_SKY, EFFECT_FIRE_RAIN,
 	EFFECT_GLOW_AREA, EFFECT_FEEDBACK, EFFECT_SHIELD,
 	EFFECT_BOLT, EFFECT_ELETRIC_GROUND, EFFECT_WATER_BEAM,
-	EFFECT_DRUNK_EFFECT, EFFECT_DRUNK_EFFECT_SINGLE, EFFECT_EXPLOSION,
-	EFFECT_THUNDERSTORM_BOLT, EFFECT_THUNDERSTORM, EFFECT_FLOOD,
+	EFFECT_EXPLOSION, EFFECT_THUNDERSTORM_BOLT, EFFECT_THUNDERSTORM, EFFECT_FLOOD,
 	EFFECT_SHIELD_SINGLE, EFFECT_SWAMP, EFFECT_BALL_LIGHTNING,
 	EFFECT_IMPLANT_BOMB, EFFECT_SUN, EFFECT_DARK_STORM_BOLT, EFFECT_DARK_STORM,
-	EFFECT_FREEZE, EFFECT_BLACKHOLE, EFFECT_BLACKHOLE_BOLT, EFFECT_AURORA
+	EFFECT_FREEZE, EFFECT_BLACKHOLE, EFFECT_BLACKHOLE_BOLT, EFFECT_AURORA,
+	EFFECT_VAMPIRIC
 };
 
 typedef pair<pair<unsigned int,visualEffectFunction>,int> effectEvent;
@@ -27,14 +27,14 @@ enum soundEffectType
 	S_BOLT1, S_BOLT2, S_LIGHTNING, S_DIGITAL, S_EXPLOSION, S_FIRE1, S_FIRE2,
 	S_MAGIC1, S_MAGIC2, S_STORM, S_UNDERWATER1, S_UNDERWATER2, S_STREAM1, 
 	S_STREAM2, S_STREAM3, S_WATERFALL, S_FIRERUMBLE, S_HORROR1, S_HORROR2, 
-	S_EARTHQUAKE, S_ELECTRIC1, S_ELECTRIC2, S_ICE1, S_ICE2, S_BIG,
+	S_EARTHQUAKE, S_ELECTRIC1, S_ELECTRIC2, S_ICE1, S_ICE2, S_BIG, S_FIRESTORM,
 	
 	S_TOTAL
 };
 const std::string wavFiles[] = { "bolt1", "bolt2", "lightning", "digital1", 
 "explosion1", "fire1", "fire2", "magic1", "magic2", "storm", "underwater", "underwater2", 
 "stream1", "stream2","stream3", "waterfall","firerumble","horror1","horror2",
-"earthquake", "electric1","electric2","ice1","ice2","big" };
+"earthquake", "electric1","electric2","ice1","ice2","big", "firestorm" };
 const std::string missFiles[] = { "miss1", "miss2", "miss3", "miss4", "miss5", "miss6"};
 
 enum elementType
@@ -44,17 +44,17 @@ enum elementType
 
 enum skillId
 {
-	FIREBALL, CURE, EXPLOSION, LIGHTNING_BOLT, FIRE_RAIN, FEEDBACK,
+	FIREBALL, INSPIRATION, EXPLOSION, LIGHTNING_BOLT, FIRE_RAIN, FEEDBACK,
 	ELETRIFIED_GROUND, FLOOD, WATER_BEAM, THUNDERSTORM, MIRROR, SWAMP, 
 	BLACK_HOLE, BALL_LIGHTNING, IMPLANT_BOMB, SUNBIRTH, DIVINE_SILENCE,
-	FROZEN_FINGERS,
+	SIBERIAN, SOUL_CORRUPTION, VAMPIRIC, AURORA,
 	
 	SKILLS_TOTAL
 };
 
 enum skillTargetType
 {
-	ATTACK, DEFENSE, GLOBAL
+	ATTACK, DEFENSE
 };
 
 // Some temporary status the player may have
@@ -73,6 +73,8 @@ enum statusType
 	ST_CHAOTIC_SPEED,	// track speed will change randomically it's speed while the player is in this state
 	ST_BROKEN_DEFENSE,  // zero armor
 	ST_FROZEN,			// player cannot fret, neither solo
+	ST_CURSED,			// deals damage for every note the player hits
+	ST_BLESSED,			// heals the amount of damage that he would take
 	
 	ST_TOTAL	
 };
@@ -87,6 +89,7 @@ enum effectType
 	T_ANTIDOTE,				// heals from current effects
 	T_DEFENSE_UP,			// increase caster defense
 	T_CLEAR_STONES,			// clear all stones in the screen
+	T_BLESS,				// put's caster on Blessed Status
 	
 	//* SKILLS DE ATAQUE*
 	T_DAMAGE,				// decrease enemy's HP
@@ -99,13 +102,13 @@ enum effectType
 	T_BURN,					// puts enemy on Burn Status
 	T_DROWN,				// puts enemy on Drowned Status
 	T_ELETRIFY,				// puts enemy on Eletrified Status
-	T_INCREASE_DIFFICULTY,	// increases enemy's difficulty
 	T_DOUBLE_NOTES,			// doubles the notes appearing on enemy's track
 	T_TOLERANCE_DOWN,		// decreases enemy's tolerance
-	T_REMOVE_CHORD,			// removes a chord from the enemy, making him misses all those notes until it comes back again.
 	T_SPEED_UP,				// increases enemy's track speed
 	T_CHAOTIC_SPEED,		// put's enemy on Chaotic Speed Status
 	T_FREEZE,				// put's enemy on Frozen Status
+	T_CURSE,				// put's enemy on Cursed Status
+	T_VAMPIRIC,				// sucks the life out of me
 	
 	
 	T_EFFECTS_TOTAL

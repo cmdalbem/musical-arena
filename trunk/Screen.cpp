@@ -1,8 +1,6 @@
 #include "Screen.h"
 #include "utils.h"
 
-#include "RibbonTrailSceneNode.h"
-
 using namespace irr::core;
 using namespace irr::video;
 
@@ -16,53 +14,17 @@ Screen::Screen( IrrlichtDevice *_device, double *_musicTime, Player* player1, Pl
 	player.push_back(player2);
 	musicTime = _musicTime;	
 	
-	/*scene::ISceneNode* ball = smgr->addSphereSceneNode(5);
-	ball->addAnimator( smgr->FlyCircleAnimator( vector3df(0,0,0), 20) );
-	
-	ITexture* beamTex = driver->getTexture( "img/beam.png" );
-
-	RibbonTrailSceneNode* rt = new RibbonTrailSceneNode( device, ball, -1 );
-	rt->setPosition( core::vector3df( 0, 0, 0 ) );
-	rt->setMaterialTexture( 0, beamTex );
-	rt->setMaxDistance( 0 );
-	rt->setMaxQuads( 10000 );
-	rt->setStartingAlpha( 255 );
-	rt->setEnabled( true );
-	rt->getMaterial(0).MaterialType=video::EMT_TRANSPARENT_ADD_COLOR;*/
-	
-	
 	effectFactory = new EffectFactory(device,driver,smgr,player);
 	
 	initializeScreenElements();
 	
+	//effectFactory->effectAnotherDimension(1,5000);
+	
 	//effectFactory->queueEffect( 2000, EFFECT_FREEZE, 1 );
 	//effectFactory->effectVampireAttack(1,5000);
-	//effectFactory->queueEffect( 1000, EFFECT_EXPLOSION, 1 );
-	
+	//effectFactory->queueEffect( 2000, EFFECT_EXPLOSION, 1 );
 	//effectFactory->queueEffect( 1000, EFFECT_BLACKHOLE, 1 );
-	
 	//effectFactory->queueEffect( 1000, EFFECT_SUN, 1 );
-	//effectFactory->queueEffect( 0, _BALL_LIGHTNING, 0 );
-	//effectFactory->queueEffect( 0, _SWAMP_EFFECT, 1 );
-	//effectFactory->queueEffect( 300, _DRUNK_EFFECT, 1 );
-	//effectFactory->queueEffect( 0, _FLOOD_EFFECT, 1);
-	//effectFactory->queueEffect( 0, _WATER_BEAM, 1);
-	//effectFactory->queueEffect( 0, _FLOOD_EFFECT, 1);
-	//effectFactory->queueEffect(0, _BOLT, 1);
-	//effectFactory->queueEffect(0, _THUNDERSTORM, 0);
-	//effectFactory->queueEffect(0, _ELETRIC_GROUND, 0);
-	//effectFactory->queueEffect(0, EFFECT_FIREBALL, 1);
-	//effectFactory->queueEffect( 0, _FIRE_RAIN, 1 );
-	//effectFactory->queueEffect(0, _BOLT, 1);
-	//effectFactory->queueEffect(1000, _BOLT, 0);
-	//effectFactory->queueEffect( 800, _EXPLOSION, 0 );
-	//effectFactory->queueEffect( 0, _FEEDBACK, 1 );
-	//effectFactory->queueEffect( 2000, _DRUNK_EFFECT_SINGLE, 0 );
-	//effectFactory->queueEffect( 0, _EXPLOSION, 1 );
-	//effectFactory->queueEffect( 0, _GLOW_AREA, 0 );
-	//effectFactory->queueEffect( 0, _ELECTRIC, 1 );
-	//for(int i=0;i<10;i++)
-		//effectFactory->queueEffect( 1000 + i*100, EFFECT_FIREBALL, 0 );
 }
 
 Screen::~Screen()
@@ -73,8 +35,17 @@ Screen::~Screen()
 void Screen::initializeScreenElements()
 {
 	// Pre-load textures
-	this->glowTex = driver->getTexture("img/glow2.bmp");
-	this->fireballTex = driver->getTexture("img/fireball.bmp");
+	koTex = driver->getTexture("img/ko.png");
+	glowTex = driver->getTexture("img/glow2.bmp");
+	statusCircleTex = driver->getTexture("img/statuscircle.png");
+	
+	fireTex = driver->getTexture("img/fireicon.png");
+	poisonTex = driver->getTexture("img/poisonicon.png");
+	magicBarrierTex = driver->getTexture("img/darkshieldicon.png");
+	eletrifiedTex = driver->getTexture("img/thundericon.png");
+	drownedTex = driver->getTexture("img/watericon.png");
+	frozenTex = driver->getTexture("img/iceicon.png");
+	mirrorTex = driver->getTexture("img/mirroricon.png");
 	
 	// background
 	//sky = smgr->addSkyDomeSceneNode( driver->getTexture("img/stars.tga"), 32, 32 );
@@ -84,22 +55,32 @@ void Screen::initializeScreenElements()
 	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::recti(0, 0, 100, 20));
 	fpsText->setOverrideColor( SColor(255,255,255,255) );
 	
-	
 	#define HUD_BARS_Y (SCREENY-80)
-	
-	timeText = device->getGUIEnvironment()->addStaticText(L"", core::recti( position2di(SCREENX/2-50, HUD_BARS_Y-10), dimension2di(100,50) ) , false);
+	timeText = device->getGUIEnvironment()->addStaticText(L"", core::recti( position2di(SCREENX/2-50, HUD_BARS_Y-15), dimension2di(100,50) ) , false);
 	timeText->setTextAlignment( EGUIA_CENTER,EGUIA_CENTER );
 	timeText->setOverrideColor( SColor(255,255,255,255) );
+	timeText->setOverrideFont( device->getGUIEnvironment()->getFont("img/fontbookman.png") );
 	
-	//  render target
 	for(int i=0;i<NPLAYERS;i++) {
 		{
 			// GUI Elements
-		
 			int xpos = SCREENX/4 + i*SCREENX/2;
 			
 			hpText[i] = device->getGUIEnvironment()->addStaticText(L"", recti(position2di(xpos-35,HUD_BARS_Y+10),position2di(xpos+35,HUD_BARS_Y+25)));
 			hpText[i]->setOverrideColor( SColor(200,255,255,255) );
+			
+			/*#define ICONCIRCLESIZE 90
+			statusCircle[i] = device->getGUIEnvironment()->addImage( recti( position2di(SCREENX/2 - ICONCIRCLESIZE/2 + (i==0?-100:100), 50 - ICONCIRCLESIZE/2),
+																			dimension2di(ICONCIRCLESIZE,ICONCIRCLESIZE)) );
+			statusCircle[i]->setImage(statusCircleTex);
+			statusCircle[i]->setUseAlphaChannel(true);
+			statusCircle[i]->setScaleImage(true);*/
+			
+			#define ICONSIZE 60
+			//statusIcon[i] = device->getGUIEnvironment()->addImage( recti( position2di(SCREENX/2 - ICONSIZE/2 + (i==0?-100:100),50 - ICONSIZE/2),dimension2di(ICONSIZE,ICONSIZE)) );
+			statusIcon[i] = device->getGUIEnvironment()->addImage( recti( position2di(xpos+(i==0?180:-180)-ICONSIZE/2, HUD_BARS_Y+5-ICONSIZE/2),dimension2di(ICONSIZE,ICONSIZE)) );
+			statusIcon[i]->setUseAlphaChannel(true);
+			statusIcon[i]->setScaleImage(true);
 			
 			// health bars
 			armorBar[i] = new VxHealthSceneNode(
@@ -125,22 +106,18 @@ void Screen::initializeScreenElements()
 								SColor(200,220,0,0), // background color
 								SColor(100,255,255,255) ); // border color							
 								
-			#define STAMINA_BAR_H 60
-			#define STAMINA_DISPLACEX 25
-			for(int k=0; k<NSTAMINALEVELS; k++)
-				staminaBar[i][k] = new VxHealthSceneNode(
-									smgr->getRootSceneNode(), // parent node
-									smgr, // scene manager
-									-1, // id
-									1, true,
-									15, // width
-									STAMINA_BAR_H, // height
-									vector3df(i==0 ? STAMINA_DISPLACEX : SCREENX-STAMINA_DISPLACEX,
-											  SCREENY*1.5/3 + (k==0?(STAMINA_BAR_H/2):-(STAMINA_BAR_H/2)),
-											  0), // position in 2d
-									SColor(0,0,0,0), // bar color
-									SColor(170,30,30,240), // background color
-									SColor(150,200,200,255) ); // border color								
+			#define STAMINA_BAR_H 400
+			staminaBar[i] = new VxHealthSceneNode(
+								smgr->getRootSceneNode(), // parent node
+								smgr, // scene manager
+								-1, // id
+								1, false,
+								STAMINA_BAR_H, // width
+								10, // height
+								vector3df(xpos, HUD_BARS_Y-15, 0), // position in 2d
+								SColor(0,0,0,0), // bar color
+								SColor(170,50,50,240), // background color
+								SColor(150,200,200,255) ); // border color
 			
 		}
 		
@@ -165,6 +142,8 @@ void Screen::initializeScreenElements()
 			glow[i][k]->setVisible(false);*/
 		}							
 	}
+	
+	screenFader = device->getGUIEnvironment()->addInOutFader();
 }
 
 void Screen::drawKeys()
@@ -196,7 +175,6 @@ void Screen::drawKeys()
 				switch( player[i]->fretting->_hitting[k] )
 				{
 					case 0:
-					case 2:
 						// idle
 						color = fretColors[k];
 						color.setAlpha(255);
@@ -208,6 +186,7 @@ void Screen::drawKeys()
 						zdisplace=3;
 						break;
 					case -1:
+					case 2:
 						// mising
 						color.setAlpha(128);
 						color = SColor(255,0,0,0);
@@ -228,10 +207,15 @@ void Screen::update()
 // Here we check everything about the game that has to be drawn.
 // It's all about HUDs and special effects!
 {
+	for(int i=0; i<NPLAYERS; i++) 
+		if(player[i]->HP==0)
+			device->getGUIEnvironment()->addImage(koTex, position2di(0,100), true);
+	
 	drawBars();
 	drawKeys();
 	drawSoloModeState();
 	drawSplitBlood();
+	drawStatus();
 	
 	// animate background
 	//sky->getMaterial(0).getTextureMatrix(0).setTextureTranslate( 0, -*musicTime/3 );
@@ -244,8 +228,48 @@ void Screen::drawStatus()
 {
 	for(int i=0; i<NPLAYERS; i++) 
 	{
-		if( player[i]->status==ST_FIRE )
-			effectFactory->areaEffect(i, fireballTex, 50);
+		switch(player[i]->status)
+		{
+			case ST_POISON:
+				statusIcon[i]->setVisible(true);
+				statusIcon[i]->setImage(poisonTex);
+				break;
+			case ST_FIRE:
+				statusIcon[i]->setVisible(true);
+				statusIcon[i]->setImage(fireTex);
+				break;
+			case ST_MAGIC_BARRIER:
+				statusIcon[i]->setVisible(true);
+				statusIcon[i]->setImage(magicBarrierTex);
+				break;
+			case ST_MIRROR:
+				statusIcon[i]->setVisible(true);
+				statusIcon[i]->setImage(mirrorTex);
+				break;
+			case ST_ELETRIFIED:
+				statusIcon[i]->setVisible(true);
+				statusIcon[i]->setImage(eletrifiedTex);
+				break;
+			case ST_DROWNED:
+				statusIcon[i]->setVisible(true);
+				statusIcon[i]->setImage(drownedTex);
+				break;			
+			case ST_FROZEN:
+				statusIcon[i]->setVisible(true);
+				statusIcon[i]->setImage(frozenTex);
+				break;
+			case ST_CURSED:
+				statusIcon[i]->setVisible(true);
+				//statusIcon[i]->setImage(??????);
+				break;			
+			case ST_BLESSED:
+				statusIcon[i]->setVisible(true);
+				//statusIcon[i]->setImage(??????);
+				break;
+			default:
+				statusIcon[i]->setVisible(false);
+				//statusIcon[i]->setImage(magicBarrierTex);
+		}
 	}
 }
 
@@ -259,21 +283,16 @@ void Screen::drawSoloModeState()
 void Screen::drawBars()
 {
 	char str[30];
-	sprintf(str,"%.1lf",musicTotalTime-*musicTime);
+	int seconds = (int)(musicTotalTime-*musicTime) % 60;
+	int minutes = (musicTotalTime-*musicTime) / 60.;
+	sprintf(str,"%i:%i",minutes,seconds);
 	timeText->setText( stringw(str).c_str() );
 	
 	for(int i=0; i<NPLAYERS; i++) {
-		healthBar[i]->setProgress( player[i]->HP*100/player[i]->maxHP );
+		healthBar[i]->setProgress( player[i]->HP*100/player[i]->maxHP );		
 		armorBar[i]->setProgress( (player[i]->HP+player[i]->getArmor())*100/player[i]->maxHP );
 		
-		
-		staminaBar[i][1]->setProgress( ((player[i]->stamina)-(player[i]->maxStamina/2))*100 / (player[i]->maxStamina/2) );
-		
-		if(player[i]->stamina > player[i]->maxStamina/2)
-			staminaBar[i][0]->setProgress( 100 );
-		else
-			staminaBar[i][0]->setProgress( player[i]->stamina*100 / (player[i]->maxStamina/2) );
-		
+		staminaBar[i]->setProgress( player[i]->stamina*100/player[i]->maxStamina );	
 		
 		sprintf(str,"%i/%i",player[i]->HP,player[i]->maxHP);
 		hpText[i]->setText( stringw(str).c_str() );

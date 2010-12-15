@@ -39,8 +39,9 @@ class EffectFactory
 		
 	
 		// works in progress
-		void 						effectVampireAttack( int player, int timeMs );
 		void						effectBlackHole( int targetPlayer, int timeMs );
+		void						effectAnotherDimension( int target, int timeMs );
+		void 						effectAurora( int target );
 	
 	private:
 		vector<Player*>				players;
@@ -52,8 +53,8 @@ class EffectFactory
 		
 		CBloodEffect				*blood;
 		IMeshSceneNode 				*shields[NPLAYERS];
-		ITexture 					*starTex, *blackTex, *lensFlareTex, *fireballTex, *iceTex, *glowTex, *glowTex2, *glowTex3, *electricTex, *laserTex1, *laserTex2, *laserTex3, *bloodTex[5], *waterTex[5];
-		array<ITexture*> 			feedbackTex, explosion, snowFlakes, ice1, magic1, magic2;
+		ITexture 					*gridTex, *starTex, *blackTex, *lensFlareTex, *fireballTex, *iceTex, *glowTex, *glowTex2, *glowTex3, *electricTex, *laserTex1, *laserTex2, *laserTex3, *bloodTex[5], *waterTex[5];
+		array<ITexture*> 			feedbackTex, snowFlakes, ice1, water1, magic1, magic2, fire1;
 		
 		IAnimatedMesh				*stoneMesh1, *stoneMesh2;
 		
@@ -71,7 +72,6 @@ class EffectFactory
 		void						effectBlackHoleBolt( int target );
 		void						effectEletrifiedGround( int targetPlayer, int timeMs );
 		void						effectWaterBeam( int targetPlayer );
-		void						effectDrunkEffect ( int targetPlayer, int times );
 		void 						effectFloodEffect( int targetPlayer );
 		void 						effectSwampEffect( int targetPlayer, int timeMs );
 		void						effectBallLightning( int targetPlayer, int timeMs );
@@ -79,6 +79,6 @@ class EffectFactory
 		void						effectImplantBomb( int targetPlayer );
 		void 						effectSun( int target, int timeMs );
 		void						effectDarkStormBolt( int target);
-		void 						effectAurora( int target );
+		void 						effectVampiric( int player, int timeMs );
 
 };
