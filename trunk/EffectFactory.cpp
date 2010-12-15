@@ -57,11 +57,6 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 		sprintf(c,"img/anim/magic1_%i.png", i);
 		magic1.push_back( driver->getTexture(c) );
 	}
-	#define NMAGIC2TEX 35
-	for(int i=0; i<NMAGIC2TEX; i++) {
-		sprintf(c,"img/anim/magic2_%i.png", i);
-		magic2.push_back( driver->getTexture(c) );
-	}
 	#define NWATERTEX 10
 	for(int i=0; i<NWATERTEX; i++) {
 		sprintf(c,"img/anim/water_001_%i.png", i);

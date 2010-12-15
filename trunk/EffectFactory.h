@@ -11,7 +11,6 @@ using namespace irr;
 #include "CBloodShader.h"
 #include "CShieldManager.h"
 #include "CDeleteParticleAffector.h"
-#include "LavaShader.h"
 #include "CSceneNodeAnimatorScale.h"
 #include "CLensFlareSceneNode.h"
 
@@ -54,7 +53,7 @@ class EffectFactory
 		CBloodEffect				*blood;
 		IMeshSceneNode 				*shields[NPLAYERS];
 		ITexture 					*gridTex, *starTex, *blackTex, *lensFlareTex, *fireballTex, *iceTex, *glowTex, *glowTex2, *glowTex3, *electricTex, *laserTex1, *laserTex2, *laserTex3, *bloodTex[5], *waterTex[5];
-		array<ITexture*> 			feedbackTex, snowFlakes, ice1, water1, magic1, magic2, fire1;
+		array<ITexture*> 			feedbackTex, snowFlakes, ice1, water1, magic1, fire1;
 		
 		IAnimatedMesh				*stoneMesh1, *stoneMesh2;
 		
