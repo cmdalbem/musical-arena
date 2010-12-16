@@ -291,7 +291,10 @@ void Screen::drawBars()
 	char str[30];
 	int seconds = (int)(musicTotalTime-*musicTime) % 60;
 	int minutes = (musicTotalTime-*musicTime) / 60.;
-	sprintf(str,"%i:%2.i",minutes,seconds);
+	if(seconds<10)
+		sprintf(str,"%i:0%i",minutes,seconds);
+	else
+		sprintf(str,"%i:%i",minutes,seconds);
 	timeText->setText( stringw(str).c_str() );
 	
 	for(int i=0; i<NPLAYERS; i++) {
