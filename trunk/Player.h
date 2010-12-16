@@ -26,6 +26,7 @@ class Player
 		int				maxHP;
 		int				stamina;
 		int				maxStamina;
+		bool				isFrozen;
 		
 		int				multiplier;
 		int				XP;

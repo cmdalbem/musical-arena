@@ -174,6 +174,12 @@ void Fretting::lostNote()
 			_hitting[i] = 2;
 }
 
+void Fretting::setAllNotPressed()
+{
+	for (int i = 0; i < NFRETS; i++)
+		_hitting[i] = 0;
+}
+
 int Fretting::joystickPreFretting(SEvent *event)
 {
 	int usefullButton = -1;
@@ -185,7 +191,6 @@ int Fretting::joystickPreFretting(SEvent *event)
 			//cout << JoystickState.IsButtonPressed(joystickButtons[i]) << _trackPressed[i] << " ";
 			if (JoystickState.IsButtonPressed(joystickButtons[i]) != _trackPressed[i])
 			{
-				
 				usefullButton = i;
 			}
 		}

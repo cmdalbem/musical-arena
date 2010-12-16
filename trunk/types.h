@@ -63,18 +63,18 @@ enum statusType
 	ST_NORMAL,		// normal status
 	ST_POISON,		// takes damage per time
 	ST_FIRE,		// damage and defense down per time
-	ST_INVENCIBLE,	// infinite armor
-	ST_MAGIC_BARRIER, // can't be targeted by spells
+	ST_INVENCIBLE,		// infinite armor
+	ST_MAGIC_BARRIER, 	// can't be targeted by spells
 	ST_MIRROR,		// will reflect enemy's casted spell
-	ST_ELETRIFIED,	// player get shocks and damage per time
+	ST_ELETRIFIED,		// player get shocks and damage per time
 	ST_DROWNED,		// stamina will start to decrease, and when it's all gone player will start getting damage per time
-					// /\ inspired on Tomb Raider, when Lara Croft is swimming u.u
-	ST_DEFENSE_DOWN, // lose armor temporarily
+				// /\ inspired on Tomb Raider, when Lara Croft is swimming u.u
+	ST_DEFENSE_DOWN,	// lose armor temporarily
 	ST_CHAOTIC_SPEED,	// track speed will change randomically it's speed while the player is in this state
-	ST_BROKEN_DEFENSE,  // zero armor
-	ST_FROZEN,			// player cannot fret, neither solo
-	ST_CURSED,			// deals damage for every note the player hits
-	ST_BLESSED,			// heals the amount of damage that he would take
+	ST_BROKEN_DEFENSE,  	// zero armor
+	ST_FROZEN,		// player cannot fret, neither solo
+	ST_CURSED,		// deals damage for every note the player hits
+	ST_BLESSED,		// heals the amount of damage that he would take
 	
 	ST_TOTAL	
 };
@@ -85,31 +85,31 @@ enum effectType
 	//* SKILLS DE DEFESA*
 	T_MAGIC_BARRIER,		// invulnerable of enemy's magics
 	T_INVENCIBLE,			// invulnerable to any damage and magic	
-	T_HEAL,					// increase caster HP
-	T_ANTIDOTE,				// heals from current effects
+	T_HEAL,				// increase caster HP
+	T_ANTIDOTE,			// heals from current effects
 	T_DEFENSE_UP,			// increase caster defense
 	T_CLEAR_STONES,			// clear all stones in the screen
-	T_BLESS,				// put's caster on Blessed Status
+	T_BLESS,			// put's caster on Blessed Status
 	T_STAMINA_UP,			// increase caster's stamina
 	
 	//* SKILLS DE ATAQUE*
-	T_DAMAGE,				// decrease enemy's HP
+	T_DAMAGE,			// decrease enemy's HP
 	T_DEFENSE_DOWN,			// decrease enemy's defense
 	T_STAMINA_DOWN,			// decrease enemy's stamina
-	T_FEEDBACK,				// decrease enemy's stamina and decrease this amount of his HP
-	T_MIRROR,				// puts caster on Mirror Status
+	T_FEEDBACK,			// decrease enemy's stamina and decrease this amount of his HP
+	T_MIRROR,			// puts caster on Mirror Status
 	T_POISONOUS,			// puts enemy on Poison status
 	T_BREAK_DEFENSE,		// puts enemy on Broken Defense Status
-	T_BURN,					// puts enemy on Burn Status
-	T_DROWN,				// puts enemy on Drowned Status
-	T_ELETRIFY,				// puts enemy on Eletrified Status
+	T_BURN,				// puts enemy on Burn Status
+	T_DROWN,			// puts enemy on Drowned Status
+	T_ELETRIFY,			// puts enemy on Eletrified Status
 	T_DOUBLE_NOTES,			// doubles the notes appearing on enemy's track
 	T_TOLERANCE_DOWN,		// decreases enemy's tolerance
-	T_SPEED_UP,				// increases enemy's track speed
+	T_SPEED_UP,			// increases enemy's track speed
 	T_CHAOTIC_SPEED,		// put's enemy on Chaotic Speed Status
-	T_FREEZE,				// put's enemy on Frozen Status
-	T_CURSE,				// put's enemy on Cursed Status
-	T_VAMPIRIC,				// sucks the life out of me
+	T_FREEZE,			// put's enemy on Frozen Status
+	T_CURSE,			// put's enemy on Cursed Status
+	T_VAMPIRIC,			// sucks the life out of me
 	
 	
 	T_EFFECTS_TOTAL

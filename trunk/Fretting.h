@@ -60,6 +60,7 @@ class Fretting
 		int			verifyEventsAI(Stone* stones[NFRETS]);
 		void			printHitFret();
 		void			lostNote();
+		void			setAllNotPressed();
 		
 
 	private:
