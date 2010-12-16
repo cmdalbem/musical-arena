@@ -250,14 +250,14 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 		if ((type == KEYBOARD && event->KeyInput.PressedDown) || 
 			(type == JOYSTICK && JoystickState.IsButtonPressed(joystickSkillButton)))
 		{
+			actualSkillNode == skillsTree.begin();
 			if(skillButtonState == 0)
 			{
-				if (*usingSkill == 0)
-					*usingSkill = 1;
-				else if (*usingSkill == 1)
-					*usingSkill = 0;
+				if (!*usingSkill) {
+					*usingSkill = true;
+				}
 				else
-					*usingSkill = 0;
+					*usingSkill = false;
 				skillButtonState = 1;
 			}
 		}

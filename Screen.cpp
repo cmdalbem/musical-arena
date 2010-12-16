@@ -14,12 +14,18 @@ Screen::Screen( IrrlichtDevice *_device, double *_musicTime, Player* player1, Pl
 	player.push_back(player2);
 	musicTime = _musicTime;	
 	
-	effectFactory = new EffectFactory(device,driver,smgr,player);
+	//sceneLight = smgr->addLightSceneNode(0, vector3df(0,-80,-30), video::SColorf(1.0f, 1.0f, 1.0f), 30);
+	sceneLight = smgr->addLightSceneNode();
+	sceneLight->getLightData().SpecularColor = SColorf(0,0,0);
+	sceneLight->setLightType(ELT_DIRECTIONAL);
+	
+	effectFactory = new EffectFactory(device,driver,smgr,player,sceneLight);
 	
 	initializeScreenElements();
 	
-	//effectFactory->effectAnotherDimension(1,5000);
+	//effectFactory->queueEffect( 4000, EFFECT_LOTUS, 1 );
 	
+	//effectFactory->effectAnotherDimension(1,5000);
 	//effectFactory->queueEffect( 2000, EFFECT_FREEZE, 1 );
 	//effectFactory->effectVampireAttack(1,5000);
 	//effectFactory->queueEffect( 2000, EFFECT_EXPLOSION, 1 );
@@ -37,7 +43,6 @@ void Screen::initializeScreenElements()
 	// Pre-load textures
 	koTex = driver->getTexture("img/ko.png");
 	glowTex = driver->getTexture("img/glow2.bmp");
-	statusCircleTex = driver->getTexture("img/statuscircle.png");
 	
 	fireTex = driver->getTexture("img/fireicon.png");
 	poisonTex = driver->getTexture("img/poisonicon.png");
@@ -46,6 +51,8 @@ void Screen::initializeScreenElements()
 	drownedTex = driver->getTexture("img/watericon.png");
 	frozenTex = driver->getTexture("img/iceicon.png");
 	mirrorTex = driver->getTexture("img/mirroricon.png");
+	blessedTex = driver->getTexture("img/goldcross.png");
+	cursedTex = driver->getTexture("img/darkcross.png");
 	
 	// background
 	//sky = smgr->addSkyDomeSceneNode( driver->getTexture("img/stars.tga"), 32, 32 );
@@ -69,16 +76,9 @@ void Screen::initializeScreenElements()
 			hpText[i] = device->getGUIEnvironment()->addStaticText(L"", recti(position2di(xpos-35,HUD_BARS_Y+10),position2di(xpos+35,HUD_BARS_Y+25)));
 			hpText[i]->setOverrideColor( SColor(200,255,255,255) );
 			
-			/*#define ICONCIRCLESIZE 90
-			statusCircle[i] = device->getGUIEnvironment()->addImage( recti( position2di(SCREENX/2 - ICONCIRCLESIZE/2 + (i==0?-100:100), 50 - ICONCIRCLESIZE/2),
-																			dimension2di(ICONCIRCLESIZE,ICONCIRCLESIZE)) );
-			statusCircle[i]->setImage(statusCircleTex);
-			statusCircle[i]->setUseAlphaChannel(true);
-			statusCircle[i]->setScaleImage(true);*/
-			
 			#define ICONSIZE 60
 			//statusIcon[i] = device->getGUIEnvironment()->addImage( recti( position2di(SCREENX/2 - ICONSIZE/2 + (i==0?-100:100),50 - ICONSIZE/2),dimension2di(ICONSIZE,ICONSIZE)) );
-			statusIcon[i] = device->getGUIEnvironment()->addImage( recti( position2di(xpos+(i==0?180:-180)-ICONSIZE/2, HUD_BARS_Y+5-ICONSIZE/2),dimension2di(ICONSIZE,ICONSIZE)) );
+			statusIcon[i] = device->getGUIEnvironment()->addImage( recti( position2di(xpos+(i==0?175:-175)-ICONSIZE/2, HUD_BARS_Y+7.5-ICONSIZE/2),dimension2di(ICONSIZE,ICONSIZE)) );
 			statusIcon[i]->setUseAlphaChannel(true);
 			statusIcon[i]->setScaleImage(true);
 			
@@ -126,7 +126,7 @@ void Screen::initializeScreenElements()
 			glow[i][k] = smgr->addBillboardSceneNode(smgr->getRootSceneNode(), dimension2d<float>(10, 10));
 			glow[i][k]->setMaterialFlag(EMF_LIGHTING, false);
 			glow[i][k]->setMaterialType(EMT_TRANSPARENT_ADD_COLOR); 
-			glow[i][k]->setPosition( vector3df(player[i]->track->getStoneXPos(k),-TRACK_SIZE_Y,player[i]->track->posz) );
+			glow[i][k]->setPosition( vector3df(player[i]->track->getStoneXPos(k),-TRACK_SIZE_Y,TRACK_POS_Z) );
 			glow[i][k]->setVisible(false);
 			((IBillboardSceneNode*)glow[i][k])->setColor(fretColors[k]);
 			glow[i][k]->setMaterialTexture(0, glowTex);
@@ -144,6 +144,9 @@ void Screen::initializeScreenElements()
 	}
 	
 	screenFader = device->getGUIEnvironment()->addInOutFader();
+	
+	koImage = device->getGUIEnvironment()->addImage(koTex, position2di(0,100), true);
+	koImage->setVisible(false);
 }
 
 void Screen::drawKeys()
@@ -196,8 +199,8 @@ void Screen::drawKeys()
 			}
 				
 			// draw the colored bar for this fret
-			driver->draw3DLine( vector3df(player[i]->track->getStoneXPos(k) -1, -TRACK_SIZE_Y, player[i]->track->posz - zdisplace),
-								vector3df(player[i]->track->getStoneXPos(k) +1, -TRACK_SIZE_Y, player[i]->track->posz - zdisplace),
+			driver->draw3DLine( vector3df(player[i]->track->getStoneXPos(k) -1, -TRACK_SIZE_Y, TRACK_POS_Z - zdisplace),
+								vector3df(player[i]->track->getStoneXPos(k) +1, -TRACK_SIZE_Y, TRACK_POS_Z - zdisplace),
 								color );			
 		}
 	}
@@ -209,7 +212,7 @@ void Screen::update()
 {
 	for(int i=0; i<NPLAYERS; i++) 
 		if(player[i]->HP==0)
-			device->getGUIEnvironment()->addImage(koTex, position2di(0,100), true);
+			koImage->setVisible(true);
 	
 	drawBars();
 	drawKeys();
@@ -260,11 +263,11 @@ void Screen::drawStatus()
 				break;
 			case ST_CURSED:
 				statusIcon[i]->setVisible(true);
-				//statusIcon[i]->setImage(??????);
+				statusIcon[i]->setImage(cursedTex);
 				break;			
 			case ST_BLESSED:
 				statusIcon[i]->setVisible(true);
-				//statusIcon[i]->setImage(??????);
+				statusIcon[i]->setImage(blessedTex);
 				break;
 			default:
 				statusIcon[i]->setVisible(false);
@@ -285,7 +288,7 @@ void Screen::drawBars()
 	char str[30];
 	int seconds = (int)(musicTotalTime-*musicTime) % 60;
 	int minutes = (musicTotalTime-*musicTime) / 60.;
-	sprintf(str,"%i:%i",minutes,seconds);
+	sprintf(str,"%i:%2.i",minutes,seconds);
 	timeText->setText( stringw(str).c_str() );
 	
 	for(int i=0; i<NPLAYERS; i++) {

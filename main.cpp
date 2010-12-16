@@ -52,7 +52,7 @@ vector<musicEvent> 			theMusic;
 Player 						player[2];
 SkillBank					skillBank;
 SoundBank					*soundBank;
-bool						activateAI = false;
+bool						activateAI = true;
 
 bool 						endOfMusic =false; // indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
 double 						musicTime =0;
@@ -151,7 +151,7 @@ void castSpell ()
 						player[i].timeInStatus = casted->effects[j].param1;
 						break;
 					case T_SPEED_UP:
-						player[!i].track->setSpeed( player[!i].track->getSpeed() + casted->effects[j].param1);
+						player[!i].track->setSpeed( player[!i].track->getSpeed() + casted->effects[j].param1 );
 						break;		
 					case T_CHAOTIC_SPEED:
 						player[!i].status = ST_CHAOTIC_SPEED;
@@ -174,6 +174,13 @@ void castSpell ()
 					case T_BLESS:
 						player[i].status = ST_BLESSED;
 						player[i].timeInStatus = casted->effects[j].param1;
+						break;
+					case T_STAMINA_UP:
+						player[i].changeStamina( casted->effects[j].param1 );
+						break;
+					case T_CURSE:
+						player[!i].status = ST_CURSED;
+						player[!i].timeInStatus = casted->effects[j].param1;
 						break;
 					}
 				}
@@ -270,8 +277,8 @@ void musa_init()
 		violin->addSkill( skillBank.skills[i] );
 	}
 	
-	player[0].track = new Track(&theMusic,&musicTime,device,23, -20);
-	player[1].track = new Track(&theMusic,&musicTime,device,23, 20);
+	player[0].track = new Track(&theMusic,&musicTime,device,23, -18);
+	player[1].track = new Track(&theMusic,&musicTime,device,23, 18);
 	
 	player[0].instrument = violin; 
 	player[1].instrument = drums;
@@ -319,7 +326,7 @@ void musa_init()
 	player[0].fretting->setEvents(eventsKeyboard1, irr::KEY_SPACE );
 	//player[0].fretting->setEvents(eventsJoystick1, joystickInfo, 0, 3);	//comment this line to use keyboard for player 1
 	player[1].fretting->setEvents(eventsKeyboard2, irr::KEY_KEY_C );
-	player[1].fretting->setEvents(eventsJoystick2, joystickInfo, 0, 3);	//comment this line to use keyboard for player 2
+	//player[1].fretting->setEvents(eventsJoystick2, joystickInfo, 0, 3);	//comment this line to use keyboard for player 2
 	
 	screen = new Screen(device,&musicTime,&player[0],&player[1]);
 						
@@ -364,12 +371,6 @@ void initializeIrrlicht()
 	IGUISkin* skin = env->getSkin();
 	IGUIFont* font = env->getFont("img/fontcourier.bmp");
 	skin->setFont(font);
-
-	//env->addButton(rect<s32>(10,240,110,240 + 32), 0, GUI_ID_QUIT_BUTTON,
-	//		L"Quit", L"Exits Program");
-	/*scene::ILightSceneNode *light = */smgr->addLightSceneNode(0, vector3df(0,-80,-30), video::SColorf(1.0f, 1.0f, 1.0f), 20.0f);
-	//light->setLightType(video::ELT_DIRECTIONAL);
-	//light->setRotation(vector3df(-90,0,0));
 	
     // lol quake scenario
     /*device->getFileSystem()->addZipFileArchive("map-20kdm2.pk3");
@@ -382,9 +383,10 @@ void initializeIrrlicht()
     // like the real game camera
     camera = smgr->addCameraSceneNode (
 				0,					  // Camera parent
-				vector3df(0, -90, -40), // Look from
-				vector3df(0, -30, 20), // Look to
+				vector3df(0, -95, -35), // Look from
+				vector3df(0, -30, 15), // Look to
 				1);						  // Camera ID
+	//camera->setFOV(PI/3);
 	
 	// a FPS camera for debugging
 	//camera = smgr->addCameraSceneNodeFPS(); device->getCursorControl()->setVisible(false);
@@ -463,9 +465,7 @@ int main(int argc, char *argv[])
 		
 		driver->beginScene(true, true, bgColor);
 		
-		driver->draw2DImage( bgPic, recti(position2di(0,0),
-							position2di(SCREENX,SCREENY)),
-							recti(position2di(0,0),bgPic->getOriginalSize()) );
+		driver->draw2DImage( bgPic, recti(position2di(0,0), position2di(SCREENX,SCREENY)), recti(position2di(0,0),bgPic->getOriginalSize()) );
 
 		sem_wait(&semaphore);
 		
@@ -484,9 +484,9 @@ int main(int argc, char *argv[])
 		
 		driver->setRenderTarget(0, false, true, bgColor);
 			renderPostProcessEffects();
-			smgr->drawAll();
 			player[0].track->draw();
 			player[1].track->draw();
+			smgr->drawAll();			
 		
 		screen->update();
 		

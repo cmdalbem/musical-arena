@@ -26,8 +26,9 @@
 #define SCREENX 1024 
 #define SCREENY 768
 
-#define TRACK_SIZE_X 30
+#define TRACK_SIZE_X 35
 #define TRACK_SIZE_Y 70
+#define TRACK_POS_Z 3
 
 #define SKILLBUTTON_INDEX 10
 

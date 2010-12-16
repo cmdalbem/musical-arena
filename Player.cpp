@@ -75,8 +75,12 @@ void Player::update()
 		if( isUsingSkill )
 			changeStamina(-STAMINA_LOST_ON_SOLO);
 		
-		if( fretting->frettingState==1 )
-			changeStamina(STAMINA_GAINED_BY_NOTE);
+		if( fretting->frettingState==1 ) {
+			if(status==ST_CURSED)
+				takeDamage(DAMAGE_PER_NOTE_MISSED);
+			else
+				changeStamina(STAMINA_GAINED_BY_NOTE);
+		}
 		
 		gettimeofday (&lastTimeUpdatedStatus, NULL);
 	}
@@ -263,7 +267,10 @@ void Player::updateStatus()
 			}
 			break;
 		case ST_BLESSED:
-			//look in takeDamage()
+			//look in Player::takeDamage()
+			break;
+		case ST_CURSED:
+			//look in Player::update()
 			break;
 		
 	}

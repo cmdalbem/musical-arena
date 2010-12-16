@@ -8,26 +8,24 @@ using irr::video::SColor;
 using irr::video::SMaterial;
 using irr::core::vector3df;
 using irr::core::aabbox3d;
-using irr::core::rect;
+using irr::core::rect; 
 using irr::core::position2d;
 using irr::core::dimension2d;
 
-Track::Track( music* _theMusic, double *_musicTime, IrrlichtDevice *_device, double _speed, double _posx, double _posy, double _posz )
+Track::Track( music* _theMusic, double *_musicTime, IrrlichtDevice *_device, double _speed, double _posx )
 {
 	theMusic = _theMusic;
-	musicTime = _musicTime;
+	musicTime = _musicTime; 
 	
 	speed = _speed;
 	
 	device = _device;
-	sceneManager = device->getSceneManager();
+	smgr = device->getSceneManager();
 	driver = device->getVideoDriver();
 	
 	sizex = TRACK_SIZE_X;
-	sizey = TRACK_SIZE_Y;
+	sizey = TRACK_SIZE_Y; 
 	posx = _posx;
-	posy = _posy;
-	posz = _posz;
 	
 	musicPos = 0;
 	
@@ -35,7 +33,7 @@ Track::Track( music* _theMusic, double *_musicTime, IrrlichtDevice *_device, dou
 	
 	glowTex = driver->getTexture("img/glow.png");
 	
-	node = new TrackSceneNode(sceneManager->getRootSceneNode(), sceneManager, 0, sizex, sizey, posx, posy, posz);
+	node = new TrackSceneNode(smgr->getRootSceneNode(), smgr, -1, posx);
 }
 
 Track::~Track() {}
@@ -105,7 +103,7 @@ double Track::getStoneXPos( int track )
 
 vector3df Track::getCentroid()
 {
-	return vector3df(posx,-TRACK_SIZE_Y/2,posz);
+	return vector3df(posx,-TRACK_SIZE_Y/2,TRACK_POS_Z);
 }
 
 vector3df Track::getRandomPos()
@@ -116,9 +114,9 @@ vector3df Track::getRandomPos()
 
 void Track::insertStone( musicEvent event )
 {
-	Stone *newStone = new Stone(device, event, fretColors[event.button], glowTex, &speed, getStoneXPos(event.button), this->posy, posz-0.1); //x,y,z
+	Stone *newStone = new Stone(device, event, fretColors[event.button], glowTex, &speed, getStoneXPos(event.button), 0, TRACK_POS_Z-STONE_RADIUS); //x,y,z
 	
-	stones[event.button].push_back(newStone);	
+	stones[event.button].push_back(newStone);
 }	
 
 void Track::drawQuarters()
@@ -145,8 +143,8 @@ void Track::drawQuarters()
 	driver->setMaterial(m);
 	driver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4());  //global positioning
 	for(int i=0; i<(int)howManyLines; i++)
-		driver->draw3DLine( vector3df(posx-sizex/2, posy - ( trackTime - (i+1)*spqn + offset )*speed,posz-1),
-							vector3df(posx+sizex/2, posy - ( trackTime - (i+1)*spqn + offset )*speed,posz-1),
+		driver->draw3DLine( vector3df(posx-sizex/2, - ( trackTime - (i+1)*spqn + offset )*speed, TRACK_POS_Z-1),
+							vector3df(posx+sizex/2, - ( trackTime - (i+1)*spqn + offset )*speed, TRACK_POS_Z-1),
 							SColor(70,255,255,255) );
 }
 
