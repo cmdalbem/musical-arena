@@ -29,6 +29,7 @@ void Player::initialize()
 	hasMagicBarrier = false;
 	hasMirror = false; 
 	isChaotic = false;
+	isFrozen = false;
 	
 	chaoticCounter = 0;
 	poisonCounter = 0;
@@ -104,8 +105,8 @@ void Player::update()
 				firstStones[i] = NULL;
 		if (fretting->receiver->enabled)
 		{
-			if (activateAI)
-				gotAnEvent = fretting->verifyEventsAI(firstStones );
+			if (activateAI && !isFrozen)
+				gotAnEvent = fretting->verifyEventsAI(firstStones);
 			/*else if(anEvent = fretting->receiver->getEvent())
 				{
 					fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
@@ -145,13 +146,14 @@ void Player::updateEvents()
 	SEvent *anEvent=NULL;
 	Stone* firstStones[NFRETS];
 	gotAnEvent = 1;
-	for(unsigned int i=0; i<NFRETS; i++)
-		if(track->stones[i].size() > 0)
-			firstStones[i] = track->stones[i].front();
-		else
-			firstStones[i] = NULL;
-	if ( (fretting->receiver->enabled) && (!activateAI) && (anEvent = fretting->receiver->getEvent()) )
+	if ( (!isFrozen) && (fretting->receiver->enabled) && (!activateAI) 
+		&& (anEvent = fretting->receiver->getEvent()) )
 	{
+		for(unsigned int i=0; i<NFRETS; i++)
+			if(track->stones[i].size() > 0)
+				firstStones[i] = track->stones[i].front();
+			else
+				firstStones[i] = NULL;
 		fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
 	}
 }
@@ -269,6 +271,11 @@ void Player::updateStatus()
 		case ST_BLESSED:
 			//look in Player::takeDamage()
 			break;
+		case ST_FROZEN:
+			isUsingSkill = false;
+			fretting->setAllNotPressed();
+			isFrozen = true;
+			break;
 		case ST_CURSED:
 			//look in Player::update()
 			break;
@@ -298,6 +305,9 @@ void Player::setStatusNormal()
 	if(isChaotic) {
 		isChaotic = false;
 		track->setSpeed(lastSpeed);
+	}
+	if(isFrozen) {
+		isFrozen = false;
 	}
 }
 

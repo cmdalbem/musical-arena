@@ -48,7 +48,7 @@ ITexture					*glowTex;
 // MusA globals
 Decoder 					decoder;
 Screen						*screen;
-vector<musicEvent> 			theMusic;
+vector<musicEvent> 				theMusic;
 Player 						player[2];
 SkillBank					skillBank;
 SoundBank					*soundBank;
@@ -236,7 +236,7 @@ static void *updater(void *argument)
 		
 		handleHittingStates();
 		sem_wait(&semaphore);
-			if (player[1].activateAI == true)
+			if (player[1].activateAI == true && !player[1].isFrozen)
 			{
 				double chance = rand() % 30000;
 				if (chance == 0)
@@ -438,7 +438,7 @@ int main(int argc, char *argv[])
 	/*
 	 * gets some music
 	 */
-	soundBank->selectMusic(0);
+	soundBank->selectMusic(1);
 	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
 	//decoder.printMusic(theMusic);
 	screen->musicTotalTime = theMusic.back().time;
@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
 	pthread_t thread[3];
 	int arg = 1;
 	pthread_create(&thread[0], NULL, updater, (void *) arg);
-	pthread_create(&thread[1], NULL, debugger, (void *) arg);
+	//pthread_create(&thread[1], NULL, debugger, (void *) arg);
 	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
 	
 	soundBank->playSelectedMusic();
