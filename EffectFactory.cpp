@@ -669,7 +669,7 @@ void EffectFactory::splitBlood( int targetPlayer, E_GORE_LEVEL gore )
 {
 	// EGL_MILD, EGL_MEDIUM, EGL_BRUTAL, EGL_INSANE
 	blood = new CBloodEffect(device->getSceneManager(), bloodTex, gore,
-							players[targetPlayer]->track->getCentroid()+vector3df(targetPlayer==0? 21:-21,-48.5,-10), //source
+							players[!targetPlayer]->track->getCentroid()+vector3df(targetPlayer==1? 21:-21,-48.5,-10), //source
 							vector3df(0, -0.7, -3), //direction
 							35); //duration
 	blood->setVisible(false);
