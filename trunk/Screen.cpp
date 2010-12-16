@@ -220,6 +220,9 @@ void Screen::update()
 	drawSplitBlood();
 	drawStatus();
 	
+	//effectFactory->splitBlood(0, EGL_MILD);
+	//effectFactory->splitBlood(1, EGL_MILD);
+	
 	// animate background
 	//sky->getMaterial(0).getTextureMatrix(0).setTextureTranslate( 0, -*musicTime/3 );
 	
@@ -317,7 +320,7 @@ void Screen::drawSplitBlood()
 				gore = EGL_MEDIUM;
 			else
 				gore = EGL_MILD;
-			
+			//cout << player[i]->damageTaken << endl;
 			effectFactory->splitBlood(i, gore);
 			player[i]->damageTaken = 0;
 		}

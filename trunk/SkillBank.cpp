@@ -197,9 +197,9 @@ void SkillBank::makeSkills()
 		skills[SWAMP] = s;
 	}
 	{
-		buttonType k[] = {B3,B3,B3,B4,B4,B4,B5,B5,B5};
+		buttonType k[] = {B1,B1,B2,B2,B4,B4,B5,B5};
 		effectStruct e[] = {{T_FREEZE, 8, -1}};
-		Skill s("Siberian", ATTACK, S_ICE1, 120, WATER, e, 1, EFFECT_FREEZE, k, 6,
+		Skill s("Siberian", ATTACK, S_ICE1, 120, WATER, e, 1, EFFECT_FREEZE, k, 8,
 		"");
 		skills[SIBERIAN] = s;
 	}	
