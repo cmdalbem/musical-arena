@@ -40,6 +40,7 @@ class Player
 		void			changeArmor( double howMuch );
 		void 			initializeAtributes();
 		void			update();
+		void			updateEvents();
 		void			recoverHP ( double howMuch );
 		double			takeDamage( double damage  );
 		void 			updateStatus();
