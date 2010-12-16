@@ -8,12 +8,22 @@ Falar sobre como é interessante o efeito de a pessoa conhecer a música para sa
 ===Especificações técnicas===
 
 Irrlicht, C++, FMOD, SMF, GIMP.
-Comentar sobre ser desenvolvido em Linux, com ferramentas FREE, e ser portável para Windows (e talvez MAC? não sei.)
+Desenvolvido OpenSource.
+
+
+===Resultados===
+
+números: 5 elementos, mais de 22 skills com animações e sons unicos, 25 efeitos colaterais
+software: excelente jogabilidade, software estendível
+conclusão: jogo simples e divertido, que favorece quem joga guitar hero bem, e favorece quem joga rpg bem
+
 
 ===Dificuldades===
 
 Programação orientada a timeline: dificuldade de programar pensando em sequencia temporal.
 
 Sincronia música-jogo: era pra ser um problema, acabou não sendo!
+
+Tempo: não deu tempo de fazer um modo história...
 
 _(eu tinha tido várias outras ideias de dificuldades mas esqueci agora)_
