@@ -25,8 +25,10 @@ using irr::core::vector3df;
 #include "PostProcessInvert.h"
 #include "SoundBank.h"
 #include "Instrument.h"
+#include "gui.h"
 
 core::array<SJoystickInfo> joystickInfo;
+
 
 
 // Irrlicht globals
@@ -35,7 +37,7 @@ video::IVideoDriver 		*driver=0;
 scene::ISceneManager 		*smgr=0;
 IGUIEnvironment				*env=0;
 scene::ICameraSceneNode 	*camera=0;
-EventReceiver 				receiver;
+EventReceiver 				*receiver;
 
 // Post process effects
 IPostProcessBloom 			*bloom;
@@ -248,12 +250,12 @@ static void *updater(void *argument)
 			
 			castSpell();
 			
-			int tam = receiver.getEventsSize();
-			while (receiver.getEventsSize() != 0)
+			int tam = receiver->getEventsSize();
+			while (receiver->getEventsSize() != 0)
 			{
 				player[0].updateEvents();
 				player[1].updateEvents();
-				receiver.removeEvent();
+				receiver->removeEvent();
 			}
 			player[0].update();
 			player[1].update();
@@ -289,8 +291,8 @@ void musa_init()
 	player[0].fretting->musicTime = &musicTime;
 	player[1].fretting->musicTime = &musicTime;
 	
-	player[0].fretting->receiver = &receiver;
-	player[1].fretting->receiver = &receiver;
+	player[0].fretting->receiver = receiver;
+	player[1].fretting->receiver = receiver;
 
 	player[1].activateAI = activateAI;
 	
@@ -331,7 +333,7 @@ void musa_init()
 	screen = new Screen(device,&musicTime,&player[0],&player[1]);
 						
 	// start getting signals, baby
-	receiver.enabled = true;	
+	receiver->enabled = true;	
 }
 
 void initializePostProcessEffects()
@@ -355,22 +357,32 @@ void initializePostProcessEffects()
 
 void initializeIrrlicht()
 {
-// Graphical engine initializing
+	// Graphical engine initializing
 	device = createDevice( video::EDT_OPENGL, core::dimension2d<u32>(SCREENX,SCREENY), 32,
 							false, //fullscreen?
 							false, //used stencil buffer?
-							false, //use vsync?
-							&receiver //event receiver
+							false //use vsync?
 						);
+	device->setResizable(false);
 	device->setWindowCaption(L"Musical Arena (MusA): The Adventures of Lucy in the Enchanted Realm of Diamond Sky");
 
 	driver = device->getVideoDriver();
 	smgr = device->getSceneManager();
 	env = device->getGUIEnvironment();
 	
+	// GUI
 	IGUISkin* skin = env->getSkin();
 	IGUIFont* font = env->getFont("img/fontcourier.bmp");
 	skin->setFont(font);
+	skin->setFont(env->getBuiltInFont(), EGDF_TOOLTIP);
+	
+	SAppContext guiControls;
+	guiControls.device = device;
+	
+	env->addButton(rect<s32>(100,140,100+100,140 + 32), 0, GUI_ID_QUIT_BUTTON, L"Quit", L"Exits Program");
+	
+	receiver = new EventReceiver(guiControls);
+	device->setEventReceiver(receiver);
 	
     // lol quake scenario
     /*device->getFileSystem()->addZipFileArchive("map-20kdm2.pk3");
@@ -399,7 +411,7 @@ static void *debugger (void *argument)
 	while(1)
 	{
 		player[0].fretting->printHitFret();
-		cout << "vetor.size(): " << receiver.getEventsSize() << endl;
+		cout << "vetor.size(): " << receiver->getEventsSize() << endl;
 		usleep(80000);
 	}
 
