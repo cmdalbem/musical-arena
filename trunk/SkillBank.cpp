@@ -34,7 +34,7 @@ void SkillBank::makeSkills()
 	{
 		buttonType k[] = {B1,B1};
 		effectStruct e[] = {{T_DAMAGE, 50, -1}, {T_DEFENSE_DOWN, 1, -1}};
-		Skill s("Fireball", ATTACK, S_FIRE2, 40, FIRE, e, 2, EFFECT_FIREBALL, k, 2,
+		Skill s("Fireball", ATTACK, S_FIRE2, 50, FIRE, e, 2, EFFECT_FIREBALL, k, 2,
 			"Launch a fireball in the enemy. Cheap and fast damage, will also decrease the defenses of the enemy a little each time, which can be a disaster later on!");
 		skills[FIREBALL] = s;
 	}
@@ -45,13 +45,13 @@ void SkillBank::makeSkills()
 		"The skies are on fire! Causes damage, lowers defense and put your enemy on fire. Also, all that fire makes the fretting harder to see...");
 		skills[FIRE_RAIN] = s;
 	}
-	{
+	/*{
 		buttonType k[] = {B2,B4,B5,B2,B5,B4,B2,B4,B5,B2,B5,B4};
 		effectStruct e[] = {};
 		Skill s("Implant Bomb", ATTACK, S_HORROR1, 60, FIRE, e, 0, EFFECT_FIREBALL, k, 12,
 		"Implants a bomb on an opponent note, which will be activated if he plays it, causing a lot of damage.");
 		skills[IMPLANT_BOMB] = s;
-	}
+	}*/
 	{
 		buttonType k[] = {B4,B5,B3,B4,B2,B3,B1,B2,B4,B5,B3,B4,B2,B3,B1,B2};
 		effectStruct e[] = {{T_BURN, 20, -1},{T_BREAK_DEFENSE, 20, -1}};
@@ -74,21 +74,21 @@ void SkillBank::makeSkills()
 	{
 		buttonType k[] = {B2,B2,B4,B4};
 		effectStruct e[] = {{T_DAMAGE, 50, -1},{T_ELETRIFY, 2, -1},{T_SPEED_UP, 2, -1}};
-		Skill s("Lightning Bolt", ATTACK, S_LIGHTNING, 40, THUNDER, e, 3, EFFECT_BOLT, k, 4,
+		Skill s("Lightning Bolt", ATTACK, S_LIGHTNING, 50, THUNDER, e, 3, EFFECT_BOLT, k, 4,
 		"Cheap and fast damage which eletrifies the opponents instrument, causing notes to be harder to hit.");
 		skills[LIGHTNING_BOLT] = s;
 	}
 	{
 		buttonType k[] = {B1,B5,B1,B5,B1,B5,B1,B5,B1,B5,B1,B5,B1,B5};
 		effectStruct e[] = {{T_ELETRIFY, 6, 0.02}};
-		Skill s("Eletrified Ground", ATTACK, S_BOLT2, 100, THUNDER, e, 1, EFFECT_ELETRIC_GROUND, k, 14,
+		Skill s("Eletrified Ground", ATTACK, S_BOLT2, 130, THUNDER, e, 1, EFFECT_ELETRIC_GROUND, k, 14,
 		"Watch out, the ground is eletrified! When an enemies instrument is eletrified, fretting becomes a confusing thing to do.");
 		skills[ELETRIFIED_GROUND] = s;
 	}
 	{
 		buttonType k[] = {B1,B3,B4,B5,B1,B3,B4,B5,B1,B3,B4,B5};
-		effectStruct e[] = {{T_DAMAGE, 200, -1},{T_ELETRIFY, 8, 0.05},{T_SPEED_UP, 4, -1}};
-		Skill s("Thunder Storm", ATTACK, S_STORM, 190, THUNDER, e, 3, EFFECT_THUNDERSTORM, k, 12,
+		effectStruct e[] = {{T_DAMAGE, 170, -1},{T_ELETRIFY, 8, 0.05},{T_SPEED_UP, 8, -1}};
+		Skill s("Thunder Storm", ATTACK, S_STORM, 270, THUNDER, e, 3, EFFECT_THUNDERSTORM, k, 12,
 		"A powerfull thunder storm which causes a lot of damage and yet eletrifies the opponent.");
 		skills[THUNDERSTORM] = s;
 	}
@@ -106,7 +106,7 @@ void SkillBank::makeSkills()
 	/////////////////////////////	
 	{
 		buttonType k[] = {B1,B2,B5,B4,B1,B2,B5,B4};
-		effectStruct e[] = {{T_HEAL, 200, -1},{T_ANTIDOTE, -1, -1},{T_DEFENSE_UP, 2, -1}};
+		effectStruct e[] = {{T_HEAL, 100, -1},{T_ANTIDOTE, -1, -1},{T_DEFENSE_UP, 2, -1}};
 		Skill s("Inspiration", DEFENSE, S_MAGIC1, 70, SPIRITUAL, e, 3, EFFECT_GLOW_AREA, k, 8, "Cures all illness of the body and soul.");
 		skills[INSPIRATION] = s;
 	}
@@ -114,13 +114,13 @@ void SkillBank::makeSkills()
 		buttonType k[] = {B1,B2,B3,B4,B5,B5,B4,B3,B2,B1,B1,B2,B3,B4,B5};
 		effectStruct e[] = {{T_MIRROR, 4, -1},{T_DEFENSE_UP, 2, -1}};
 		Skill s("Mirror", DEFENSE, S_DIGITAL, 120, SPIRITUAL, e, 2, EFFECT_SHIELD, k, 15,
-		"... Still, be like a mirror. Respond like an echo.");
+		"Still, be like a mirror. Respond like an echo.");
 		skills[MIRROR] = s;
 	}
 	{
-		buttonType k[] = {B4,B5,B3,B4,B5,B1,B2};
+		buttonType k[] = {B4,B5,B3,B2,B1};
 		effectStruct e[] = {{T_CLEAR_STONES, -1, -1},{T_DEFENSE_UP, 2, -1}};
-		Skill s("Divine Silence", DEFENSE, S_FIRERUMBLE, 160, SPIRITUAL, e, 2, EFFECT_GLOW_AREA, k, 7,
+		Skill s("Divine Silence", DEFENSE, S_FIRERUMBLE, 160, SPIRITUAL, e, 2, EFFECT_SILENCE, k, 5,
 		"...");
 		skills[DIVINE_SILENCE] = s;
 	}
@@ -139,21 +139,21 @@ void SkillBank::makeSkills()
 	{
 		buttonType k[] = {B4,B4,B5,B5,B3,B3,B2,B2,B1,B1};
 		effectStruct e[] = {{T_CURSE, 10, -1}};
-		Skill s("Soul Corruption", ATTACK, S_HORROR1, 90, DARK, e, 0, EFFECT_GLOW_AREA, k, 10,
+		Skill s("Soul Corruption", ATTACK, S_HORROR1, 90, DARK, e, 1, EFFECT_BLACKHOLE, k, 10,
 		"");
 		skills[SOUL_CORRUPTION] = s;
 	}
 	{
-		buttonType k[] = {B1,B3,B2,B4};
+		buttonType k[] = {B1,B3,B2,B4, B5,B4,B3};
 		effectStruct e[] = {{T_FEEDBACK, -1, -1}};
-		Skill s("Feedback", ATTACK, S_MAGIC2, 170, DARK, e, 1, EFFECT_FEEDBACK, k, 4,
+		Skill s("Feedback", ATTACK, S_MAGIC2, 170, DARK, e, 1, EFFECT_FEEDBACK, k, 7,
 		"From the world of Starcraft, this will make your enemy pretty irritated when he was so much time saving his stamina...");
 		skills[FEEDBACK] = s;
 	}
 	{
-		buttonType k[] = {B5,B4,B3,B3,B4,B5,B5,B4,B3,B2,B1,B1,B1};
+		buttonType k[] = {B5,B4,B3,B3,B4,B5,B5,B4,B3,B2,B1};
 		effectStruct e[] = {{T_VAMPIRIC, 100, -1}};
-		Skill s("Vampiric", ATTACK, S_HORROR2, 90, DARK, e, 1, EFFECT_VAMPIRIC, k, 13,
+		Skill s("Vampiric", ATTACK, S_HORROR2, 90, DARK, e, 1, EFFECT_VAMPIRIC, k, 11,
 		"");
 		skills[VAMPIRIC] = s;
 	}	
@@ -164,15 +164,21 @@ void SkillBank::makeSkills()
 		"A big explosion comes from the ground! Causes lots of damage, lowers the defense and knocks the enemy into the ground, causing him to lose stamina");
 		skills[EXPLOSION] = s;
 	}	*/	
-	
+	{
+		buttonType k[] = {B1,B2,B3,B4,B5, B2,B3,B4,B5, B3,B4,B5, B4,B5, B5,B4,B3,B2,B1};
+		effectStruct e[] = {{T_STAMINA_UP, 100, -1}};
+		Skill s("Black Lotus", DEFENSE, S_MAGIC1, 0, DARK, e, 1, EFFECT_LOTUS, k, 19,
+		"The favorite of Darth Vader's bride.");
+		skills[BLACK_LOTUS] = s;
+	}
 	
 	/////////////////////////////
 	// WATER
 	/////////////////////////////
 	{
 		buttonType k[] = {B3,B4,B5};
-		effectStruct e[] = {{T_DAMAGE, 30, -1},{T_STAMINA_DOWN, 50, -1},{T_DROWN, 3, -1}};
-		Skill s("Water Beam", ATTACK, S_STREAM2, 30, WATER, e, 3, EFFECT_WATER_BEAM, k, 3,
+		effectStruct e[] = {{T_DAMAGE, 30, -1},{T_STAMINA_DOWN, 40, -1},{T_DROWN, 3, -1}};
+		Skill s("Water Beam", ATTACK, S_STREAM2, 50, WATER, e, 3, EFFECT_WATER_BEAM, k, 3,
 		"TORTOOOOOOOIIIIIIIIISEEEEEEEEEEEEEEEEEEEEEEEEEE");
 		skills[WATER_BEAM] = s;
 	}

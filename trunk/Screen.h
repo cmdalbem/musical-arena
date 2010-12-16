@@ -41,12 +41,13 @@ class Screen
 		ISceneManager				*smgr;
 		double						*musicTime;
 		
+		ILightSceneNode 			*sceneLight;
 		ISceneNode					*glow[NPLAYERS][NFRETS];
 		IGUIStaticText 				*fpsText, *hpText[NPLAYERS], *timeText;
 		VxHealthSceneNode			*healthBar[NPLAYERS], *armorBar[NPLAYERS], *staminaBar[NPLAYERS];
-		IGUIImage					*statusIcon[NPLAYERS], *statusCircle[NPLAYERS];
+		IGUIImage					*statusIcon[NPLAYERS], *koImage;
 		IGUIInOutFader				*screenFader;
-		ITexture 					*koTex, *glowTex, *statusCircleTex, *poisonTex, *fireTex, *magicBarrierTex, *eletrifiedTex, *drownedTex, *frozenTex, *mirrorTex;
+		ITexture 					*koTex, *glowTex, *poisonTex, *fireTex, *magicBarrierTex, *eletrifiedTex, *drownedTex, *frozenTex, *mirrorTex, *blessedTex, *cursedTex;
 		ISceneNode 					*sky;
 			
 		// HUD drawing

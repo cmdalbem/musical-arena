@@ -17,7 +17,7 @@ enum visualEffectFunction
 	EFFECT_SHIELD_SINGLE, EFFECT_SWAMP, EFFECT_BALL_LIGHTNING,
 	EFFECT_IMPLANT_BOMB, EFFECT_SUN, EFFECT_DARK_STORM_BOLT, EFFECT_DARK_STORM,
 	EFFECT_FREEZE, EFFECT_BLACKHOLE, EFFECT_BLACKHOLE_BOLT, EFFECT_AURORA,
-	EFFECT_VAMPIRIC
+	EFFECT_VAMPIRIC, EFFECT_LOTUS, EFFECT_SILENCE
 };
 
 typedef pair<pair<unsigned int,visualEffectFunction>,int> effectEvent;
@@ -39,7 +39,7 @@ const std::string missFiles[] = { "miss1", "miss2", "miss3", "miss4", "miss5", "
 
 enum elementType
 {
-	FIRE, THUNDER, WATER, ECO, SPIRITUAL, DARK
+	FIRE, THUNDER, WATER, SPIRITUAL, DARK
 };
 
 enum skillId
@@ -47,7 +47,7 @@ enum skillId
 	FIREBALL, INSPIRATION, EXPLOSION, LIGHTNING_BOLT, FIRE_RAIN, FEEDBACK,
 	ELETRIFIED_GROUND, FLOOD, WATER_BEAM, THUNDERSTORM, MIRROR, SWAMP, 
 	BLACK_HOLE, BALL_LIGHTNING, IMPLANT_BOMB, SUNBIRTH, DIVINE_SILENCE,
-	SIBERIAN, SOUL_CORRUPTION, VAMPIRIC, AURORA,
+	SIBERIAN, SOUL_CORRUPTION, VAMPIRIC, AURORA, BLACK_LOTUS,
 	
 	SKILLS_TOTAL
 };
@@ -90,6 +90,7 @@ enum effectType
 	T_DEFENSE_UP,			// increase caster defense
 	T_CLEAR_STONES,			// clear all stones in the screen
 	T_BLESS,				// put's caster on Blessed Status
+	T_STAMINA_UP,			// increase caster's stamina
 	
 	//* SKILLS DE ATAQUE*
 	T_DAMAGE,				// decrease enemy's HP

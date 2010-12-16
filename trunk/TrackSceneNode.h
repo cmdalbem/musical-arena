@@ -5,12 +5,12 @@ using namespace irr;
 class TrackSceneNode : public scene::ISceneNode
 {
 		core::aabbox3d<f32> Box;
-        video::S3DVertex 	Vertices[4];
+        video::S3DVertex 	Vertices[9];
         video::SMaterial 	Material;
         
 	        		
 		public:
-			TrackSceneNode(scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, int sizex, int sizey, int posx, int posy, int posz);
+			TrackSceneNode(scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, int posx);
 
 			virtual void 						OnRegisterSceneNode();
 			virtual void 						render();

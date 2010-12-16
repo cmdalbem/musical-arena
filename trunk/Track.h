@@ -17,23 +17,23 @@ using irr::video::IVideoDriver;
 using namespace irr;
 
 
-static const irr::video::SColor fretColors[] = { SColor(255,0,255,0),
-												SColor(255,255,0,0),
-												SColor(255,255,255,0),
-												SColor(255,0,0,255),
-												SColor(255,255,128,0) };
+static const SColor fretColors[] = {SColor(255,		0,		255,	0),
+									SColor(255,		255,	0,		0),
+									SColor(255,		255,	255,	0),
+									SColor(255,		0,		0,		255),
+									SColor(255,		255,	128,	0) };
 
 class Track
 {
 	public:
-		Track( music* theMusic, double *musicTime, IrrlichtDevice *device, double speed, double posx=0, double posy=0, double posz=2 );
+		Track( music* theMusic, double *musicTime, IrrlichtDevice *device, double speed, double posx=0 );
 		~Track();
 	
 		vector<Stone*> 	stones[NFRETS];
-		ISceneNode 		*node;
+		TrackSceneNode	*node;
 				
 		int				sizex, sizey;
-		int				posx, posy, posz;
+		int				posx;
 		double 			spawnDelay;
 		int				musicPos;
 		double 			*musicTime;
@@ -60,7 +60,7 @@ class Track
 	
 	private:
 		IrrlichtDevice 	*device;
-		ISceneManager	*sceneManager;
+		ISceneManager	*smgr;
 		IVideoDriver	*driver;
 		ITexture		*glowTex;
 		

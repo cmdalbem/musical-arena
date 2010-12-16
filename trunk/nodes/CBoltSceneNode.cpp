@@ -8,7 +8,8 @@ namespace irr
             //ctor 
             material.Wireframe = false; 
             material.Lighting = false; 
-			material.ZWriteEnable = false;            
+			material.ZWriteEnable = true;
+			material.ZBuffer = true;
 			material.MaterialType = materialType;
             material.setTexture(0, tex); 
 			m_thickness = 5.0f; 
