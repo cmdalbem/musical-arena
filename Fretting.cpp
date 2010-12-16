@@ -425,7 +425,7 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 	return 0;
 }
 
-int Fretting::verifyEventsAI(SEvent *event, Stone* stones[NFRETS])
+int Fretting::verifyEventsAI(Stone* stones[NFRETS])
 {
 	double 	noteCreationTime;
 	double 	noteDestructionTime;

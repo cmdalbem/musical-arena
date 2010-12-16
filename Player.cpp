@@ -101,12 +101,13 @@ void Player::update()
 		if (fretting->receiver->enabled)
 		{
 			if (activateAI)
-				gotAnEvent = fretting->verifyEventsAI( anEvent, firstStones );
-			else
+				gotAnEvent = fretting->verifyEventsAI(firstStones );
+			/*else if(anEvent = fretting->receiver->getEvent())
 				{
+					fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
 				for (int i=0; i<fretting->receiver->getEventsSize(); i++)
 					fretting->verifyEvents(fretting->receiver->getEvent(i), firstStones, &isUsingSkill);
-				/*while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
+				while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
 				{
 					//sem_wait(fretting->receiver->semaphore);
 					if (!activateAI)
@@ -128,14 +129,28 @@ void Player::update()
 								XP += state;
 						}
 					}
-				}*/
+				}
+			}*/
 				//cout << "vai verificar eventos" << endl;
 				//cout << "terminou de verificar eventos" << endl;
-			}
 		}
 	}
 }
-
+void Player::updateEvents()
+{
+	SEvent *anEvent=NULL;
+	Stone* firstStones[NFRETS];
+	gotAnEvent = 1;
+	for(unsigned int i=0; i<NFRETS; i++)
+		if(track->stones[i].size() > 0)
+			firstStones[i] = track->stones[i].front();
+		else
+			firstStones[i] = NULL;
+	if ( (fretting->receiver->enabled) && (!activateAI) && (anEvent = fretting->receiver->getEvent()) )
+	{
+		fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
+	}
+}
 double Player::takeDamage( double damage )
 {
 	if( status==ST_BLESSED ) {
