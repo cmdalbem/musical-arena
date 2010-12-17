@@ -39,6 +39,8 @@ void Player::initialize()
 	gotAnEvent = 0;
 	
 	multiplier = 1;
+	streak = 0;
+	
 	level = 1;
 	
 	status = ST_NORMAL;
@@ -62,7 +64,7 @@ void Player::initializeAtributes()
 
 void Player::update()
 {
-	SEvent *anEvent=NULL;
+	//SEvent *anEvent=NULL;
 	double elapsedTime = time_diff (lastTimeUpdatedStatus);
 	
 	track->update();
@@ -76,11 +78,11 @@ void Player::update()
 		if( isUsingSkill )
 			changeStamina(-STAMINA_LOST_ON_SOLO);
 		
-		if( fretting->frettingState==1 ) {
+		if( fretting->frettingState > 0 ) {
 			if(status==ST_CURSED)
 				takeDamage(DAMAGE_PER_NOTE_MISSED);
 			else
-				changeStamina(STAMINA_GAINED_BY_NOTE);
+				changeStamina(STAMINA_GAINED_BY_NOTE * fretting->frettingState * multiplier);
 		}
 		
 		gettimeofday (&lastTimeUpdatedStatus, NULL);
@@ -91,6 +93,8 @@ void Player::update()
 	{
 		fretting->lostNote();
 		takeDamage(track->notesOnChord * DAMAGE_PER_NOTE_MISSED); //multiplier of doom!
+		streak = 0;
+		multiplier = 1;
 		//cout << "the player left " << track->notesOnChord << " behind" << endl;
 	}
 	else
@@ -145,7 +149,8 @@ void Player::updateEvents()
 {
 	SEvent *anEvent=NULL;
 	Stone* firstStones[NFRETS];
-	gotAnEvent = 1;
+	gotAnEvent = -3;
+	int		lastFrettingState = fretting->frettingState;
 	if ( (!isFrozen) && (fretting->receiver->enabled) && (!activateAI) 
 		&& (anEvent = fretting->receiver->getEvent()) )
 	{
@@ -154,7 +159,33 @@ void Player::updateEvents()
 				firstStones[i] = track->stones[i].front();
 			else
 				firstStones[i] = NULL;
-		fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
+		gotAnEvent = fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
+		
+		cout << "frettingState: " << fretting->frettingState << "  lastFrettingState: " << lastFrettingState << endl;
+		if ((fretting->frettingState == -1) && (lastFrettingState != -1))
+		{
+			streak = 0;
+			multiplier = 1;
+			//cout << "entrou aqui" << endl;
+			takeDamage (DAMAGE_PER_NOTE_MISSED);
+		}
+		
+		if ((fretting->frettingState > 0) && ((lastFrettingState == 0) || (lastFrettingState == -2)))
+		{
+			streak += fretting->frettingState;
+			cout << "streak: " << streak << endl;
+			if (multiplier != 4)
+			{
+				if (streak < 10 && streak >= 0)
+					multiplier = 1;
+				else if (streak >= 10 && streak < 20)
+					multiplier = 2;
+				else if (streak >= 20 && streak < 30)
+					multiplier = 3;
+				else if (streak >= 30)
+					multiplier = 4;
+			}	
+		}
 	}
 }
 double Player::takeDamage( double damage )
@@ -286,6 +317,9 @@ void Player::updateStatus()
 	timeInStatus = timeInStatus - (1.0 / UPDATE_STATUS_TIME);
 	if (timeInStatus <= 0)
 		setStatusNormal();
+	
+	if (fretting->frettingState > 0)
+		XP += fretting->frettingState;
 }
 
 void Player::setStatusNormal()

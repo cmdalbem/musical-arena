@@ -202,7 +202,7 @@ void handleHittingStates()
 				break;
 			case -1:
 				//soundBank->playMissEffect();
-				player[i].fretting->frettingState = 0;
+				//player[i].fretting->frettingState = 0;
 				break;
 			case 0:
 			case -2:
