@@ -164,6 +164,7 @@ void Player::updateEvents()
 				firstStones[i] = track->stones[i].front();
 			else
 				firstStones[i] = NULL;
+
 		gotAnEvent = fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
 		
 		cout << "frettingState: " << fretting->frettingState << "  lastFrettingState: " << lastFrettingState << endl;

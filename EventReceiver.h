@@ -12,7 +12,7 @@ class EventReceiver : public IEventReceiver
 {
 	public:
 		//////////////////////////////////////////////////////////// CONSTRUCTOR
-		EventReceiver(SAppContext & context);
+		EventReceiver(SAppContext * context);
 
 	
 
@@ -37,6 +37,6 @@ class EventReceiver : public IEventReceiver
 		void 		clearEvents();
 	
 	private:
-		 SAppContext & Context;
+		 SAppContext * Context;
 };
 
