@@ -77,8 +77,13 @@ void castSpell ()
 			
                 // sound effect
 				soundBank->playEffect(casted->soundEffect); 
-
-                if(player[!i].status == ST_MIRROR) {
+				
+				bool isEnemyMirrored = false;
+				for (int j = 0; j < player[!i].status.size(); j++)
+					if (player[!i].status[j].status == ST_MIRROR)
+						isEnemyMirrored = true;
+						
+                if( isEnemyMirrored ) {
                     player[i].fretting->castedSpell = NULL;
                     i = !i;
                 }
@@ -102,16 +107,13 @@ void castSpell ()
 						player[i].changeArmor( casted->effects[j].param1 );
 						break;
 					case T_INVENCIBLE:
-						player[i].status = ST_INVENCIBLE;
-						player[i].timeInStatus = casted->effects[j].param1;
+						player[i].addStatus({ST_INVENCIBLE,	casted->effects[j].param1});
 						break;
 					case T_MAGIC_BARRIER:
-						player[i].status = ST_MAGIC_BARRIER;
-						player[i].timeInStatus = casted->effects[j].param1;
+						player[i].addStatus({ST_MAGIC_BARRIER, casted->effects[j].param1});
 						break;
 					case T_POISONOUS:
-						player[!i].status = ST_POISON;
-						player[!i].timeInStatus = casted->effects[j].param1;
+						player[!i].addStatus({ST_POISON, casted->effects[j].param1});
 						break;
 					case T_DAMAGE:
 						player[!i].takeDamage(casted->effects[j].param1);
@@ -129,8 +131,7 @@ void castSpell ()
 						player[!i].changeStamina( -casted->effects[j].param1 );
 						break;
 					case T_BURN:
-						player[!i].status = ST_FIRE;
-						player[!i].timeInStatus = casted->effects[j].param1;
+						player[!i].addStatus({ST_FIRE, casted->effects[j].param1});
 						break;
 					case T_FEEDBACK:
 						player[!i].takeDamage (player[!i].stamina/2);
@@ -140,49 +141,41 @@ void castSpell ()
 						//temporarily, it is implemented on the Eletrify Effect.
 						break;
 					case T_ELETRIFY:
-						player[!i].status = ST_ELETRIFIED;
-						player[!i].timeInStatus = casted->effects[j].param1;
+						player[!i].addStatus({ST_ELETRIFIED, casted->effects[j].param1});
 						player[!i].fretting->tolerance -= casted->effects[j].param2; //temporario enquanto nao temos um vetor de efeitos
 						break;
 					case T_DROWN:
-						player[!i].status = ST_DROWNED;
-						player[!i].timeInStatus = casted->effects[j].param1;
+						player[!i].addStatus({ST_DROWNED, casted->effects[j].param1});
 						break;
 					case T_MIRROR:
-						player[i].status = ST_MIRROR;
-						player[i].timeInStatus = casted->effects[j].param1;
+						player[i].addStatus({ST_MIRROR, casted->effects[j].param1});
 						break;
 					case T_SPEED_UP:
 						player[!i].track->setSpeed( player[!i].track->getSpeed() + casted->effects[j].param1 );
 						break;		
 					case T_CHAOTIC_SPEED:
-						player[!i].status = ST_CHAOTIC_SPEED;
-						player[!i].timeInStatus = casted->effects[j].param1;
+						player[!i].addStatus({ST_CHAOTIC_SPEED, casted->effects[j].param1});
 						break;		
 					case T_BREAK_DEFENSE:
-						player[!i].status = ST_BROKEN_DEFENSE;
-						player[!i].timeInStatus = casted->effects[j].param1;
+						player[!i].addStatus({ST_BROKEN_DEFENSE, casted->effects[j].param1});
 						break;
 					case T_CLEAR_STONES:
 						player[i].track->destroyAllStones();
 						break;
 					case T_FREEZE:
-						player[!i].status = ST_FROZEN;
-						player[!i].timeInStatus = casted->effects[j].param1;
+						player[!i].addStatus({ST_FROZEN, casted->effects[j].param1});
 						break;
 					case T_VAMPIRIC:
 						player[i].recoverHP( player[!i].takeDamage(casted->effects[j].param1) );
 						break;
 					case T_BLESS:
-						player[i].status = ST_BLESSED;
-						player[i].timeInStatus = casted->effects[j].param1;
+						player[i].addStatus({ST_BLESSED, casted->effects[j].param1});
 						break;
 					case T_STAMINA_UP:
 						player[i].changeStamina( casted->effects[j].param1 );
 						break;
 					case T_CURSE:
-						player[!i].status = ST_CURSED;
-						player[!i].timeInStatus = casted->effects[j].param1;
+						player[!i].addStatus({ST_CURSED, casted->effects[j].param1});
 						break;
 					}
 				}
@@ -213,7 +206,10 @@ void handleHittingStates()
 
 static void *updater(void *argument) 
 {
-	struct timeval start; 
+	struct	timeval start, endMusic;
+	bool	havetoEndMusic = false,
+			endMusicFirstTime = true;
+	double	endMusicOffset;
 	
 	// get the time before starting the music (so we can know how much time passed in each note)
 	gettimeofday(&start, NULL);
@@ -221,6 +217,23 @@ static void *updater(void *argument)
 	 while(1) {
 		usleep(1);
 		musicTime = time_diff(start);
+		
+		if (player[0].HP == 0 || player[1].HP == 1 || havetoEndMusic)
+		{
+			havetoEndMusic = true;
+			if (endMusicFirstTime)
+			{
+				endMusicFirstTime = false;
+				gettimeofday(&endMusic, NULL);
+			}
+			
+			endMusicOffset = time_diff(endMusic);
+			if (endMusicOffset > 3.)
+			{
+				cout << "THANKS FOR PLAYING MUSA - TAOLITERODS" << endl;
+				exit (10);
+			}
+		}
  
 		// spawning on track1
 		while( (unsigned int)player[0].track->musicPos < theMusic.size() &&
@@ -271,8 +284,8 @@ static void *updater(void *argument)
 
 void musa_init()
 {	
-	Instrument* violin = new Instrument( ST_NORMAL);
-	Instrument* drums = new Instrument( ST_NORMAL);
+	Instrument* violin = new Instrument();
+	Instrument* drums = new Instrument();
 	
 	for(int i=0; i<SKILLS_TOTAL; i++) {
 		drums->addSkill( skillBank.skills[i] );
@@ -452,7 +465,7 @@ int main(int argc, char *argv[])
 	/*
 	 * gets some music
 	 */
-	soundBank->selectMusic(1);
+	soundBank->selectMusic(0);
 	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
 	//decoder.printMusic(theMusic);
 	screen->musicTotalTime = theMusic.back().time;
