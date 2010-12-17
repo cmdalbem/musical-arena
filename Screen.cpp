@@ -65,7 +65,9 @@ void Screen::initializeScreenElements()
 	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::recti(0, 0, 100, 20));
 	fpsText->setOverrideColor( SColor(255,255,255,255) );
 	
-	#define HUD_BARS_Y (SCREENY-200)
+	//#define HUD_BARS_Y (SCREENY-200)
+	#define HUD_BARS_Y (SCREENY-80)
+
 	timeText = device->getGUIEnvironment()->addStaticText(L"", core::recti( position2di(SCREENX/2-50, HUD_BARS_Y-15), dimension2di(100,50) ) , false);
 	timeText->setTextAlignment( EGUIA_CENTER,EGUIA_CENTER );
 	timeText->setOverrideColor( SColor(255,255,255,255) );
@@ -240,22 +242,23 @@ void Screen::update()
 
 void Screen::drawMultiplier()
 {
-	for(int i=0; i<NPLAYERS; i++) {
-		// case not multiplier
-		//mult[i]->setVisible(false);
-		
-		// case 2X
-		mult[i]->setVisible(true);
-		mult[i]->setImage(mult2xTex);
-
-		// case 3X
-		//mult[i]->setVisible(true);
-		//mult[i]->setImage(mult3xTex);
-		
-		// case 4X
-		//mult[i]->setVisible(true);
-		//mult[i]->setImage(mult4xTex);	
-	}
+	for(int i=0; i<NPLAYERS; i++)
+		if(player[i]->multiplier==1)
+			mult[i]->setVisible(false);
+		else {
+			mult[i]->setVisible(true);
+			switch(player[i]->multiplier) {
+				case 2:
+					mult[i]->setImage(mult2xTex);
+					break;			
+				case 3:
+					mult[i]->setImage(mult3xTex);
+					break;
+				case 4:
+					mult[i]->setImage(mult4xTex);
+					break;
+			}
+		}
 }
 
 void Screen::drawStatus()
