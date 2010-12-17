@@ -379,7 +379,9 @@ void initializeIrrlicht()
 	SAppContext guiControls;
 	guiControls.device = device;
 	
-	env->addButton(rect<s32>(100,140,100+100,140 + 32), 0, GUI_ID_QUIT_BUTTON, L"Quit", L"Exits Program");
+	IGUIButton *quitButton = env->addButton(rect<s32>(100,140,100+100,140 + 32), 0, GUI_ID_QUIT_BUTTON, L"Quit", L"Exits Program");
+	env->setFocus(quitButton);
+	//window->setVisible(false);
 	
 	receiver = new EventReceiver(guiControls);
 	device->setEventReceiver(receiver);

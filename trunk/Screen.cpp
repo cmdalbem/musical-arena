@@ -43,6 +43,9 @@ void Screen::initializeScreenElements()
 	// Pre-load textures
 	koTex = driver->getTexture("img/ko.png");
 	glowTex = driver->getTexture("img/glow2.bmp");
+	mult2xTex = driver->getTexture("img/2x.png");
+	mult3xTex = driver->getTexture("img/3x.png");
+	mult4xTex = driver->getTexture("img/4x.png");
 	
 	fireTex = driver->getTexture("img/fireicon.png");
 	poisonTex = driver->getTexture("img/poisonicon.png");
@@ -72,6 +75,10 @@ void Screen::initializeScreenElements()
 		{
 			// GUI Elements
 			int xpos = SCREENX/4 + i*SCREENX/2;
+			
+			#define MULTSIZE 117
+			mult[i] = device->getGUIEnvironment()->addImage( recti( position2di(xpos+(i==0?150:-150)-MULTSIZE/2, 100-MULTSIZE/2),dimension2di(MULTSIZE,MULTSIZE)) );
+			mult[i]->setUseAlphaChannel(true);
 			
 			hpText[i] = device->getGUIEnvironment()->addStaticText(L"", recti(position2di(xpos-35,HUD_BARS_Y+10),position2di(xpos+35,HUD_BARS_Y+25)));
 			hpText[i]->setOverrideColor( SColor(200,255,255,255) );
@@ -219,6 +226,7 @@ void Screen::update()
 	drawSoloModeState();
 	drawSplitBlood();
 	drawStatus();
+	drawMultiplier();
 	
 	//effectFactory->splitBlood(0, EGL_MILD);
 	//effectFactory->splitBlood(1, EGL_MILD);
@@ -228,6 +236,26 @@ void Screen::update()
 	
 	effectFactory->handleEffectsQueue();
 	effectFactory->shieldmanager->drawAll();
+}
+
+void Screen::drawMultiplier()
+{
+	for(int i=0; i<NPLAYERS; i++) {
+		// case not multiplier
+		//mult[i]->setVisible(false);
+		
+		// case 2X
+		mult[i]->setVisible(true);
+		mult[i]->setImage(mult2xTex);
+
+		// case 3X
+		//mult[i]->setVisible(true);
+		//mult[i]->setImage(mult3xTex);
+		
+		// case 4X
+		//mult[i]->setVisible(true);
+		//mult[i]->setImage(mult4xTex);	
+	}
 }
 
 void Screen::drawStatus()
