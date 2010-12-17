@@ -30,6 +30,7 @@ class Screen
 		vector<Player*> 			player;
 		double						musicTotalTime;
 		EffectFactory				*effectFactory;
+		IGUIInOutFader				*screenFader;
 
 
 		void						update();		
@@ -45,8 +46,7 @@ class Screen
 		ISceneNode					*glow[NPLAYERS][NFRETS];
 		IGUIStaticText 				*fpsText, *hpText[NPLAYERS], *timeText;
 		VxHealthSceneNode			*healthBar[NPLAYERS], *armorBar[NPLAYERS], *staminaBar[NPLAYERS];
-		IGUIImage					*statusIcon[NPLAYERS], *koImage, *mult[NPLAYERS];
-		IGUIInOutFader				*screenFader;
+		IGUIImage					*statusIcon[NPLAYERS][5], *koImage, *mult[NPLAYERS];
 		ITexture 					*koTex, *glowTex, *poisonTex, *fireTex, *magicBarrierTex, *eletrifiedTex, *drownedTex, *frozenTex, *mirrorTex, *blessedTex, *cursedTex;
 		ITexture					*mult2xTex, *mult3xTex, *mult4xTex;
 		ISceneNode 					*sky;
@@ -56,7 +56,7 @@ class Screen
 		void						drawKeys();
 		void 						drawBars();
 		void						drawSplitBlood();
-		//void 						drawStatus();
+		void 						drawStatus();
 		void						drawMultiplier();
 		
 		// Inner utility functions

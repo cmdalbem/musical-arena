@@ -167,7 +167,7 @@ void Player::updateEvents()
 
 		gotAnEvent = fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
 		
-		cout << "frettingState: " << fretting->frettingState << "  lastFrettingState: " << lastFrettingState << endl;
+		//cout << "frettingState: " << fretting->frettingState << "  lastFrettingState: " << lastFrettingState << endl;
 		if ((fretting->frettingState == -1) && (lastFrettingState != -1))
 		{
 			streak = 0;
@@ -179,7 +179,7 @@ void Player::updateEvents()
 		if ((fretting->frettingState > 0) && ((lastFrettingState == 0) || (lastFrettingState == -2)))
 		{
 			streak += fretting->frettingState;
-			cout << "streak: " << streak << endl;
+			//cout << "streak: " << streak << endl;
 			if (multiplier != 4)
 			{
 				if (streak < 10 && streak >= 0)

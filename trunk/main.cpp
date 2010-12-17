@@ -348,22 +348,26 @@ void musa_init()
 	screen = new Screen(device,&musicTime,&player[0],&player[1]);
 	sem_init(&semaphore, 0, 1);
 						
+	startButton = env->addButton(rect<s32>(position2di(SCREENX/2,SCREENY/2),dimension2di(100,32)), 0, GUI_ID_START_BUTTON, L"Start", L"Starts the game");
+	env->setFocus(startButton);
+	//window->setVisible(false);
+	
 	// start getting signals, baby
 }
 void startGame()
 {
 	receiver->enabled = true;	
 
-
-	soundBank->selectMusic(1);
-	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
+	soundBank->selectMusic(0);
+	char path[100];
+	sprintf(path,"music/%s/notes.mid",soundBank->selectedSong.name.c_str());
+	theMusic = decoder.decodeMidi(path, soundBank->selectedSong.difficulty);
 	//decoder.printMusic(theMusic);
 	screen->musicTotalTime = theMusic.back().time;
 	
 	/*
 	 * initializing threads
 	 */
-	
 	pthread_t thread[3];
 	int arg = 1;
 	pthread_create(&thread[0], NULL, updater, (void *) arg);
@@ -371,6 +375,9 @@ void startGame()
 	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
 	
 	soundBank->playSelectedMusic();
+	
+	
+	screen->screenFader->fadeIn(1000);
 }
 void initializePostProcessEffects()
 {
@@ -414,10 +421,6 @@ void initializeIrrlicht()
 	
 	guiControls.device = device;
 	guiControls.fase = MENU_INSTRUMENT;
-	
-	startButton = env->addButton(rect<s32>(100,140,100+100,140 + 32), 0, GUI_ID_START_BUTTON, L"Start", L"Starts the game");
-	env->setFocus(startButton);
-	//window->setVisible(false);
 	
 	receiver = new EventReceiver(&guiControls);	
 	device->setEventReceiver(receiver);
@@ -484,8 +487,7 @@ int main(int argc, char *argv[])
 	 * initializing game engine
 	 */
 	musa_init();
-	
-	
+		
 
 	ITexture *bgPic = driver->getTexture("img/bgs/bg20.jpg");
 	SColor bgColor = SColor(0,113,113,133);

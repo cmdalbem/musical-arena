@@ -206,7 +206,7 @@ void EffectFactory::handleEffectsQueue()
 			case EFFECT_BLACKHOLE:
 				effectBlackHole(target,10000);
 				for(int i=0; i<50; i++)
-					queueEffect( 2000 + rand()%10000, EFFECT_BLACKHOLE_BOLT, 1 );
+					queueEffect( 2000 + rand()%10000, EFFECT_BLACKHOLE_BOLT, target );
 				break;
 			case EFFECT_BLACKHOLE_BOLT:
 				effectBlackHoleBolt(target);
@@ -902,8 +902,8 @@ void EffectFactory::effectVampiric( int target, int timeMs )
 	//  and set emitter
 	ps->setEmitter( ps->createBoxEmitter(
 			core::aabbox3d<f32>(-TRACK_SIZE_X/2,-TRACK_SIZE_Y/2,0,TRACK_SIZE_X/2,TRACK_SIZE_Y/2,1), //minx, miny, minz, maxx, maxy, maxz
-			core::vector3df(0.02f,0.02f,0.02f),
-			100,300,
+			core::vector3df(0.03f,0.03f,0.03f),
+			300,300,
 			SColor(0,255,255,255), SColor(0,255,255,255),
 			2000,timeMs,
 			360,
@@ -918,7 +918,7 @@ void EffectFactory::effectVampiric( int target, int timeMs )
 	ps->setMaterialTexture(0, glowTex);
 	ps->setMaterialType(EMT_TRANSPARENT_VERTEX_ALPHA);
 	
-	ps->addAffector( ps->createScaleParticleAffector(dimension2df(20,20)) );
+	ps->addAffector( ps->createScaleParticleAffector(dimension2df(10,10)) );
 	
 	new CDeleteParticleAffector(ps, timeMs);
 	ps->addAnimator( smgr->createDeleteAnimator(timeMs+5000) );
