@@ -206,7 +206,7 @@ void EffectFactory::handleEffectsQueue()
 			case EFFECT_BLACKHOLE:
 				effectBlackHole(target,10000);
 				for(int i=0; i<50; i++)
-					queueEffect( 2000 + rand()%8000, EFFECT_BLACKHOLE_BOLT, 1 );
+					queueEffect( 2000 + rand()%10000, EFFECT_BLACKHOLE_BOLT, 1 );
 				break;
 			case EFFECT_BLACKHOLE_BOLT:
 				effectBlackHoleBolt(target);

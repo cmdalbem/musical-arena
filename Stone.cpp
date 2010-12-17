@@ -33,6 +33,7 @@ void Stone::initialize( IrrlichtDevice *device, musicEvent event, SColor stoneCo
 	node = sceneManager->addSphereSceneNode(STONE_RADIUS);
 	node->setPosition( initPos );
 	node->getMaterial(0).EmissiveColor = stoneColor;
+	node->getMaterial(0).DiffuseColor = SColor(0,0,0,0);
 	  
 	glow = sceneManager->addBillboardSceneNode(node, dimension2d<float>(10, 10));
 	glow->setMaterialFlag(EMF_LIGHTING, false);

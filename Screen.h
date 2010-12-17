@@ -45,9 +45,10 @@ class Screen
 		ISceneNode					*glow[NPLAYERS][NFRETS];
 		IGUIStaticText 				*fpsText, *hpText[NPLAYERS], *timeText;
 		VxHealthSceneNode			*healthBar[NPLAYERS], *armorBar[NPLAYERS], *staminaBar[NPLAYERS];
-		IGUIImage					*statusIcon[NPLAYERS], *koImage;
+		IGUIImage					*statusIcon[NPLAYERS], *koImage, *mult[NPLAYERS];
 		IGUIInOutFader				*screenFader;
 		ITexture 					*koTex, *glowTex, *poisonTex, *fireTex, *magicBarrierTex, *eletrifiedTex, *drownedTex, *frozenTex, *mirrorTex, *blessedTex, *cursedTex;
+		ITexture					*mult2xTex, *mult3xTex, *mult4xTex;
 		ISceneNode 					*sky;
 			
 		// HUD drawing
@@ -56,6 +57,7 @@ class Screen
 		void 						drawBars();
 		void						drawSplitBlood();
 		void 						drawStatus();
+		void						drawMultiplier();
 		
 		// Inner utility functions
 		void						initializeScreenElements();
