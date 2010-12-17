@@ -26,9 +26,11 @@ class Player
 		int				maxHP;
 		int				stamina;
 		int				maxStamina;
-		bool				isFrozen;
+		bool			isFrozen;
 		
 		int				multiplier;
+		int				streak;
+				
 		int				XP;
 		int				level;
 		int				gold;

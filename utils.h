@@ -77,8 +77,6 @@ using namespace std;
 		printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)); \
 		exit(-1); \
 	}
-#define IS_STATUS_FIRE \
-	(status == ST_FIRE ? 2 : 1)
 
 
 struct timeval double_to_timeval( double diff_time );
