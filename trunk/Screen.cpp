@@ -227,7 +227,7 @@ void Screen::update()
 	drawKeys();
 	drawSoloModeState();
 	drawSplitBlood();
-	drawStatus();
+	//drawStatus();
 	drawMultiplier();
 	
 	//effectFactory->splitBlood(0, EGL_MILD);
@@ -260,7 +260,7 @@ void Screen::drawMultiplier()
 			}
 		}
 }
-
+/*
 void Screen::drawStatus()
 {
 	for(int i=0; i<NPLAYERS; i++) 
@@ -309,7 +309,7 @@ void Screen::drawStatus()
 		}
 	}
 }
-
+*/
 void Screen::drawSoloModeState()
 {
 	for(int i=0; i<NPLAYERS; i++)

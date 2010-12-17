@@ -33,7 +33,7 @@ void Player::initialize()
 	
 	chaoticCounter = 0;
 	poisonCounter = 0;
-	timeInStatus = 0;
+	//timeInStatus = 0;
 	XP = 0;
 	gold = 0;
 	gotAnEvent = 0;
@@ -43,7 +43,7 @@ void Player::initialize()
 	
 	level = 1;
 	
-	status = ST_NORMAL;
+	status.clear();
 }
 
 void Player::initializeAtributes()
@@ -79,7 +79,12 @@ void Player::update()
 			changeStamina(-STAMINA_LOST_ON_SOLO);
 		
 		if( fretting->frettingState > 0 ) {
-			if(status==ST_CURSED)
+			bool cursed = false;
+			for (int i = 0; i < status.size(); i++)
+				if (status[i].status == ST_CURSED)
+					cursed = true;
+					
+			if( cursed )
 				takeDamage(DAMAGE_PER_NOTE_MISSED);
 			else
 				changeStamina(STAMINA_GAINED_BY_NOTE * fretting->frettingState * multiplier);
@@ -190,7 +195,12 @@ void Player::updateEvents()
 }
 double Player::takeDamage( double damage )
 {
-	if( status==ST_BLESSED ) {
+	bool blessed = false;
+	for (int i = 0; i < status.size(); i++)
+		if (status[i].status == ST_BLESSED)
+			blessed = true;
+			
+	if( blessed ) {
 		recoverHP(damage);
 		return 0;
 	}
@@ -243,80 +253,84 @@ void Player::changeArmor( double howMuch )
 void Player::updateStatus()
 /* Handle all players status cases */
 {
-	switch (status)
+	bool	isInvencible = false,
+			isDefenseDown = false;
+
+	for (int i = 0; i < status.size(); i++)
 	{
-		case ST_NORMAL:
-			break;
-		case ST_BROKEN_DEFENSE:
-			armor = 0;
-			break;
-		case ST_POISON:
-			poisonCounter = (poisonCounter + 1) % 5;
-			if (poisonCounter == 0)
-				takeDamage( this->HP*0.10 ); //percentage of the HP
-			break;
-		case ST_FIRE:
-			takeDamage(8);
-			break;
-		case ST_INVENCIBLE:
-			armor = 9999;
-			break;
-		case ST_MAGIC_BARRIER:
-			hasMagicBarrier = true;
-			break;
-		case ST_MIRROR:
-			hasMirror = true;
-			break;
-		case ST_ELETRIFIED: {
-			int k, times=2;
-			for(int i=0; i<NFRETS; i++) {					
-				for(int xtimes=0;xtimes<times; xtimes++)
-					if(track->stones[i].size()) {
-						k = rand()%track->stones[i].size();
-						track->stones[i][k]->displace = vector3df(rand()%4-2,0,0);
-					}
-			}
-			takeDamage(13);
-			break;
-		}
-		case ST_DROWNED:
-			changeStamina(-7);
-			if (stamina == 0)
-				takeDamage (17);
-			break;
-		case ST_DEFENSE_DOWN:
-			// decrease armor
-			break;
-		case ST_CHAOTIC_SPEED:
-			if(!isChaotic) {
-				lastSpeed = track->getSpeed();
-				isChaotic = true;
-			}
-			else {
-				chaoticCounter = (chaoticCounter + 1) % 8;
-				if (chaoticCounter == 0) {
-					track->setSpeed( rand()%50 + 1 );
+		switch (status[i].status)
+		{
+			case ST_NORMAL:
+				break;
+			case ST_BROKEN_DEFENSE:
+				armor = 0;
+				break;
+			case ST_POISON:
+				poisonCounter = (poisonCounter + 1) % 5;
+				if (poisonCounter == 0)
+					takeDamage( this->HP*0.10 ); //percentage of the HP
+				break;
+			case ST_FIRE:
+				takeDamage(8);
+				break;
+			case ST_INVENCIBLE:
+				armor = 9999;
+				isInvencible = true;
+				break;
+			case ST_MAGIC_BARRIER:
+				hasMagicBarrier = true;
+				break;
+			case ST_MIRROR:
+				hasMirror = true;
+				break;
+			case ST_ELETRIFIED: {
+				int k, times=2;
+				for(int i=0; i<NFRETS; i++) {					
+					for(int xtimes=0;xtimes<times; xtimes++)
+						if(track->stones[i].size()) {
+							k = rand()%track->stones[i].size();
+							track->stones[i][k]->displace = vector3df(rand()%4-2,0,0);
+						}
 				}
+				takeDamage(13);
+				break;
 			}
-			break;
-		case ST_BLESSED:
-			//look in Player::takeDamage()
-			break;
-		case ST_FROZEN:
-			isUsingSkill = false;
-			fretting->setAllNotPressed();
-			isFrozen = true;
-			break;
-		case ST_CURSED:
-			//look in Player::update()
-			break;
+			case ST_DROWNED:
+				changeStamina(-7);
+				if (stamina == 0)
+					takeDamage (17);
+				break;
+			case ST_CHAOTIC_SPEED:
+				if(!isChaotic) {
+					lastSpeed = track->getSpeed();
+					isChaotic = true;
+				}
+				else {
+					chaoticCounter = (chaoticCounter + 1) % 8;
+					if (chaoticCounter == 0) {
+						track->setSpeed( rand()%50 + 1 );
+					}
+				}
+				break;
+			case ST_BLESSED:
+				//look in Player::takeDamage()
+				break;
+			case ST_FROZEN:
+				isUsingSkill = false;
+				fretting->setAllNotPressed();
+				isFrozen = true;
+				break;
+			case ST_CURSED:
+				//look in Player::update()
+				break;
 		
+		}
+	
+		// handle finish time of a status
+		status[i].timeInStatus -= 1.0 / UPDATE_STATUS_TIME;
+		if (status[i].timeInStatus <= 0)
+			removeStatus(status[i], i);
 	}
-		
-	// handle finish time of a status
-	timeInStatus = timeInStatus - (1.0 / UPDATE_STATUS_TIME);
-	if (timeInStatus <= 0)
-		setStatusNormal();
 	
 	if (fretting->frettingState > 0)
 		XP += fretting->frettingState;
@@ -324,12 +338,17 @@ void Player::updateStatus()
 
 void Player::setStatusNormal()
 {
-	status = ST_NORMAL;
+	status.clear();
 	
 	//resets atributes that may have been modified by the status
 	fretting->tolerance = instrument->tolerance;
 	armor = instrument->armor;
+	
+	setStatusAttNormal();
+}
 
+void Player::setStatusAttNormal()
+{
 	if(hasMagicBarrier) {
 		hasMagicBarrier = false;
 	}
@@ -344,4 +363,21 @@ void Player::setStatusNormal()
 		isFrozen = false;
 	}
 }
+
+void Player::addStatus(statusType newStatus)
+{
+	status.push_back(newStatus);
+}
+
+void Player::removeStatus(statusType oldStatus, int indexInVector)
+{
+	statusType backup = oldStatus;
+	status.erase(status.begin() + indexInVector);
+	
+	setStatusAttNormal();
+}
+
+
+
+
 

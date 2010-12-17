@@ -58,7 +58,7 @@ enum skillTargetType
 };
 
 // Some temporary status the player may have
-enum statusType
+enum statusEnum
 {
 	ST_NORMAL,		// normal status
 	ST_POISON,		// takes damage per time
@@ -78,6 +78,12 @@ enum statusType
 	
 	ST_TOTAL	
 };
+
+typedef struct
+{
+	statusEnum	status;
+	double		timeInStatus;
+} statusType;
 
 // The effects the skills causes on the player. There's are good and bad effects.
 enum effectType

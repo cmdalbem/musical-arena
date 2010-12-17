@@ -34,8 +34,8 @@ class Player
 		int				XP;
 		int				level;
 		int				gold;
-		statusType		status;
-		double			timeInStatus;
+		vector<statusType>		status;
+		//double			timeInStatus;
 		bool			activateAI;
 
 		int 			getArmor();
@@ -49,6 +49,10 @@ class Player
 		void 			updateStatus();
 		void			setStatusNormal();
 		
+		void 			addStatus(statusType newStatus);
+		void 			removeStatus(statusType oldStatus, int indexInVector);
+		void 			setStatusAttNormal();
+		
 	private:
 		int				armor;
 		
@@ -58,7 +62,6 @@ class Player
 		int				poisonCounter;
 		int				chaoticCounter;
 		bool			isChaotic;
-//		double			timeInStatus1;
 		bool			hasMagicBarrier;
 		bool			hasMirror;
 		

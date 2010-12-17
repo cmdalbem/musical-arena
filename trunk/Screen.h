@@ -56,7 +56,7 @@ class Screen
 		void						drawKeys();
 		void 						drawBars();
 		void						drawSplitBlood();
-		void 						drawStatus();
+		//void 						drawStatus();
 		void						drawMultiplier();
 		
 		// Inner utility functions
