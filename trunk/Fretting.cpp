@@ -194,7 +194,6 @@ int Fretting::joystickPreFretting(SEvent *event)
 				usefullButton = i;
 			}
 		}
-		//cout << endl;
 	}
 	//cout << usefullButton << endl;
 	_trackPressed[usefullButton] = JoystickState.IsButtonPressed(joystickButtons[usefullButton]);

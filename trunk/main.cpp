@@ -30,7 +30,9 @@ using irr::core::vector3df;
 core::array<SJoystickInfo> joystickInfo;
 
 
+IGUIButton *startButton;
 
+SAppContext guiControls;
 // Irrlicht globals
 IrrlichtDevice 				*device=0;
 video::IVideoDriver 		*driver=0;
@@ -344,11 +346,32 @@ void musa_init()
 	//player[1].fretting->setEvents(eventsJoystick2, joystickInfo, 0, 3);	//comment this line to use keyboard for player 2
 	
 	screen = new Screen(device,&musicTime,&player[0],&player[1]);
+	sem_init(&semaphore, 0, 1);
 						
 	// start getting signals, baby
-	receiver->enabled = true;	
 }
+void startGame()
+{
+	receiver->enabled = true;	
 
+
+	soundBank->selectMusic(1);
+	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
+	//decoder.printMusic(theMusic);
+	screen->musicTotalTime = theMusic.back().time;
+	
+	/*
+	 * initializing threads
+	 */
+	
+	pthread_t thread[3];
+	int arg = 1;
+	pthread_create(&thread[0], NULL, updater, (void *) arg);
+	//pthread_create(&thread[1], NULL, debugger, (void *) arg);
+	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
+	
+	soundBank->playSelectedMusic();
+}
 void initializePostProcessEffects()
 {
 	// "dream" effect
@@ -385,18 +408,18 @@ void initializeIrrlicht()
 	
 	// GUI
 	IGUISkin* skin = env->getSkin();
-	IGUIFont* font = env->getFont("img/fontcourier.bmp");
+	IGUIFont* font = env->getFont("irrlicht-1.7.2/media/fonthaettenschweiler.bmp");
 	skin->setFont(font);
 	skin->setFont(env->getBuiltInFont(), EGDF_TOOLTIP);
 	
-	SAppContext guiControls;
 	guiControls.device = device;
+	guiControls.fase = MENU_INSTRUMENT;
 	
-	IGUIButton *quitButton = env->addButton(rect<s32>(100,140,100+100,140 + 32), 0, GUI_ID_QUIT_BUTTON, L"Quit", L"Exits Program");
-	env->setFocus(quitButton);
+	startButton = env->addButton(rect<s32>(100,140,100+100,140 + 32), 0, GUI_ID_START_BUTTON, L"Start", L"Starts the game");
+	env->setFocus(startButton);
 	//window->setVisible(false);
 	
-	receiver = new EventReceiver(guiControls);
+	receiver = new EventReceiver(&guiControls);	
 	device->setEventReceiver(receiver);
 	
     // lol quake scenario
@@ -462,26 +485,7 @@ int main(int argc, char *argv[])
 	 */
 	musa_init();
 	
-	/*
-	 * gets some music
-	 */
-	soundBank->selectMusic(0);
-	theMusic = decoder.decodeMidi(soundBank->selectedSong.notes, soundBank->selectedSong.difficulty);
-	//decoder.printMusic(theMusic);
-	screen->musicTotalTime = theMusic.back().time;
 	
-	/*
-	 * initializing threads
-	 */
-	sem_init(&semaphore, 0, 1);
-	
-	pthread_t thread[3];
-	int arg = 1;
-	pthread_create(&thread[0], NULL, updater, (void *) arg);
-	//pthread_create(&thread[1], NULL, debugger, (void *) arg);
-	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
-	
-	soundBank->playSelectedMusic();
 
 	ITexture *bgPic = driver->getTexture("img/bgs/bg20.jpg");
 	SColor bgColor = SColor(0,113,113,133);
@@ -490,6 +494,17 @@ int main(int argc, char *argv[])
 	 */	
 	while(device->run()) {
 		
+		switch(guiControls.fase) {
+			case READY_TO_PLAY:
+				startGame();
+				guiControls.fase = PLAYING;
+				startButton->setVisible(false);
+				//cout <<"ready to play" << endl;
+				break;
+			case MENU_INSTRUMENT:
+				//cout <<"menu instrument" << endl;
+				break;
+		}
 		driver->beginScene(true, true, bgColor);
 		
 		driver->draw2DImage( bgPic, recti(position2di(0,0), position2di(SCREENX,SCREENY)), recti(position2di(0,0),bgPic->getOriginalSize()) );
@@ -510,10 +525,10 @@ int main(int argc, char *argv[])
 		}
 		
 		driver->setRenderTarget(0, false, true, bgColor);
-			renderPostProcessEffects();
-			player[0].track->draw();
-			player[1].track->draw();
-			smgr->drawAll();			
+		renderPostProcessEffects();
+		player[0].track->draw();
+		player[1].track->draw();
+		smgr->drawAll();			
 		
 		screen->update();
 		

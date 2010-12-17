@@ -12,7 +12,7 @@ using namespace io;
 using namespace gui;
 
 
-EventReceiver::EventReceiver( SAppContext & context )  : Context(context)
+EventReceiver::EventReceiver( SAppContext * context )  : Context(context)
 {
 	for (u32 i=0; i<KEY_KEY_CODES_COUNT; ++i)
 		KeyIsDown[i] = false;
@@ -33,35 +33,13 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 			cout << "clicou em algum botao" << endl;
 			switch(id) {
 				case GUI_ID_QUIT_BUTTON:
-					cout << "Quitou o fdp" << endl;
-					Context.device->closeDevice();
+					Context->device->closeDevice();
 					return true;
 
-				case GUI_ID_NEW_WINDOW_BUTTON:
-					/*{
-					Context.listbox->addItem(L"Window created");
-					Context.counter += 30;
-					if (Context.counter > 200)
-							Context.counter = 0;
-
-					IGUIWindow* window = env->addWindow(
-							rect<s32>(100 + Context.counter, 100 + Context.counter, 300 + Context.counter, 200 + Context.counter),
-							false, // modal?
-							L"Test window");
-
-					env->addStaticText(L"Please close me",
-							rect<s32>(35,35,140,50),
-							true, // border?
-							false, // wordwrap?
-							window);
-					}*/
+				case GUI_ID_START_BUTTON:
+					cout << "clicou start" << endl;
+					Context->fase = READY_TO_PLAY;
 					return true;
-
-				case GUI_ID_FILE_OPEN_BUTTON:
-					//Context.listbox->addItem(L"File open");
-					//env->addFileOpenDialog(L"Please choose a file.");
-					return true;
-
 				default:
 					return false;
 			}
