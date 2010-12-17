@@ -23,21 +23,21 @@ EventReceiver::EventReceiver( SAppContext * context )  : Context(context)
 bool EventReceiver::OnEvent(const SEvent& _event)
 {
 	if (_event.EventType == EET_GUI_EVENT) {
-		cout << "GUI EVENT MOTHERFUCKEEEEEEERRRRRRRRRRR" << endl;
+		//cout << "GUI EVENT MOTHERFUCKEEEEEEERRRRRRRRRRR" << endl;
 		
 		// GUI Events
 		s32 id = _event.GUIEvent.Caller->getID();
 		//IGUIEnvironment* env = Context.device->getGUIEnvironment();
 
 		if(_event.GUIEvent.EventType == EGET_BUTTON_CLICKED) {
-			cout << "clicou em algum botao" << endl;
+			//cout << "clicou em algum botao" << endl;
 			switch(id) {
 				case GUI_ID_QUIT_BUTTON:
 					Context->device->closeDevice();
 					return true;
 
 				case GUI_ID_START_BUTTON:
-					cout << "clicou start" << endl;
+					//cout << "clicou start" << endl;
 					Context->fase = READY_TO_PLAY;
 					return true;
 				default:

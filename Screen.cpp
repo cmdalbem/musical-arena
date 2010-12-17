@@ -85,11 +85,12 @@ void Screen::initializeScreenElements()
 			hpText[i] = device->getGUIEnvironment()->addStaticText(L"", recti(position2di(xpos-35,HUD_BARS_Y+10),position2di(xpos+35,HUD_BARS_Y+25)));
 			hpText[i]->setOverrideColor( SColor(200,255,255,255) );
 			
-			#define ICONSIZE 60
-			//statusIcon[i] = device->getGUIEnvironment()->addImage( recti( position2di(SCREENX/2 - ICONSIZE/2 + (i==0?-100:100),50 - ICONSIZE/2),dimension2di(ICONSIZE,ICONSIZE)) );
-			statusIcon[i] = device->getGUIEnvironment()->addImage( recti( position2di(xpos+(i==0?175:-175)-ICONSIZE/2, HUD_BARS_Y+7.5-ICONSIZE/2),dimension2di(ICONSIZE,ICONSIZE)) );
-			statusIcon[i]->setUseAlphaChannel(true);
-			statusIcon[i]->setScaleImage(true);
+			for(int k=0; k<5; k++){
+				#define ICONSIZE 60
+				statusIcon[i][k] = device->getGUIEnvironment()->addImage( recti( position2di(xpos + (i==0?1:-1)*(175 - 60*k) - ICONSIZE/2, HUD_BARS_Y+7.5-ICONSIZE/2),dimension2di(ICONSIZE,ICONSIZE)) );
+				statusIcon[i][k]->setUseAlphaChannel(true);
+				statusIcon[i][k]->setScaleImage(true);
+			}
 			
 			// health bars
 			armorBar[i] = new VxHealthSceneNode(
@@ -153,6 +154,7 @@ void Screen::initializeScreenElements()
 	}
 	
 	screenFader = device->getGUIEnvironment()->addInOutFader();
+	screenFader->fadeOut(1);
 	
 	koImage = device->getGUIEnvironment()->addImage(koTex, position2di(0,100), true);
 	koImage->setVisible(false);
@@ -227,7 +229,7 @@ void Screen::update()
 	drawKeys();
 	drawSoloModeState();
 	drawSplitBlood();
-	//drawStatus();
+	drawStatus();
 	drawMultiplier();
 	
 	//effectFactory->splitBlood(0, EGL_MILD);
@@ -260,56 +262,59 @@ void Screen::drawMultiplier()
 			}
 		}
 }
-/*
+
 void Screen::drawStatus()
 {
 	for(int i=0; i<NPLAYERS; i++) 
 	{
-		switch(player[i]->status)
-		{
-			case ST_POISON:
-				statusIcon[i]->setVisible(true);
-				statusIcon[i]->setImage(poisonTex);
-				break;
-			case ST_FIRE:
-				statusIcon[i]->setVisible(true);
-				statusIcon[i]->setImage(fireTex);
-				break;
-			case ST_MAGIC_BARRIER:
-				statusIcon[i]->setVisible(true);
-				statusIcon[i]->setImage(magicBarrierTex);
-				break;
-			case ST_MIRROR:
-				statusIcon[i]->setVisible(true);
-				statusIcon[i]->setImage(mirrorTex);
-				break;
-			case ST_ELETRIFIED:
-				statusIcon[i]->setVisible(true);
-				statusIcon[i]->setImage(eletrifiedTex);
-				break;
-			case ST_DROWNED:
-				statusIcon[i]->setVisible(true);
-				statusIcon[i]->setImage(drownedTex);
-				break;			
-			case ST_FROZEN:
-				statusIcon[i]->setVisible(true);
-				statusIcon[i]->setImage(frozenTex);
-				break;
-			case ST_CURSED:
-				statusIcon[i]->setVisible(true);
-				statusIcon[i]->setImage(cursedTex);
-				break;			
-			case ST_BLESSED:
-				statusIcon[i]->setVisible(true);
-				statusIcon[i]->setImage(blessedTex);
-				break;
-			default:
-				statusIcon[i]->setVisible(false);
-				//statusIcon[i]->setImage(magicBarrierTex);
-		}
+		for(unsigned int k=player[i]->status.size(); k<5; k++)
+			statusIcon[i][k]->setVisible(false);
+			
+		for(unsigned int k=0; k<player[i]->status.size(); k++)
+			switch(player[i]->status[k].status)
+			{
+				case ST_POISON:
+					statusIcon[i][k]->setVisible(true);
+					statusIcon[i][k]->setImage(poisonTex);
+					break;
+				case ST_FIRE:
+					statusIcon[i][k]->setVisible(true);
+					statusIcon[i][k]->setImage(fireTex);
+					break;
+				case ST_MAGIC_BARRIER:
+					statusIcon[i][k]->setVisible(true);
+					statusIcon[i][k]->setImage(magicBarrierTex);
+					break;
+				case ST_MIRROR:
+					statusIcon[i][k]->setVisible(true);
+					statusIcon[i][k]->setImage(mirrorTex);
+					break;
+				case ST_ELETRIFIED:
+					statusIcon[i][k]->setVisible(true);
+					statusIcon[i][k]->setImage(eletrifiedTex);
+					break;
+				case ST_DROWNED:
+					statusIcon[i][k]->setVisible(true);
+					statusIcon[i][k]->setImage(drownedTex);
+					break;			
+				case ST_FROZEN:
+					statusIcon[i][k]->setVisible(true);
+					statusIcon[i][k]->setImage(frozenTex);
+					break;
+				case ST_CURSED:
+					statusIcon[i][k]->setVisible(true);
+					statusIcon[i][k]->setImage(cursedTex);
+					break;			
+				case ST_BLESSED:
+					statusIcon[i][k]->setVisible(true);
+					statusIcon[i][k]->setImage(blessedTex);
+					break;
+				default:
+					statusIcon[i][k]->setVisible(false);
+			}
 	}
 }
-*/
+
 void Screen::drawSoloModeState()
 {
 	for(int i=0; i<NPLAYERS; i++)

@@ -7,15 +7,17 @@ using namespace std;
 
 struct musicLibEntry
 {
-	std::string notes, song, guitar;
+	std::string name;
 	difficultyType difficulty;
 };
 
-const musicLibEntry musicLib[] = { {"music/api/notes.mid", "music/api/song.ogg", "music/api/guitar.ogg", HARD},
-							       {"music/example/notes.mid", "music/example/song.ogg", "", EXPERT},
-							       {"music/roundabout/notes.mid", "music/roundabout/song.ogg", "", HARD},
-							       {"music/sectoid/notes.mid", "music/sectoid/song.ogg", "music/sectoid/guitar.ogg", EXPERT},
-							  };
+const musicLibEntry musicLib[] = {  {"api", HARD},
+									{"roundabout",HARD},
+									{"incubus_stellar",HARD},
+									{"cochise",HARD},
+									{"iron_man",MEDIUM},
+									{"tom_sawyer",MEDIUM},
+								};
 
 class SoundBank
 {
