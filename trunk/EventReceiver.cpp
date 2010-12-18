@@ -12,7 +12,7 @@ using namespace io;
 using namespace gui;
 
 
-EventReceiver::EventReceiver( SAppContext * context )  : Context(context)
+EventReceiver::EventReceiver( SAppContext * context )  : context(context)
 {
 	for (u32 i=0; i<KEY_KEY_CODES_COUNT; ++i)
 		KeyIsDown[i] = false;
@@ -23,22 +23,23 @@ EventReceiver::EventReceiver( SAppContext * context )  : Context(context)
 bool EventReceiver::OnEvent(const SEvent& _event)
 {
 	if (_event.EventType == EET_GUI_EVENT) {
-		//cout << "GUI EVENT MOTHERFUCKEEEEEEERRRRRRRRRRR" << endl;
-		
+		cout << "Received a GUI Event." << endl;
+		/////////////////
 		// GUI Events
+		/////////////////
+		
 		s32 id = _event.GUIEvent.Caller->getID();
 		//IGUIEnvironment* env = Context.device->getGUIEnvironment();
 
 		if(_event.GUIEvent.EventType == EGET_BUTTON_CLICKED) {
-			//cout << "clicou em algum botao" << endl;
 			switch(id) {
 				case GUI_ID_QUIT_BUTTON:
-					Context->device->closeDevice();
+					context->device->closeDevice();
 					return true;
 
 				case GUI_ID_START_BUTTON:
-					//cout << "clicou start" << endl;
-					Context->fase = READY_TO_PLAY;
+					context->state = GUI_READY_TO_PLAY;
+					context->window->setVisible(false);
 					return true;
 				default:
 					return false;
@@ -46,7 +47,10 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 		}
 	}
 	else {
-		// MusA Event
+		/////////////////
+		// MusA Events
+		/////////////////
+		
 		events.push_back(_event);
 		refreshArray(_event);
 	}

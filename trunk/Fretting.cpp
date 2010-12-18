@@ -414,7 +414,7 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 			break;
 		case 2:
 			nextFrettingState = 0;
-			cout << "frettingState????" << endl;
+			//cout << "frettingState????" << endl;
 			break;
 		case -1:
 			nextFrettingState = -1;
@@ -426,7 +426,7 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 	if (nextFrettingState != -3)
 		frettingState = nextFrettingState;
 		
-	cout << "frettingState on verifyEvents: " << frettingState << endl;
+	//cout << "frettingState on verifyEvents: " << frettingState << endl;
 	return 1;
 	}
 	return 0;

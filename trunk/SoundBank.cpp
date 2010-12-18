@@ -1,6 +1,6 @@
 #include "SoundBank.h"
 
-SoundBank::SoundBank()
+SoundBank::SoundBank( bool _mute )
 {
 	FMOD_RESULT result;
 	result = FMOD::System_Create(&system);		//  the main system object.
@@ -10,6 +10,7 @@ SoundBank::SoundBank()
 
 	song = NULL;
 	guitar = NULL;
+	mute = _mute;
 	
 	char filename[128];
 	for(int i=0; i<S_TOTAL; i++) {
@@ -63,19 +64,22 @@ void SoundBank::selectMusic( int n )
 
 void SoundBank::playSelectedMusic()
 { 
-	// play files
-	if(song)
-		system->playSound(FMOD_CHANNEL_FREE, song, false, &ch);
-	if(guitar)
-		system->playSound(FMOD_CHANNEL_FREE, guitar, false, &ch);
+	if(!mute) {
+		if(song)
+			system->playSound(FMOD_CHANNEL_FREE, song, false, &ch);
+		if(guitar)
+			system->playSound(FMOD_CHANNEL_FREE, guitar, false, &ch);
+	}
 }
 
 void SoundBank::playEffect( soundEffectType which )
 {
-	system->playSound(FMOD_CHANNEL_FREE, effects[which], false, &ch);
+	if(!mute)
+		system->playSound(FMOD_CHANNEL_FREE, effects[which], false, &ch);
 }
 
 void SoundBank::playMissEffect()
 {
-	system->playSound(FMOD_CHANNEL_FREE, missEffects[ rand()%6 ], false, &ch);
+	if(!mute)
+		system->playSound(FMOD_CHANNEL_FREE, missEffects[ rand()%6 ], false, &ch);
 }
