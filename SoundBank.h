@@ -5,6 +5,7 @@
 using namespace std;
 
 
+
 struct musicLibEntry
 {
 	std::string name;
@@ -22,10 +23,11 @@ const musicLibEntry musicLib[] = {  {"api", HARD},
 class SoundBank
 {
 	public:
-		SoundBank();
+		SoundBank( bool mute=false );
 		~SoundBank();
 	
 		musicLibEntry 	selectedSong;
+		bool			mute;
 		
 		void 			selectMusic( int n );
 		void 			playSelectedMusic();

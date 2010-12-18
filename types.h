@@ -14,8 +14,7 @@ enum visualEffectFunction
 	EFFECT_GLOW_AREA, EFFECT_FEEDBACK, EFFECT_SHIELD,
 	EFFECT_BOLT, EFFECT_ELETRIC_GROUND, EFFECT_WATER_BEAM,
 	EFFECT_EXPLOSION, EFFECT_THUNDERSTORM_BOLT, EFFECT_THUNDERSTORM, EFFECT_FLOOD,
-	EFFECT_SHIELD_SINGLE, EFFECT_SWAMP, EFFECT_BALL_LIGHTNING,
-	EFFECT_IMPLANT_BOMB, EFFECT_SUN, EFFECT_DARK_STORM_BOLT, EFFECT_DARK_STORM,
+	EFFECT_SHIELD_SINGLE, EFFECT_SWAMP, EFFECT_BALL_LIGHTNING, EFFECT_SUN, EFFECT_DARK_STORM_BOLT, EFFECT_DARK_STORM,
 	EFFECT_FREEZE, EFFECT_BLACKHOLE, EFFECT_BLACKHOLE_BOLT, EFFECT_AURORA,
 	EFFECT_VAMPIRIC, EFFECT_LOTUS, EFFECT_SILENCE
 };
@@ -46,8 +45,8 @@ enum skillId
 {
 	FIREBALL, INSPIRATION, EXPLOSION, LIGHTNING_BOLT, FIRE_RAIN, FEEDBACK,
 	ELETRIFIED_GROUND, FLOOD, WATER_BEAM, THUNDERSTORM, MIRROR, SWAMP, 
-	BLACK_HOLE, BALL_LIGHTNING, IMPLANT_BOMB, SUNBIRTH, DIVINE_SILENCE,
-	SIBERIAN, SOUL_CORRUPTION, VAMPIRIC, AURORA, BLACK_LOTUS,
+	BLACK_HOLE, BALL_LIGHTNING, SUNBIRTH, DIVINE_SILENCE, SIBERIAN,
+	SOUL_CORRUPTION, VAMPIRIC, AURORA, BLACK_LOTUS,
 	
 	SKILLS_TOTAL
 };
@@ -79,11 +78,14 @@ enum statusEnum
 	ST_TOTAL	
 };
 
-typedef struct
+struct statusType
 {
 	statusEnum	status;
 	double		timeInStatus;
-} statusType;
+	
+	statusType() { timeInStatus = 0; }
+	statusType(statusEnum _status, double _timeInStatus) : status(status), timeInStatus(timeInStatus) {}
+};
 
 // The effects the skills causes on the player. There's are good and bad effects.
 enum effectType
@@ -121,12 +123,12 @@ enum effectType
 	T_EFFECTS_TOTAL
 };
 
-typedef struct
+struct effectStruct
 {
 	effectType	type;
 	double		param1;
 	double		param2;
-} effectStruct;
+};
 
 enum difficultyType
 {
@@ -152,10 +154,10 @@ enum buttonType		// 5 buttons, five frets. Some idea?
 	B1, B2, B3, B4, B5, NIL
 };
 
-typedef struct musicEvent_t
+struct musicEvent
 {
 	buttonType button;
 	eventType type;
 	double time; //	time in seconds
 	int mspqn; // microseconds per quarter note
-} musicEvent;
+};

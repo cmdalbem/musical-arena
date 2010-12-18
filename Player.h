@@ -36,12 +36,11 @@ class Player
 		int				gold;
 		vector<statusType>		status;
 		//double			timeInStatus;
-		bool			activateAI;
+		bool			useAI;
 
 		int 			getArmor();
 		void 			changeStamina(int howMuch);
 		void			changeArmor( double howMuch );
-		void 			initializeAtributes();
 		void			update();
 		void			updateEvents();
 		void			recoverHP ( double howMuch );
@@ -52,6 +51,7 @@ class Player
 		void 			addStatus(statusType newStatus);
 		void 			removeStatus(statusType oldStatus, int indexInVector);
 		void 			setStatusAttNormal();
+		void			setInstrument( Instrument *instrument );
 		
 	private:
 		int				armor;

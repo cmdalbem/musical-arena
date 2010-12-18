@@ -30,9 +30,7 @@ using irr::core::vector3df;
 core::array<SJoystickInfo> joystickInfo;
 
 
-IGUIButton *startButton;
 
-SAppContext guiControls;
 // Irrlicht globals
 IrrlichtDevice 				*device=0;
 video::IVideoDriver 		*driver=0;
@@ -56,9 +54,10 @@ vector<musicEvent> 				theMusic;
 Player 						player[2];
 SkillBank					skillBank;
 SoundBank					*soundBank;
-bool						activateAI = true;
+bool						useAI = true;
+SAppContext 				guiControls;
 
-bool 						endOfMusic =false; // indicates the end of the music. must be implemented to be turned "true" when ogg file ends its playing.
+bool 						endOfMusic =false;
 double 						musicTime =0;
 
 // Other global
@@ -81,7 +80,7 @@ void castSpell ()
 				soundBank->playEffect(casted->soundEffect); 
 				
 				bool isEnemyMirrored = false;
-				for (int j = 0; j < player[!i].status.size(); j++)
+				for (unsigned int j = 0; j < player[!i].status.size(); j++)
 					if (player[!i].status[j].status == ST_MIRROR)
 						isEnemyMirrored = true;
 						
@@ -109,16 +108,16 @@ void castSpell ()
 						player[i].changeArmor( casted->effects[j].param1 );
 						break;
 					case T_INVENCIBLE:
-						player[i].addStatus({ST_INVENCIBLE,	casted->effects[j].param1});
+						player[i].addStatus( statusType(ST_INVENCIBLE, casted->effects[j].param1) );
 						break;
 					case T_MAGIC_BARRIER:
-						player[i].addStatus({ST_MAGIC_BARRIER, casted->effects[j].param1});
+						player[i].addStatus( statusType(ST_MAGIC_BARRIER, casted->effects[j].param1) );
 						break;
 					case T_POISONOUS:
-						player[!i].addStatus({ST_POISON, casted->effects[j].param1});
+						player[!i].addStatus( statusType(ST_POISON, casted->effects[j].param1) );
 						break;
 					case T_DAMAGE:
-						player[!i].takeDamage(casted->effects[j].param1);
+						player[!i].takeDamage( casted->effects[j].param1);
 						break;
 					case T_DEFENSE_DOWN:
 						player[!i].changeArmor( - casted->effects[j].param1 );
@@ -133,7 +132,7 @@ void castSpell ()
 						player[!i].changeStamina( -casted->effects[j].param1 );
 						break;
 					case T_BURN:
-						player[!i].addStatus({ST_FIRE, casted->effects[j].param1});
+						player[!i].addStatus( statusType(ST_FIRE, casted->effects[j].param1) );
 						break;
 					case T_FEEDBACK:
 						player[!i].takeDamage (player[!i].stamina/2);
@@ -143,42 +142,44 @@ void castSpell ()
 						//temporarily, it is implemented on the Eletrify Effect.
 						break;
 					case T_ELETRIFY:
-						player[!i].addStatus({ST_ELETRIFIED, casted->effects[j].param1});
+						player[!i].addStatus( statusType(ST_ELETRIFIED, casted->effects[j].param1) );
 						player[!i].fretting->tolerance -= casted->effects[j].param2; //temporario enquanto nao temos um vetor de efeitos
 						break;
 					case T_DROWN:
-						player[!i].addStatus({ST_DROWNED, casted->effects[j].param1});
+						player[!i].addStatus( statusType(ST_DROWNED, casted->effects[j].param1) );
 						break;
 					case T_MIRROR:
-						player[i].addStatus({ST_MIRROR, casted->effects[j].param1});
+						player[i].addStatus( statusType(ST_MIRROR, casted->effects[j].param1) );
 						break;
 					case T_SPEED_UP:
 						player[!i].track->setSpeed( player[!i].track->getSpeed() + casted->effects[j].param1 );
 						break;		
 					case T_CHAOTIC_SPEED:
-						player[!i].addStatus({ST_CHAOTIC_SPEED, casted->effects[j].param1});
+						player[!i].addStatus( statusType(ST_CHAOTIC_SPEED, casted->effects[j].param1) );
 						break;		
 					case T_BREAK_DEFENSE:
-						player[!i].addStatus({ST_BROKEN_DEFENSE, casted->effects[j].param1});
+						player[!i].addStatus( statusType(ST_BROKEN_DEFENSE, casted->effects[j].param1) );
 						break;
 					case T_CLEAR_STONES:
 						player[i].track->destroyAllStones();
 						break;
 					case T_FREEZE:
-						player[!i].addStatus({ST_FROZEN, casted->effects[j].param1});
+						player[!i].addStatus( statusType(ST_FROZEN, casted->effects[j].param1) );
 						break;
 					case T_VAMPIRIC:
 						player[i].recoverHP( player[!i].takeDamage(casted->effects[j].param1) );
 						break;
 					case T_BLESS:
-						player[i].addStatus({ST_BLESSED, casted->effects[j].param1});
+						player[i].addStatus( statusType(ST_BLESSED, casted->effects[j].param1) );
 						break;
 					case T_STAMINA_UP:
 						player[i].changeStamina( casted->effects[j].param1 );
 						break;
 					case T_CURSE:
-						player[!i].addStatus({ST_CURSED, casted->effects[j].param1});
+						player[!i].addStatus( statusType(ST_CURSED, casted->effects[j].param1) );
 						break;
+					
+					case T_EFFECTS_TOTAL: break;
 					}
 				}
 			}
@@ -253,7 +254,7 @@ static void *updater(void *argument)
 		
 		handleHittingStates();
 		sem_wait(&semaphore);
-			if (player[1].activateAI == true && !player[1].isFrozen)
+			if (player[1].useAI == true && !player[1].isFrozen)
 			{
 				double chance = rand() % 30000;
 				if (chance == 0)
@@ -265,7 +266,6 @@ static void *updater(void *argument)
 			
 			castSpell();
 			
-			int tam = receiver->getEventsSize();
 			while (receiver->getEventsSize() != 0)
 			{
 				player[0].updateEvents();
@@ -284,8 +284,12 @@ static void *updater(void *argument)
 }
 
 
-void musa_init()
-{	
+void initMusa()
+{		
+	player[0].track = new Track(&theMusic,&musicTime,device,23, -18);
+	player[1].track = new Track(&theMusic,&musicTime,device,23, 18);
+
+	// TEMPORARY
 	Instrument* violin = new Instrument();
 	Instrument* drums = new Instrument();
 	
@@ -293,15 +297,9 @@ void musa_init()
 		drums->addSkill( skillBank.skills[i] );
 		violin->addSkill( skillBank.skills[i] );
 	}
-	
-	player[0].track = new Track(&theMusic,&musicTime,device,23, -18);
-	player[1].track = new Track(&theMusic,&musicTime,device,23, 18);
-	
-	player[0].instrument = violin; 
-	player[1].instrument = drums;
-	
-	player[0].initializeAtributes();
-	player[1].initializeAtributes();
+		
+	player[0].setInstrument(violin);
+	player[1].setInstrument(drums);
 	
 	player[0].fretting->musicTime = &musicTime;
 	player[1].fretting->musicTime = &musicTime;
@@ -309,36 +307,27 @@ void musa_init()
 	player[0].fretting->receiver = receiver;
 	player[1].fretting->receiver = receiver;
 
-	player[1].activateAI = activateAI;
+
+	player[1].useAI = useAI;
 	
 
-	if(device->activateJoysticks(joystickInfo))
-	{
-			cout << "Joystick support is enabled and " << joystickInfo.size() << " joystick(s) are present." << endl;
-
-			for(u32 joystick = 0; joystick < joystickInfo.size(); ++joystick)
-			{
-					cout << "Joystick " << joystick << ":" << endl;
-					cout << "\tName: '" << joystickInfo[joystick].Name.c_str() << "'" << endl;
-					cout << "\tAxes: " << joystickInfo[joystick].Axes << endl;
-					cout << "\tButtons: " << joystickInfo[joystick].Buttons << endl;
-			}
+	if(device->activateJoysticks(joystickInfo)) {
+		cout << "Joystick support is enabled and " << joystickInfo.size() << " joystick(s) are present." << endl;
+		for(u32 joystick = 0; joystick < joystickInfo.size(); ++joystick) {
+			cout << "Joystick " << joystick << ":" << endl;
+			cout << "\tName: '" << joystickInfo[joystick].Name.c_str() << "'" << endl;
+			cout << "\tAxes: " << joystickInfo[joystick].Axes << endl;
+			cout << "\tButtons: " << joystickInfo[joystick].Buttons << endl;
+		}
 	}
 	else
-	{
-			cout << "Joystick support is not enabled." << endl;
-	}
+		cout << "Joystick support is not enabled." << endl;
 
-	
-	//cout << "vai passar" << endl;
-	//receiver.semaphore = &receiverSemaphore;
-	//cout << "passou" << endl;
-	//sem_init(&receiverSemaphore, 0, 1);
 	
 	EKEY_CODE eventsKeyboard1[NFRETS] = { irr::KEY_KEY_A, irr::KEY_KEY_S, irr::KEY_KEY_J, irr::KEY_KEY_K, irr::KEY_KEY_L };
 	EKEY_CODE eventsKeyboard2[NFRETS] = { irr::KEY_KEY_Q, irr::KEY_KEY_W, irr::KEY_KEY_U, irr::KEY_KEY_I, irr::KEY_KEY_O };
-	int eventsJoystick1[NFRETS] = {4,6,7,5,2};
-	int eventsJoystick2[NFRETS] = {4,6,7,5,2};
+	//int eventsJoystick1[NFRETS] = {4,6,7,5,2};
+	//int eventsJoystick2[NFRETS] = {4,6,7,5,2};
 
 	player[0].fretting->setEvents(eventsKeyboard1, irr::KEY_SPACE );
 	//player[0].fretting->setEvents(eventsJoystick1, joystickInfo, 0, 3);	//comment this line to use keyboard for player 1
@@ -347,10 +336,10 @@ void musa_init()
 	
 	screen = new Screen(device,&musicTime,&player[0],&player[1]);
 	sem_init(&semaphore, 0, 1);
-						
-	startButton = env->addButton(rect<s32>(position2di(SCREENX/2,SCREENY/2),dimension2di(100,32)), 0, GUI_ID_START_BUTTON, L"Start", L"Starts the game");
-	env->setFocus(startButton);
-	//window->setVisible(false);
+	
+	guiControls.window = env->addWindow( recti(position2di(SCREENX/3,SCREENY/3),dimension2di(SCREENX/3,SCREENY/3)) );
+	env->addButton(rect<s32>(position2di(SCREENX/6-100/2,SCREENY/6-32/2-50),dimension2di(100,32)), guiControls.window, GUI_ID_LOAD_MUSIC, L"Load Music", L"Loads a Fret's on Fire music file");
+	env->addButton(rect<s32>(position2di(SCREENX/6-100/2,SCREENY/6-32/2+50),dimension2di(100,32)), guiControls.window, GUI_ID_START_BUTTON, L"Start", L"Starts the game");
 	
 	// start getting signals, baby
 }
@@ -398,7 +387,7 @@ void initializePostProcessEffects()
     invert->initiate(1024,512,smgr);
 }
 
-void initializeIrrlicht()
+void initIrrlicht()
 {
 	// Graphical engine initializing
 	device = createDevice( video::EDT_OPENGL, core::dimension2d<u32>(SCREENX,SCREENY), 32,
@@ -420,18 +409,11 @@ void initializeIrrlicht()
 	skin->setFont(env->getBuiltInFont(), EGDF_TOOLTIP);
 	
 	guiControls.device = device;
-	guiControls.fase = MENU_INSTRUMENT;
+	guiControls.state = GUI_INSTRUMENT_MENU;
 	
 	receiver = new EventReceiver(&guiControls);	
 	device->setEventReceiver(receiver);
 	
-    // lol quake scenario
-    /*device->getFileSystem()->addZipFileArchive("map-20kdm2.pk3");
-    IAnimatedMesh* mesh = smgr->getMesh("20kdm2.bsp");
-    ISceneNode* node = smgr->addOctreeSceneNode(mesh->getMesh(0), 0, -1, 1024);
-    node->setRotation( vector3df(280,0,0) );
-    node->setPosition( vector3df(-1900,-500,400) );*/
-
     
     // like the real game camera
     camera = smgr->addCameraSceneNode (
@@ -480,13 +462,13 @@ int main(int argc, char *argv[])
 	/*
 	 * initializing the graphics engine
 	 */
-	initializeIrrlicht();
+	initIrrlicht();
 	
 	
 	/*
 	 * initializing game engine
 	 */
-	musa_init();
+	initMusa();
 		
 
 	ITexture *bgPic = driver->getTexture("img/bgs/bg20.jpg");
@@ -496,49 +478,34 @@ int main(int argc, char *argv[])
 	 */	
 	while(device->run()) {
 		
-		switch(guiControls.fase) {
-			case READY_TO_PLAY:
+		// menus
+		switch(guiControls.state) {
+			case GUI_READY_TO_PLAY:
 				startGame();
-				guiControls.fase = PLAYING;
-				startButton->setVisible(false);
-				//cout <<"ready to play" << endl;
+				guiControls.state = GUI_PLAYING;
 				break;
-			case MENU_INSTRUMENT:
-				//cout <<"menu instrument" << endl;
+			case GUI_INSTRUMENT_MENU:
+				break;
+			case GUI_PLAYING:
 				break;
 		}
+		
 		driver->beginScene(true, true, bgColor);
-		
-		driver->draw2DImage( bgPic, recti(position2di(0,0), position2di(SCREENX,SCREENY)), recti(position2di(0,0),bgPic->getOriginalSize()) );
+			// draw background
+			driver->draw2DImage( bgPic, recti(position2di(0,0), position2di(SCREENX,SCREENY)), recti(position2di(0,0),bgPic->getOriginalSize()) );
 
-		sem_wait(&semaphore);
-		
-		if(bloomEffect) {
-			driver->setRenderTarget(bloom->rt0, false, true, bgColor); 
-				smgr->drawAll();
-		}
-		if(blurEffect) {
-			driver->setRenderTarget(blur->rt0, false, true, bgColor);
-				smgr->drawAll();
-		}
-		if(invertEffect) {
-			driver->setRenderTarget(invert->rt0, false, true, bgColor);
-				smgr->drawAll();
-		}
-		
-		driver->setRenderTarget(0, false, true, bgColor);
-		renderPostProcessEffects();
-		player[0].track->draw();
-		player[1].track->draw();
-		smgr->drawAll();			
-		
-		screen->update();
-		
-		sem_post(&semaphore);
-		
-		env->drawAll();
-
+			sem_wait(&semaphore);
+				driver->setRenderTarget(0, false, true, bgColor);
+				renderPostProcessEffects();
+				player[0].track->draw();
+				player[1].track->draw();
+				smgr->drawAll();		
+				screen->update();
+			sem_post(&semaphore);
+			
+			env->drawAll();
 		driver->endScene();
+		
 
 		// FPS
 		int fps = driver->getFPS();

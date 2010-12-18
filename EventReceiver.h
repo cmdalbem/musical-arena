@@ -37,6 +37,6 @@ class EventReceiver : public IEventReceiver
 		void 		clearEvents();
 	
 	private:
-		 SAppContext * Context;
+		 SAppContext * context;
 };
 

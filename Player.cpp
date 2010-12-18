@@ -46,22 +46,6 @@ void Player::initialize()
 	status.clear();
 }
 
-void Player::initializeAtributes()
-{
-	maxHP = instrument->sumHP;
-	HP = maxHP;
-	maxStamina = instrument->sumStamina;
-	stamina = maxStamina;///2;
-	armor = instrument->armor;
-	castedSpell = NULL;	
-	
-	fretting = new Fretting(&instrument->skills);
-	track->fretting = fretting;	
-	
-	track->tolerance = instrument->tolerance;
-	fretting->tolerance = instrument->tolerance;
-}
-
 void Player::update()
 {
 	//SEvent *anEvent=NULL;
@@ -114,7 +98,7 @@ void Player::update()
 				firstStones[i] = NULL;
 		if (fretting->receiver->enabled)
 		{
-			if (activateAI && !isFrozen)
+			if (useAI && !isFrozen)
 				gotAnEvent = fretting->verifyEventsAI(firstStones);
 			/*else if(anEvent = fretting->receiver->getEvent())
 				{
@@ -156,7 +140,7 @@ void Player::updateEvents()
 	Stone* firstStones[NFRETS];
 	gotAnEvent = -3;
 	int		lastFrettingState = fretting->frettingState;
-	if ( (!isFrozen) && (fretting->receiver->enabled) && (!activateAI) 
+	if ( (!isFrozen) && (fretting->receiver->enabled) && (!useAI) 
 		&& (anEvent = fretting->receiver->getEvent()) )
 	{
 		for(unsigned int i=0; i<NFRETS; i++)
@@ -363,6 +347,22 @@ void Player::setStatusAttNormal()
 	if(isFrozen) {
 		isFrozen = false;
 	}
+}
+
+void Player::setInstrument( Instrument *instrument )
+{
+	maxHP = instrument->sumHP;
+	HP = maxHP;
+	maxStamina = instrument->sumStamina;
+	stamina = maxStamina;///2;
+	armor = instrument->armor;
+	castedSpell = NULL;	
+	
+	fretting = new Fretting(&instrument->skills);
+	track->fretting = fretting;	
+	
+	track->tolerance = instrument->tolerance;
+	fretting->tolerance = instrument->tolerance;	
 }
 
 void Player::addStatus(statusType newStatus)

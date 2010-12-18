@@ -15,22 +15,23 @@ enum
 {
         GUI_ID_QUIT_BUTTON = 101,
         GUI_ID_START_BUTTON,
-        GUI_ID_NEW_WINDOW_BUTTON,
-        GUI_ID_FILE_OPEN_BUTTON,
+        GUI_ID_LOAD_MUSIC,
 };
 
-enum
+enum guiState
 {
-	MENU_INSTRUMENT,
-	READY_TO_PLAY,
-	PLAYING
+	GUI_INSTRUMENT_MENU,
+	GUI_READY_TO_PLAY,
+	GUI_PLAYING
 };
 	
 
 struct SAppContext
 {
-	int		fase;
-        IrrlichtDevice	*device;
-        s32		counter;
-        IGUIListBox*	listbox;
+	guiState		state;
+	IrrlichtDevice	*device;
+	s32				counter;
+	IGUIListBox		*listbox;
+	
+	IGUIWindow *window;
 };
