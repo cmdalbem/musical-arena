@@ -46,7 +46,7 @@ Decoder::Decoder()
 Decoder::~Decoder() {}
 
 
-music Decoder::decodeMidi( string file, difficultyType difficulty )
+music* Decoder::decodeMidi( string file, difficultyType difficulty )
 /* reads the mid file calling decodeMidiEvent() for every event */
 {
 	music *theMusic = new music;
@@ -59,8 +59,10 @@ music Decoder::decodeMidi( string file, difficultyType difficulty )
 	
 	// load the file
 	smf = smf_load( file.c_str() );
-	if (smf == NULL) 
-		return *theMusic;
+	if (smf == NULL) {
+		free(theMusic);
+		return NULL;
+	}
 	
 	// handles all events
 	while (!eof) {
@@ -85,7 +87,12 @@ music Decoder::decodeMidi( string file, difficultyType difficulty )
 	//cout << endl << "End of file." << endl;
 	smf_delete(smf);
 	
-	return *theMusic;
+	if(theMusic->size() < MIN_MUSIC_SIZE) {
+		free(theMusic);
+		return NULL;
+	}
+	else
+		return theMusic;
 }
 
 void Decoder::printMusic( music aMusic )

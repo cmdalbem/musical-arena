@@ -40,22 +40,7 @@ Screen::~Screen()
 
 void Screen::initializeScreenElements()
 {
-	// Pre-load textures
-	koTex = driver->getTexture("img/ko.png");
-	glowTex = driver->getTexture("img/glow2.bmp");
-	mult2xTex = driver->getTexture("img/2x.png");
-	mult3xTex = driver->getTexture("img/3x.png");
-	mult4xTex = driver->getTexture("img/4x.png");
-	
-	fireTex = driver->getTexture("img/fireicon.png");
-	poisonTex = driver->getTexture("img/poisonicon.png");
-	magicBarrierTex = driver->getTexture("img/darkshieldicon.png");
-	eletrifiedTex = driver->getTexture("img/thundericon.png");
-	drownedTex = driver->getTexture("img/watericon.png");
-	frozenTex = driver->getTexture("img/iceicon.png");
-	mirrorTex = driver->getTexture("img/mirroricon.png");
-	blessedTex = driver->getTexture("img/goldcross.png");
-	cursedTex = driver->getTexture("img/darkcross.png");
+	loadTextures();
 	
 	// background
 	//sky = smgr->addSkyDomeSceneNode( driver->getTexture("img/stars.tga"), 32, 32 );
@@ -158,6 +143,26 @@ void Screen::initializeScreenElements()
 	
 	koImage = device->getGUIEnvironment()->addImage(koTex, position2di(0,100), true);
 	koImage->setVisible(false);
+}
+
+void Screen::loadTextures()
+{
+	// Pre-load textures
+	koTex = driver->getTexture("img/ko.png");
+	glowTex = driver->getTexture("img/glow2.bmp");
+	mult2xTex = driver->getTexture("img/2x.png");
+	mult3xTex = driver->getTexture("img/3x.png");
+	mult4xTex = driver->getTexture("img/4x.png");
+	
+	fireTex = driver->getTexture("img/fireicon.png");
+	poisonTex = driver->getTexture("img/poisonicon.png");
+	magicBarrierTex = driver->getTexture("img/darkshieldicon.png");
+	eletrifiedTex = driver->getTexture("img/thundericon.png");
+	drownedTex = driver->getTexture("img/watericon.png");
+	frozenTex = driver->getTexture("img/iceicon.png");
+	mirrorTex = driver->getTexture("img/mirroricon.png");
+	blessedTex = driver->getTexture("img/goldcross.png");
+	cursedTex = driver->getTexture("img/darkcross.png");
 }
 
 void Screen::drawKeys()

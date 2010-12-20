@@ -1,6 +1,7 @@
 #pragma once
 
 #include <irrlicht.h>
+#include <iostream>
 
 using namespace irr;
 using namespace core;
@@ -15,13 +16,18 @@ enum
 {
         GUI_ID_QUIT_BUTTON = 101,
         GUI_ID_START_BUTTON,
-        GUI_ID_LOAD_MUSIC,
+        GUI_ID_LOAD_NOTES,
+        GUI_ID_LOAD_MUSIC1,
+        GUI_ID_LOAD_MUSIC2,
+        GUI_ID_LOAD_NOTES_DIALOG,
+        GUI_ID_LOAD_MUSIC1_DIALOG,
+        GUI_ID_LOAD_MUSIC2_DIALOG,
+        GUI_INITIAL_MENU
 };
 
 enum guiState
 {
-	GUI_INSTRUMENT_MENU,
-	GUI_READY_TO_PLAY,
+	GUI_MAIN_MENU,
 	GUI_PLAYING
 };
 	
@@ -32,6 +38,16 @@ struct SAppContext
 	IrrlichtDevice	*device;
 	s32				counter;
 	IGUIListBox		*listbox;
+	IGUIButton		*startButton;
+	IGUIComboBox	*box;
+	IGUICheckBox	*aiCheck;
 	
-	IGUIWindow *window;
+	path			musicPath;
+	
+	IGUIImage 		*mainBg;
+	IGUIWindow 		*mainWindow;
+	
+	void (*startGame)(int, bool);
+	void (*loadSong)(std::string, int);
+	bool (*loadNotes)(std::string);
 };

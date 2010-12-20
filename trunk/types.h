@@ -6,6 +6,8 @@
 #include <vector>
 using namespace std;
 
+#include "irrlicht.h"
+
 typedef unsigned char u_char;
 
 enum visualEffectFunction
@@ -35,6 +37,9 @@ const std::string wavFiles[] = { "bolt1", "bolt2", "lightning", "digital1",
 "stream1", "stream2","stream3", "waterfall","firerumble","horror1","horror2",
 "earthquake", "electric1","electric2","ice1","ice2","big", "firestorm" };
 const std::string missFiles[] = { "miss1", "miss2", "miss3", "miss4", "miss5", "miss6"};
+
+#define NBGSFILES 4
+const irr::io::path bgsBank[] = {"img/bgs/bg1.jpg", "img/bgs/bg20.jpg", "img/bgs/bg3.jpg", "img/bgs/bg12.jpg"};
 
 enum elementType
 {
@@ -84,7 +89,7 @@ struct statusType
 	double		timeInStatus;
 	
 	statusType() { timeInStatus = 0; }
-	statusType(statusEnum _status, double _timeInStatus) : status(status), timeInStatus(timeInStatus) {}
+	statusType(statusEnum _status, double _timeInStatus) : status(_status), timeInStatus(_timeInStatus) {}
 };
 
 // The effects the skills causes on the player. There's are good and bad effects.
@@ -126,13 +131,14 @@ enum effectType
 struct effectStruct
 {
 	effectType	type;
-	double		param1;
-	double		param2;
+	double		param;
 };
 
 enum difficultyType
 {
-	EXPERT, HARD, MEDIUM, EASY
+	EXPERT, HARD, MEDIUM, EASY,
+	
+	NDIFFICULTIES
 };
 
 enum note

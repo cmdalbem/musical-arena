@@ -64,7 +64,7 @@ void Player::update()
 		
 		if( fretting->frettingState > 0 ) {
 			bool cursed = false;
-			for (int i = 0; i < status.size(); i++)
+			for (unsigned int i = 0; i < status.size(); i++)
 				if (status[i].status == ST_CURSED)
 					cursed = true;
 					
@@ -96,42 +96,39 @@ void Player::update()
 				firstStones[i] = track->stones[i].front();
 			else
 				firstStones[i] = NULL;
-		if (fretting->receiver->enabled)
-		{
-			if (useAI && !isFrozen)
-				gotAnEvent = fretting->verifyEventsAI(firstStones);
-			/*else if(anEvent = fretting->receiver->getEvent())
+		if (useAI && !isFrozen)
+			gotAnEvent = fretting->verifyEventsAI(firstStones);
+		/*else if(anEvent = fretting->receiver->getEvent())
+			{
+				fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
+			for (int i=0; i<fretting->receiver->getEventsSize(); i++)
+				fretting->verifyEvents(fretting->receiver->getEvent(i), firstStones, &isUsingSkill);
+			while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
+			{
+				//sem_wait(fretting->receiver->semaphore);
+				if (!activateAI)
+					gotAnEvent = fretting->verifyEvents( anEvent, firstStones, &usingSkill);
+				//castedSpell = fretting->castedSpell;
+			
+				if (gotAnEvent != 0)
 				{
-					fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
-				for (int i=0; i<fretting->receiver->getEventsSize(); i++)
-					fretting->verifyEvents(fretting->receiver->getEvent(i), firstStones, &isUsingSkill);
-				while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
-				{
-					//sem_wait(fretting->receiver->semaphore);
-					if (!activateAI)
-						gotAnEvent = fretting->verifyEvents( anEvent, firstStones, &usingSkill);
-					//castedSpell = fretting->castedSpell;
+					// removes the first event of the events vector (so we can deal with the others =D)
+					fretting->receiver->removeEvent();
 				
-					if (gotAnEvent != 0)
+					// check if the player must lose some HP or earn some XP
+					int state = fretting->getFrettingState();
+					if (gotAnEvent != SKILLBUTTON_INDEX)
 					{
-						// removes the first event of the events vector (so we can deal with the others =D)
-						fretting->receiver->removeEvent();
-					
-						// check if the player must lose some HP or earn some XP
-						int state = fretting->getFrettingState();
-						if (gotAnEvent != SKILLBUTTON_INDEX)
-						{
-							if (state == -1)
-								takeDamage (1 * IS_STATUS_FIRE);	// IS_STATUS_FIRE is defined in utils.h
-							else if (state > 0)
-								XP += state;
-						}
+						if (state == -1)
+							takeDamage (1 * IS_STATUS_FIRE);	// IS_STATUS_FIRE is defined in utils.h
+						else if (state > 0)
+							XP += state;
 					}
 				}
-			}*/
-				//cout << "vai verificar eventos" << endl;
-				//cout << "terminou de verificar eventos" << endl;
-		}
+			}
+		}*/
+			//cout << "vai verificar eventos" << endl;
+			//cout << "terminou de verificar eventos" << endl;
 	}
 }
 void Player::updateEvents()
@@ -140,8 +137,7 @@ void Player::updateEvents()
 	Stone* firstStones[NFRETS];
 	gotAnEvent = -3;
 	int		lastFrettingState = fretting->frettingState;
-	if ( (!isFrozen) && (fretting->receiver->enabled) && (!useAI) 
-		&& (anEvent = fretting->receiver->getEvent()) )
+	if ( !isFrozen && !useAI && (anEvent = fretting->receiver->getEvent()) )
 	{
 		for(unsigned int i=0; i<NFRETS; i++)
 			if(track->stones[i].size() > 0)
@@ -181,7 +177,7 @@ void Player::updateEvents()
 double Player::takeDamage( double damage )
 {
 	bool blessed = false;
-	for (int i = 0; i < status.size(); i++)
+	for (unsigned int i = 0; i < status.size(); i++)
 		if (status[i].status == ST_BLESSED)
 			blessed = true;
 			
@@ -238,10 +234,9 @@ void Player::changeArmor( double howMuch )
 void Player::updateStatus()
 /* Handle all players status cases */
 {
-	bool	isInvencible = false,
-			isDefenseDown = false;
+	bool	isInvencible = false;
 
-	for (int i = 0; i < status.size(); i++)
+	for (unsigned int i = 0; i < status.size(); i++)
 	{
 		switch (status[i].status)
 		{
@@ -349,8 +344,10 @@ void Player::setStatusAttNormal()
 	}
 }
 
-void Player::setInstrument( Instrument *instrument )
+void Player::setInstrument( Instrument *_instrument )
 {
+	instrument = _instrument;
+	
 	maxHP = instrument->sumHP;
 	HP = maxHP;
 	maxStamina = instrument->sumStamina;

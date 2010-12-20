@@ -1,7 +1,12 @@
 #include "SoundBank.h"
 
-SoundBank::SoundBank( bool _mute )
+#define MUTE 0
+
+
+SoundBank::SoundBank( IrrlichtDevice *_device )
 {
+	device = _device;
+	
 	FMOD_RESULT result;
 	result = FMOD::System_Create(&system);		//  the main system object.
 	ERRCHECK(result)
@@ -10,7 +15,6 @@ SoundBank::SoundBank( bool _mute )
 
 	song = NULL;
 	guitar = NULL;
-	mute = _mute;
 	
 	char filename[128];
 	for(int i=0; i<S_TOTAL; i++) {
@@ -24,6 +28,9 @@ SoundBank::SoundBank( bool _mute )
 		result = system->createSound(filename, FMOD_DEFAULT, 0, &missEffects[i]);
 		ERRCHECK(result);
 	}
+	
+	result = system->createSound("sound/theme.mp3",FMOD_LOOP_NORMAL, 0, &theme);
+	ERRCHECK(result);
 }
 
 SoundBank::~SoundBank()
@@ -31,40 +38,21 @@ SoundBank::~SoundBank()
 
 }
 
-void SoundBank::selectMusic( int n )
+void SoundBank::openSongFile( const char path[] )
 {
-	FMOD_RESULT result;
-	char path[100];
-	FILE *check;
-	
-	selectedSong = musicLib[n];
-
-	// open song file
-	sprintf(path,"music/%s/song.ogg",selectedSong.name.c_str());
-	check = fopen(path,"r");
-	if( check )
-	{ 
-		fclose(check);
-		result = system->createSound(path, FMOD_DEFAULT, 0, &song);
-		ERRCHECK(result);
-	}
-	
-	// open guitar track file
-	sprintf(path,"music/%s/guitar.ogg",selectedSong.name.c_str());
-	check = fopen(path,"r");
-	if( check )
-	{ 
-		fclose(check);
-		result = system->createSound(path, FMOD_DEFAULT, 0, &guitar);
-		ERRCHECK(result);
-	}
-	
-	cout << "abri tudo" << endl;
+	FMOD_RESULT result = system->createSound(path, FMOD_ACCURATETIME, 0, &song);
+	ERRCHECK(result);
 }
+
+void SoundBank::openGuitarFile( const char path[] )
+{
+	FMOD_RESULT result = system->createSound(path, FMOD_ACCURATETIME , 0, &guitar);
+	ERRCHECK(result);
+}	
 
 void SoundBank::playSelectedMusic()
 { 
-	if(!mute) {
+	if(!MUTE) {
 		if(song)
 			system->playSound(FMOD_CHANNEL_FREE, song, false, &ch);
 		if(guitar)
@@ -74,12 +62,23 @@ void SoundBank::playSelectedMusic()
 
 void SoundBank::playEffect( soundEffectType which )
 {
-	if(!mute)
+	if(!MUTE)
 		system->playSound(FMOD_CHANNEL_FREE, effects[which], false, &ch);
 }
 
 void SoundBank::playMissEffect()
 {
-	if(!mute)
+	if(!MUTE)
 		system->playSound(FMOD_CHANNEL_FREE, missEffects[ rand()%6 ], false, &ch);
+}
+
+void SoundBank::playTheme()
+{
+	if(!MUTE)
+		system->playSound(FMOD_CHANNEL_FREE, theme, false, &ch);
+}
+
+void SoundBank::stop()
+{
+	ch->stop();
 }
