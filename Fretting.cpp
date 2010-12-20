@@ -75,7 +75,7 @@ void Fretting::setEvents(EKEY_CODE events[NFRETS], EKEY_CODE _skillButton)
 }
 
 void Fretting::setEvents(int buttons[NFRETS], core::array<SJoystickInfo> 
-			joystickInfo, int number, int skButton)
+			joystickInfo, unsigned int number, int skButton)
 {
 	if (number < joystickInfo.size())
 	{

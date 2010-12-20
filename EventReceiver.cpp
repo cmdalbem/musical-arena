@@ -12,38 +12,105 @@ using namespace io;
 using namespace gui;
 
 
+bool loadedNotes=false, 
+	 loadedSong1=false,
+	 loadedSong2=false;
+
+
 EventReceiver::EventReceiver( SAppContext * context )  : context(context)
 {
 	for (u32 i=0; i<KEY_KEY_CODES_COUNT; ++i)
 		KeyIsDown[i] = false;
-	
-	enabled = false;
 }
 	
 bool EventReceiver::OnEvent(const SEvent& _event)
 {
 	if (_event.EventType == EET_GUI_EVENT) {
-		cout << "Received a GUI Event." << endl;
+		//cout << "Received a GUI Event." << endl;
 		/////////////////
 		// GUI Events
 		/////////////////
 		
 		s32 id = _event.GUIEvent.Caller->getID();
-		//IGUIEnvironment* env = Context.device->getGUIEnvironment();
+		IGUIEnvironment* env = context->device->getGUIEnvironment();
 
-		if(_event.GUIEvent.EventType == EGET_BUTTON_CLICKED) {
-			switch(id) {
-				case GUI_ID_QUIT_BUTTON:
-					context->device->closeDevice();
-					return true;
+		switch(_event.GUIEvent.EventType) {			
+			case EGET_FILE_SELECTED:
+				switch(id)
+				{
+					case GUI_ID_LOAD_NOTES_DIALOG:
+						{
+							IGUIFileOpenDialog* dialog = (IGUIFileOpenDialog*)_event.GUIEvent.Caller;
+							if( context->loadNotes( std::string(core::stringc(dialog->getFileName()).c_str())) ) {
+								context->box->setEnabled(true);
+								loadedNotes = true;
+							}
+							else {
+								context->box->setEnabled(false);
+								loadedNotes = false;
+								env->addMessageBox(L"Error", L"Sorry, I couldn't find any notes on this file. Maybe you picked the wrong one?" );
+							}
+							
+							context->startButton->setEnabled(loadedNotes && loadedSong1);
+						}
+						break;
+					
+					case GUI_ID_LOAD_MUSIC1_DIALOG:
+						{
+							IGUIFileOpenDialog* dialog = (IGUIFileOpenDialog*)_event.GUIEvent.Caller;
+							context->loadSong( std::string(core::stringc(dialog->getFileName()).c_str()), 0);
+							loadedSong1 = true;
+														
+							context->startButton->setEnabled(loadedNotes && loadedSong1);
+						}					
+						break;
+						
+					case GUI_ID_LOAD_MUSIC2_DIALOG:
+						{
+							IGUIFileOpenDialog* dialog = (IGUIFileOpenDialog*)_event.GUIEvent.Caller;
+							context->loadSong( std::string(core::stringc(dialog->getFileName()).c_str()), 1);
+							loadedSong2 = true;
+						}					
+						break;						
+				}
+				break;
 
-				case GUI_ID_START_BUTTON:
-					context->state = GUI_READY_TO_PLAY;
-					context->window->setVisible(false);
-					return true;
-				default:
-					return false;
-			}
+			case EGET_BUTTON_CLICKED:
+				switch(id) {
+					case GUI_ID_QUIT_BUTTON:
+						context->device->closeDevice();
+						return true;
+
+					case GUI_ID_START_BUTTON:
+					{
+						int difficulty = context->box->getItemData(context->box->getSelected());
+						bool useAi = context->aiCheck->isChecked();
+						
+						context->mainWindow->remove();
+						context->mainBg->remove();
+						
+						context->state = GUI_PLAYING;
+						context->startGame(difficulty, useAi);
+						return true;
+					}
+					
+					case GUI_ID_LOAD_NOTES:
+						env->addFileOpenDialog(0,true,0,GUI_ID_LOAD_NOTES_DIALOG);
+						break;
+					
+					case GUI_ID_LOAD_MUSIC1:
+						env->addFileOpenDialog(0,true,0,GUI_ID_LOAD_MUSIC1_DIALOG);
+						break;
+					
+					case GUI_ID_LOAD_MUSIC2:
+						env->addFileOpenDialog(0,true,0,GUI_ID_LOAD_MUSIC2_DIALOG);
+						break;
+						
+					default:
+						return false;
+				}
+			default:
+				break;
 		}
 	}
 	else {

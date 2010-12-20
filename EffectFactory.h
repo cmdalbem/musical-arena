@@ -52,11 +52,15 @@ class EffectFactory
 		ILightSceneNode 			*light;
 		CBloodEffect				*blood;
 		IMeshSceneNode 				*shields[NPLAYERS];
-		ITexture 					*gridTex, *starTex, *blackTex, *lensFlareTex, *fireballTex, *iceTex, *glowTex, *glowTex2, *glowTex3, *electricTex, *laserTex1, *laserTex2, *laserTex3, *bloodTex[5], *waterTex[5];
+		ITexture 					*gridTex, *starTex, *blackTex, *lensFlareTex, *fireballTex, *iceTex, *glowTex, *glowTex2,
+									*glowTex3, *electricTex, *laserTex1, *laserTex2, *laserTex3, *bloodTex[5], *waterTex[5],
+									*shieldTex0, *shieldTex1;
 		array<ITexture*> 			feedbackTex, snowFlakes, ice1, water1, magic1, fire1, light1, lotusTex;
 		
 		IAnimatedMesh				*stoneMesh1, *stoneMesh2;
 		
+		
+		void						loadTextures();
 		
 		void 						effectIce( int targetPlayer, int timeMs );	
 		void 						effectShield( int targetPlayer );

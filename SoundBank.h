@@ -1,9 +1,12 @@
 #pragma once
 
 #include "utils.h"
+#include "irrlicht.h"
+#include <fmod.hpp>
 
 using namespace std;
-
+using namespace irr;
+ 
 
 
 struct musicLibEntry
@@ -23,26 +26,26 @@ const musicLibEntry musicLib[] = {  {"api", HARD},
 class SoundBank
 {
 	public:
-		SoundBank( bool mute=false );
+		SoundBank( IrrlichtDevice *device );
 		~SoundBank();
 	
-		musicLibEntry 	selectedSong;
-		bool			mute;
-		
-		void 			selectMusic( int n );
+		void		 	openSongFile( const char path[] );
+		void 			openGuitarFile( const char path[] );
 		void 			playSelectedMusic();
 		void			playEffect( soundEffectType which );
 		void			playMissEffect();
-		
+		void			playTheme();
+		void			stop();
 		
 	private:
+		IrrlichtDevice	*device;
 		FMOD::System 	*system;
 		FMOD::Channel 	*ch;
 		
 		// music
-		FMOD::Sound 	*song, *guitar;
+		FMOD::Sound 	*song, *guitar, *theme;
 		
 		// sound effects
 		FMOD::Sound		*effects[S_TOTAL], *missEffects[6];
-
+		
 };

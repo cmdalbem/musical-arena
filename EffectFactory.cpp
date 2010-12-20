@@ -11,24 +11,54 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 	players = _players;
 	light = _light;
 	
+	loadTextures();
+	
+	IMeshManipulator *manipulator = smgr->getMeshManipulator();
+	
+	shieldmanager = new CShieldManager(smgr,device->getTimer());  
+
+	for(int i=0;i<NPLAYERS;i++) {		
+		// shields
+		//spherical shield
+		shields[i] = smgr->addSphereSceneNode(1,50,smgr->getRootSceneNode());
+		shields[i]->setScale( vector3df(TRACK_SIZE_X*0.7,TRACK_SIZE_Y*0.7,20) );
+		
+		//rectangular shield
+		//shields[i] = smgr->addCubeSceneNode(1,smgr->getRootSceneNode());
+		//shields[i]->setScale( vector3df(TRACK_SIZE_X,TRACK_SIZE_Y,7) );
+		
+		shields[i]->setPosition(vector3df(players[i]->track->posx,-TRACK_SIZE_Y/2,TRACK_POS_Z));
+		shields[i]->setMaterialFlag(EMF_BACK_FACE_CULLING,false);
+		shields[i]->setMaterialTexture(0,shieldTex0);
+		shields[i]->setMaterialTexture(1,shieldTex1);
+		manipulator->scaleTCoords(shields[i]->getMesh(),core::vector2df(6,6),1);
+		shields[i]->setVisible(false);
+		shieldmanager->addShield(shields[i]);
+	}
+
+}
+
+void EffectFactory::loadTextures()
+{
 	stoneMesh1 = smgr->getMesh("stone1.3ds");
 	stoneMesh2 = smgr->getMesh("stone2.3ds");
 	
-	ITexture *shieldTex0 = driver->getTexture("img/shield_tex.png");
-	ITexture *shieldTex1 = driver->getTexture("img/gradient.png");
+	shieldTex0 = driver->getTexture("img/shield_tex.png");
+	shieldTex1 = driver->getTexture("img/gradient.png");
 	CBloodShader::instance().createMaterial(device);
-	this->gridTex = driver->getTexture("img/grid.jpg");
-	this->starTex = driver->getTexture("img/stars.tga");
-	this->fireballTex = driver->getTexture("img/fireball.bmp");
-	this->glowTex = driver->getTexture("img/glow2.bmp");
-	this->glowTex2 = driver->getTexture("img/glowpurple.png");
-	this->glowTex3 = driver->getTexture("img/glowblack.png");
-	this->blackTex = driver->getTexture("img/black.png");
-	this->iceTex = driver->getTexture("img/icetex.png");
-	this->laserTex1 = driver->getTexture("img/laser1.png");
-	this->laserTex2 = driver->getTexture("img/laser2.png");
-	this->laserTex3 = driver->getTexture("img/laser3.png");
-	this->lensFlareTex = driver->getTexture("img/flares.jpg");
+	gridTex = driver->getTexture("img/grid.jpg");
+	starTex = driver->getTexture("img/stars.tga");
+	fireballTex = driver->getTexture("img/fireball.bmp");
+	glowTex = driver->getTexture("img/glow2.bmp");
+	glowTex2 = driver->getTexture("img/glowpurple.png");
+	glowTex3 = driver->getTexture("img/glowblack.png");
+	blackTex = driver->getTexture("img/black.png");
+	iceTex = driver->getTexture("img/icetex.png");
+	laserTex1 = driver->getTexture("img/laser1.png");
+	laserTex2 = driver->getTexture("img/laser2.png");
+	laserTex3 = driver->getTexture("img/laser3.png");
+	lensFlareTex = driver->getTexture("img/flares.jpg");
+	
 	char c[50];
 	for(int i=0; i<5; i++) {
 		sprintf(c,"img/water%i.png", i+1);
@@ -85,31 +115,6 @@ EffectFactory::EffectFactory( IrrlichtDevice *_device, IVideoDriver *_driver, IS
 			magic1.push_back(driver->addTexture(c, temp));
 		}
 	}*/	
-	
-	
-	IMeshManipulator *manipulator = smgr->getMeshManipulator();
-	
-	shieldmanager = new CShieldManager(smgr,device->getTimer());  
-
-	for(int i=0;i<NPLAYERS;i++) {		
-		// shields
-		//spherical shield
-		shields[i] = smgr->addSphereSceneNode(1,50,smgr->getRootSceneNode());
-		shields[i]->setScale( vector3df(TRACK_SIZE_X*0.7,TRACK_SIZE_Y*0.7,20) );
-		
-		//rectangular shield
-		//shields[i] = smgr->addCubeSceneNode(1,smgr->getRootSceneNode());
-		//shields[i]->setScale( vector3df(TRACK_SIZE_X,TRACK_SIZE_Y,7) );
-		
-		shields[i]->setPosition(vector3df(players[i]->track->posx,-TRACK_SIZE_Y/2,TRACK_POS_Z));
-		shields[i]->setMaterialFlag(EMF_BACK_FACE_CULLING,false);
-		shields[i]->setMaterialTexture(0,shieldTex0);
-		shields[i]->setMaterialTexture(1,shieldTex1);
-		manipulator->scaleTCoords(shields[i]->getMesh(),core::vector2df(6,6),1);
-		shields[i]->setVisible(false);
-		shieldmanager->addShield(shields[i]);
-	}
-
 }
 
 EffectFactory::~EffectFactory()

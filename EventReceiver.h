@@ -19,8 +19,6 @@ class EventReceiver : public IEventReceiver
 		// We use this array to store the current state of each key
 		bool KeyIsDown[KEY_KEY_CODES_COUNT];
 		vector<SEvent> events;
-		
-		bool	enabled;
 
 		// This is the one method that we have to implement
 		virtual bool OnEvent(const SEvent& _event);

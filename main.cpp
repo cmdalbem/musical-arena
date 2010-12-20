@@ -39,26 +39,20 @@ IGUIEnvironment				*env=0;
 scene::ICameraSceneNode 	*camera=0;
 EventReceiver 				*receiver;
 
-// Post process effects
-IPostProcessBloom 			*bloom;
-IPostProcessRadialBlur 		*blur;
-IPostProcessInvert 			*invert;
-bool						bloomEffect=false, blurEffect=false, invertEffect=false;
-
 ITexture					*glowTex;
 
 // MusA globals
 Decoder 					decoder;
 Screen						*screen;
-vector<musicEvent> 				theMusic;
+music			 			*theMusic[NDIFFICULTIES], selMusic;
+difficultyType				diffy;
 Player 						player[2];
 SkillBank					skillBank;
 SoundBank					*soundBank;
-bool						useAI = true;
-SAppContext 				guiControls;
+SAppContext 				musaGui;
 
-bool 						endOfMusic =false;
-double 						musicTime =0;
+bool 						isMusicPlaying =false;
+double 						musicTime;
 
 // Other global
 sem_t semaphore;
@@ -105,78 +99,77 @@ void castSpell ()
 					switch (casted->effects[j].type)
 					{
 					case T_DEFENSE_UP:
-						player[i].changeArmor( casted->effects[j].param1 );
+						player[i].changeArmor( casted->effects[j].param );
 						break;
 					case T_INVENCIBLE:
-						player[i].addStatus( statusType(ST_INVENCIBLE, casted->effects[j].param1) );
+						player[i].addStatus( statusType(ST_INVENCIBLE, casted->effects[j].param) );
 						break;
 					case T_MAGIC_BARRIER:
-						player[i].addStatus( statusType(ST_MAGIC_BARRIER, casted->effects[j].param1) );
+						player[i].addStatus( statusType(ST_MAGIC_BARRIER, casted->effects[j].param) );
 						break;
 					case T_POISONOUS:
-						player[!i].addStatus( statusType(ST_POISON, casted->effects[j].param1) );
+						player[!i].addStatus( statusType(ST_POISON, casted->effects[j].param) );
 						break;
 					case T_DAMAGE:
-						player[!i].takeDamage( casted->effects[j].param1);
+						player[!i].takeDamage( casted->effects[j].param);
 						break;
 					case T_DEFENSE_DOWN:
-						player[!i].changeArmor( - casted->effects[j].param1 );
+						player[!i].changeArmor( - casted->effects[j].param );
 						break;
 					case T_HEAL:
-						player[i].recoverHP(casted->effects[j].param1);
+						player[i].recoverHP(casted->effects[j].param);
 						break;
 					case T_ANTIDOTE:
 						player[i].setStatusNormal();
 						break;
 					case T_STAMINA_DOWN:
-						player[!i].changeStamina( -casted->effects[j].param1 );
+						player[!i].changeStamina( -casted->effects[j].param );
 						break;
 					case T_BURN:
-						player[!i].addStatus( statusType(ST_FIRE, casted->effects[j].param1) );
+						player[!i].addStatus( statusType(ST_FIRE, casted->effects[j].param) );
 						break;
 					case T_FEEDBACK:
 						player[!i].takeDamage (player[!i].stamina/2);
 						player[!i].stamina = 0;
 						break;
 					case T_TOLERANCE_DOWN:
-						//temporarily, it is implemented on the Eletrify Effect.
+						player[!i].fretting->tolerance -= casted->effects[j].param;
 						break;
 					case T_ELETRIFY:
-						player[!i].addStatus( statusType(ST_ELETRIFIED, casted->effects[j].param1) );
-						player[!i].fretting->tolerance -= casted->effects[j].param2; //temporario enquanto nao temos um vetor de efeitos
+						player[!i].addStatus( statusType(ST_ELETRIFIED, casted->effects[j].param) );
 						break;
 					case T_DROWN:
-						player[!i].addStatus( statusType(ST_DROWNED, casted->effects[j].param1) );
+						player[!i].addStatus( statusType(ST_DROWNED, casted->effects[j].param) );
 						break;
 					case T_MIRROR:
-						player[i].addStatus( statusType(ST_MIRROR, casted->effects[j].param1) );
+						player[i].addStatus( statusType(ST_MIRROR, casted->effects[j].param) );
 						break;
 					case T_SPEED_UP:
-						player[!i].track->setSpeed( player[!i].track->getSpeed() + casted->effects[j].param1 );
+						player[!i].track->setSpeed( player[!i].track->getSpeed() + casted->effects[j].param );
 						break;		
 					case T_CHAOTIC_SPEED:
-						player[!i].addStatus( statusType(ST_CHAOTIC_SPEED, casted->effects[j].param1) );
+						player[!i].addStatus( statusType(ST_CHAOTIC_SPEED, casted->effects[j].param) );
 						break;		
 					case T_BREAK_DEFENSE:
-						player[!i].addStatus( statusType(ST_BROKEN_DEFENSE, casted->effects[j].param1) );
+						player[!i].addStatus( statusType(ST_BROKEN_DEFENSE, casted->effects[j].param) );
 						break;
 					case T_CLEAR_STONES:
 						player[i].track->destroyAllStones();
 						break;
 					case T_FREEZE:
-						player[!i].addStatus( statusType(ST_FROZEN, casted->effects[j].param1) );
+						player[!i].addStatus( statusType(ST_FROZEN, casted->effects[j].param) );
 						break;
 					case T_VAMPIRIC:
-						player[i].recoverHP( player[!i].takeDamage(casted->effects[j].param1) );
+						player[i].recoverHP( player[!i].takeDamage(casted->effects[j].param) );
 						break;
 					case T_BLESS:
-						player[i].addStatus( statusType(ST_BLESSED, casted->effects[j].param1) );
+						player[i].addStatus( statusType(ST_BLESSED, casted->effects[j].param) );
 						break;
 					case T_STAMINA_UP:
-						player[i].changeStamina( casted->effects[j].param1 );
+						player[i].changeStamina( casted->effects[j].param );
 						break;
 					case T_CURSE:
-						player[!i].addStatus( statusType(ST_CURSED, casted->effects[j].param1) );
+						player[!i].addStatus( statusType(ST_CURSED, casted->effects[j].param) );
 						break;
 					
 					case T_EFFECTS_TOTAL: break;
@@ -234,22 +227,22 @@ static void *updater(void *argument)
 			if (endMusicOffset > 3.)
 			{
 				cout << "THANKS FOR PLAYING MUSA - TAOLITERODS" << endl;
-				exit (10);
+				device->closeDevice();
 			}
 		}
  
 		// spawning on track1
-		while( (unsigned int)player[0].track->musicPos < theMusic.size() &&
-			   (musicTime + player[0].track->spawnDelay) > theMusic[player[0].track->musicPos].time ) {
+		while( (unsigned int)player[0].track->musicPos < selMusic.size() &&
+			   (musicTime + player[0].track->spawnDelay) > selMusic[player[0].track->musicPos].time ) {
 			
-			player[0].track->processEvent(theMusic[player[0].track->musicPos]);
+			player[0].track->processEvent(selMusic[player[0].track->musicPos]);
 		}
 		
 		// spawning on track2
-		while( (unsigned int)player[1].track->musicPos < theMusic.size() &&
-			   (musicTime + player[1].track->spawnDelay) > theMusic[player[1].track->musicPos].time) {
+		while( (unsigned int)player[1].track->musicPos < selMusic.size() &&
+			   (musicTime + player[1].track->spawnDelay) > selMusic[player[1].track->musicPos].time) {
 			
-			player[1].track->processEvent(theMusic[player[1].track->musicPos]);
+			player[1].track->processEvent(selMusic[player[1].track->musicPos]);
 		}
 		
 		handleHittingStates();
@@ -283,11 +276,79 @@ static void *updater(void *argument)
 	return NULL;
 }
 
+bool loadNotes( std::string path )
+{
+	musaGui.box->clear();
+	
+	int ndiffys=0;
+	for(int i=0; i<NDIFFICULTIES; i++) {
+		theMusic[i] = decoder.decodeMidi(path, (difficultyType)i);
+		if(theMusic[i]) {
+			++ndiffys;
+			switch(i) {
+				case EXPERT:
+					musaGui.box->addItem(L"Expert", EXPERT);
+					break;
+				case HARD:
+					musaGui.box->addItem(L"Hard", HARD);
+					break;
+				case MEDIUM:
+					musaGui.box->addItem(L"Medium", MEDIUM);
+					break;
+				case EASY:
+					musaGui.box->addItem(L"Easy", EASY);
+					break;
+			}
+		}
+	}
+	
+	if(ndiffys==0)
+		return false;
+	else
+		return true;
+}
+
+void loadSong( std::string path, int which )
+{
+	switch(which)
+	{
+		case 0:
+			soundBank->openSongFile(path.c_str());
+			break;
+		case 1:
+			soundBank->openGuitarFile(path.c_str());
+			break;
+	}
+}
+
+void startGame( int difficulty, bool useAI)
+{	
+	selMusic = *theMusic[difficulty];
+	screen->musicTotalTime = selMusic.back().time;
+	decoder.printMusic(selMusic);
+	
+	soundBank->stop();
+	
+	player[1].useAI = useAI;
+	
+	/*
+	 * initializing threads
+	 */
+	pthread_t thread[3];
+	int arg = 1;
+	pthread_create(&thread[0], NULL, updater, (void *) arg);
+	//pthread_create(&thread[1], NULL, debugger, (void *) arg);
+	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
+	
+	soundBank->playSelectedMusic();
+	
+	screen->screenFader->fadeIn(1000);
+}
 
 void initMusa()
 {		
-	player[0].track = new Track(&theMusic,&musicTime,device,23, -18);
-	player[1].track = new Track(&theMusic,&musicTime,device,23, 18);
+	player[0].track = new Track(&selMusic,&musicTime,device,23, -18);
+	player[1].track = new Track(&selMusic,&musicTime,device,23, 18);
 
 	// TEMPORARY
 	Instrument* violin = new Instrument();
@@ -306,9 +367,6 @@ void initMusa()
 	
 	player[0].fretting->receiver = receiver;
 	player[1].fretting->receiver = receiver;
-
-
-	player[1].useAI = useAI;
 	
 
 	if(device->activateJoysticks(joystickInfo)) {
@@ -337,54 +395,45 @@ void initMusa()
 	screen = new Screen(device,&musicTime,&player[0],&player[1]);
 	sem_init(&semaphore, 0, 1);
 	
-	guiControls.window = env->addWindow( recti(position2di(SCREENX/3,SCREENY/3),dimension2di(SCREENX/3,SCREENY/3)) );
-	env->addButton(rect<s32>(position2di(SCREENX/6-100/2,SCREENY/6-32/2-50),dimension2di(100,32)), guiControls.window, GUI_ID_LOAD_MUSIC, L"Load Music", L"Loads a Fret's on Fire music file");
-	env->addButton(rect<s32>(position2di(SCREENX/6-100/2,SCREENY/6-32/2+50),dimension2di(100,32)), guiControls.window, GUI_ID_START_BUTTON, L"Start", L"Starts the game");
-	
-	// start getting signals, baby
-}
-void startGame()
-{
-	receiver->enabled = true;	
 
-	soundBank->selectMusic(0);
-	char path[100];
-	sprintf(path,"music/%s/notes.mid",soundBank->selectedSong.name.c_str());
-	theMusic = decoder.decodeMidi(path, soundBank->selectedSong.difficulty);
-	//decoder.printMusic(theMusic);
-	screen->musicTotalTime = theMusic.back().time;
+	//////////
+	// GUI!!
+	//////////
 	
-	/*
-	 * initializing threads
-	 */
-	pthread_t thread[3];
-	int arg = 1;
-	pthread_create(&thread[0], NULL, updater, (void *) arg);
-	//pthread_create(&thread[1], NULL, debugger, (void *) arg);
-	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
+	#define WINSIZEX SCREENX/6.
+	#define WINSIZEY SCREENY/2.7
 	
-	soundBank->playSelectedMusic();
+	// background image
+	musaGui.mainBg = env->addImage( rect<s32>(position2di(0, 0),dimension2di(SCREENX,SCREENY)) );
+	musaGui.mainBg->setScaleImage(true);
+	musaGui.mainBg->setImage( driver->getTexture("img/bgs/main.jpg") );	
 	
+	// main window
+	IGUIWindow *window = env->addWindow( recti(position2di(640, 100),dimension2di(WINSIZEX,WINSIZEY)), false, 0, 0, GUI_INITIAL_MENU );
+	window->setDraggable(false);
+	//window->setDrawBackground(false);
+	window->setDrawTitlebar(false);
+	musaGui.mainWindow = window;
 	
-	screen->screenFader->fadeIn(1000);
-}
-void initializePostProcessEffects()
-{
-	// "dream" effect
-	bloom = new IPostProcessBloom(smgr->getRootSceneNode(), smgr, 666);
-    PPE_Bloom_Setup setup;
-    setup.sampleDist=0.008;
-    setup.strength=3;
-    setup.multiplier=1;
-    bloom->initiate(1024,512,setup,smgr);
-    
-    // radial blur ("speed" effect)
-    blur = new IPostProcessRadialBlur(smgr->getRootSceneNode(), smgr, 666);
-    blur->initiate(1024,512,0.8,2,smgr);	
-    
-    // invert colors
-    invert = new IPostProcessInvert(smgr->getRootSceneNode(), smgr, 666);
-    invert->initiate(1024,512,smgr);
+	// load file buttons
+	env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 50-32/2),dimension2di(100,32)), window, GUI_ID_LOAD_NOTES, L"Load MIDI", L"Loads a Fret's on Fire music file");
+	env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 90-32/2),dimension2di(100,32)), window, GUI_ID_LOAD_MUSIC1, L"Load Song File 1", L"Loads the main song's audio file (usually all lines except guitar)");
+	env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 130-32/2),dimension2di(100,32)), window, GUI_ID_LOAD_MUSIC2, L"Load Song File 2", L"Loads an optional secondary song's audio file (usually the guitar line)");
+	
+	// difficulty combobox
+	musaGui.box = env->addComboBox(rect<s32>(position2di(WINSIZEX/2-100/2, 195-20/2),dimension2di(100,20)), window);
+	musaGui.box->setEnabled(false);
+	// AI checkbox
+	musaGui.aiCheck = env->addCheckBox(true, rect<s32>(position2di(WINSIZEX/2-20/2-40, 220-20/2),dimension2di(20,20)), window);
+	env->addStaticText(L"Play against AI?", rect<s32>(position2di(WINSIZEX/2+25-100/2, 220-20/2),dimension2di(100,20)), false, true, window);
+	// start button
+	musaGui.startButton = env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 250-32/2),dimension2di(100,32)), window, GUI_ID_START_BUTTON, L"Start", L"Starts the game");
+	musaGui.startButton->setEnabled(false);
+	
+	// game functions to be accessed by the GUI
+	musaGui.startGame = &startGame;
+	musaGui.loadSong = &loadSong;
+	musaGui.loadNotes = &loadNotes;
 }
 
 void initIrrlicht()
@@ -396,7 +445,7 @@ void initIrrlicht()
 							false //use vsync?
 						);
 	device->setResizable(false);
-	device->setWindowCaption(L"Musical Arena (MusA): The Adventures of Lucy in the Enchanted Realm of Diamond Sky");
+	device->setWindowCaption(L"Musical Arena (MusA)");
 
 	driver = device->getVideoDriver();
 	smgr = device->getSceneManager();
@@ -407,11 +456,16 @@ void initIrrlicht()
 	IGUIFont* font = env->getFont("irrlicht-1.7.2/media/fonthaettenschweiler.bmp");
 	skin->setFont(font);
 	skin->setFont(env->getBuiltInFont(), EGDF_TOOLTIP);
+	/*for (s32 i=0; i<irr::gui::EGDC_COUNT ; ++i) {
+		video::SColor col = skin->getColor((EGUI_DEFAULT_COLOR)i);
+		col.setAlpha(200);
+		skin->setColor((EGUI_DEFAULT_COLOR)i, col);
+	}*/
 	
-	guiControls.device = device;
-	guiControls.state = GUI_INSTRUMENT_MENU;
+	musaGui.device = device;
+	musaGui.state = GUI_MAIN_MENU;
 	
-	receiver = new EventReceiver(&guiControls);	
+	receiver = new EventReceiver(&musaGui);	
 	device->setEventReceiver(receiver);
 	
     
@@ -425,8 +479,6 @@ void initIrrlicht()
 	
 	// a FPS camera for debugging
 	//camera = smgr->addCameraSceneNodeFPS(); device->getCursorControl()->setVisible(false);
-
-	initializePostProcessEffects();
 }
 
 static void *debugger (void *argument)
@@ -441,23 +493,15 @@ static void *debugger (void *argument)
 	return 0;
 }
 
-void renderPostProcessEffects()
-{
-	if(bloomEffect)
-		bloom->render();
-	if(blurEffect)
-		blur->render();
-	if(invertEffect)
-		invert->render();
-}
-
 int main(int argc, char *argv[])
 {
+	srand(time(0));
+	
 	/*
 	 * initializing the sound engine
 	 */
-	soundBank = new SoundBank();
-
+	soundBank = new SoundBank(device);
+	soundBank->playTheme();
 	
 	/*
 	 * initializing the graphics engine
@@ -471,32 +515,18 @@ int main(int argc, char *argv[])
 	initMusa();
 		
 
-	ITexture *bgPic = driver->getTexture("img/bgs/bg20.jpg");
+	ITexture *bgPic = driver->getTexture( bgsBank[2] );
 	SColor bgColor = SColor(0,113,113,133);
 	/* 
 	 * Irrlicht Main Loop
 	 */	
-	while(device->run()) {
-		
-		// menus
-		switch(guiControls.state) {
-			case GUI_READY_TO_PLAY:
-				startGame();
-				guiControls.state = GUI_PLAYING;
-				break;
-			case GUI_INSTRUMENT_MENU:
-				break;
-			case GUI_PLAYING:
-				break;
-		}
-		
+	while(device->run()) {		
 		driver->beginScene(true, true, bgColor);
 			// draw background
 			driver->draw2DImage( bgPic, recti(position2di(0,0), position2di(SCREENX,SCREENY)), recti(position2di(0,0),bgPic->getOriginalSize()) );
 
 			sem_wait(&semaphore);
 				driver->setRenderTarget(0, false, true, bgColor);
-				renderPostProcessEffects();
 				player[0].track->draw();
 				player[1].track->draw();
 				smgr->drawAll();		
@@ -531,10 +561,10 @@ static void* drawer(void *argument)
 	struct	timeval start;
 	
 	// this is needed because, while we are using drawer() and updater()
-	// 	at the same time, both are editing theMusic vector.
+	// 	at the same time, both are editing selMusic vector.
 	// we solve the problem simply creating a copy because there's no
 	//  apparent reason need for them to be synchronized.
-	vector<musicEvent> theMusicCopied = theMusic;
+	vector<musicEvent> selMusicCopied = selMusic;
 
 
 	//initializes the matrix
@@ -551,28 +581,28 @@ static void* drawer(void *argument)
 		system("clear");
 		
 		cout << "music time: "	   << musicTime		 << endl
-			 << "upcoming event: " << theMusicCopied[0].time << endl;
+			 << "upcoming event: " << selMusicCopied[0].time << endl;
  
 		// propagates the lines of the matrix	
 		for(int lin=SCREEN_Y-1; lin>0; lin--)
 			for(int col=0; col<NFRETS; col++)
 				theScreen[lin][col] = theScreen[lin-1][col];
 
-		while( ((musicTime + STONE_DELAY) > theMusicCopied[0].time) && !endOfMusic) {
+		while( ((musicTime + STONE_DELAY) > selMusicCopied[0].time) && !endOfMusic) {
 			// updates the first line of the matrix with the actual configuration
-			switch(theMusicCopied[0].type) {
+			switch(selMusicCopied[0].type) {
 				case ON:
-					theScreen[0][theMusicCopied[0].button] = STRIKE;
+					theScreen[0][selMusicCopied[0].button] = STRIKE;
 					break;
 				case OFF:	
-					theScreen[0][theMusicCopied[0].button] = NOTHING;		
+					theScreen[0][selMusicCopied[0].button] = NOTHING;		
 					break;
 				default: break;
 			}
 			
 			// avoiding segmentation faults =D
-			if(theMusicCopied.size() > 0)
-				theMusicCopied.erase(theMusicCopied.begin());
+			if(selMusicCopied.size() > 0)
+				selMusicCopied.erase(selMusicCopied.begin());
 			else
 				endOfMusic = true;
 		}

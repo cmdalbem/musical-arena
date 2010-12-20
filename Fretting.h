@@ -54,7 +54,7 @@ class Fretting
 		Skill*			castedSpell;
 
 		void 			setEvents(EKEY_CODE events[NFRETS], EKEY_CODE _skillButton);
-		void 			setEvents(int buttons[NFRETS], core::array<SJoystickInfo>  joystickInfo, int joystickNumber, int skButton);
+		void 			setEvents(int buttons[NFRETS], core::array<SJoystickInfo>  joystickInfo, unsigned int joystickNumber, int skButton);
 
 		int 			verifyEvents(SEvent *event, Stone* firstStones[NFRETS], bool *usingSkill);
 		int			verifyEventsAI(Stone* stones[NFRETS]);

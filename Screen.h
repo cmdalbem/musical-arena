@@ -59,8 +59,9 @@ class Screen
 		void 						drawStatus();
 		void						drawMultiplier();
 		
-		// Inner utility functions
+		// Utility functions
 		void						initializeScreenElements();
+		void						loadTextures();
 		
 
 };
