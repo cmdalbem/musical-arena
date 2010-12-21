@@ -46,6 +46,7 @@ class Track
 		bool			nonPressedChord;	// indicates if the player didn't press a chord
 		int				notesOnChord;		// how many notes did we have on the chord??
 			
+		void			initialize();
 		void			update();
 		void 			destroyAllStones();
 		void			destroyStone( int fret, int stone );

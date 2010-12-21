@@ -16,7 +16,6 @@ Track::Track( music* _theMusic, double *_musicTime, IrrlichtDevice *_device, dou
 {
 	theMusic = _theMusic;
 	musicTime = _musicTime; 
-	
 	speed = _speed;
 	
 	device = _device;
@@ -27,10 +26,6 @@ Track::Track( music* _theMusic, double *_musicTime, IrrlichtDevice *_device, dou
 	sizey = TRACK_SIZE_Y; 
 	posx = _posx;
 	
-	musicPos = 0;
-	
-	spawnDelay = sizey/speed;
-	
 	glowTex = driver->getTexture("img/glow.png");
 	
 	node = new TrackSceneNode(smgr->getRootSceneNode(), smgr, -1, posx);
@@ -38,6 +33,11 @@ Track::Track( music* _theMusic, double *_musicTime, IrrlichtDevice *_device, dou
 
 Track::~Track() {}
 
+void Track::initialize()
+{
+	musicPos = 0;
+	spawnDelay = sizey/speed;
+}
 
 void Track::update()
 {	

@@ -10,7 +10,7 @@
 class Player
 {
 	public:
-		Player();
+		Player( Track *track );
 		~Player();
 		
 		Fretting		*fretting;
@@ -38,6 +38,8 @@ class Player
 		//double			timeInStatus;
 		bool			useAI;
 
+		void 			initialize();
+		
 		int 			getArmor();
 		void 			changeStamina(int howMuch);
 		void			changeArmor( double howMuch );
@@ -65,7 +67,6 @@ class Player
 		bool			hasMagicBarrier;
 		bool			hasMirror;
 		
-		void 			initialize();
 		void 			staminaRecover();
 };
 

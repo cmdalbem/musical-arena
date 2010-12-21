@@ -3,6 +3,8 @@
 #include <irrlicht.h>
 #include <iostream>
 
+#include "utils.h"
+
 using namespace irr;
 using namespace core;
 using namespace scene;
@@ -51,3 +53,6 @@ struct SAppContext
 	void (*loadSong)(std::string, int);
 	bool (*loadNotes)(std::string);
 };
+
+
+void makeMainMenu();
