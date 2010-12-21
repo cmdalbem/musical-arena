@@ -35,6 +35,8 @@ class Screen
 
 		void						update();		
 		void						setFps( int fps );
+		void						showKO();
+		void						hideKO();
 	
 	private:
 		IrrlichtDevice				*device;

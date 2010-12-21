@@ -89,9 +89,9 @@ void SkillBank::makeSkills()
 		skills[INSPIRATION] = s;
 	}
 	{
-		buttonType k[] = {B1,B2,B3,B4,B5,B5,B4,B3,B2,B1,B1,B2,B3,B4,B5};
+		buttonType k[] = {B1,B2,B3,B4,B5,B5,B4,B3,B2,B1};
 		effectStruct e[] = {{T_MIRROR, 4},{T_DEFENSE_UP, 2}};
-		Skill s("Mirror", DEFENSE, S_DIGITAL, 120, SPIRITUAL, e, 2, EFFECT_SHIELD, k, 15,
+		Skill s("Mirror", DEFENSE, S_DIGITAL, 120, SPIRITUAL, e, 2, EFFECT_SHIELD, k, 10,
 		4, "Still, be like a mirror. Respond like an echo.");
 		skills[MIRROR] = s;
 	}

@@ -139,7 +139,7 @@ void Screen::initializeScreenElements()
 	}
 	
 	screenFader = device->getGUIEnvironment()->addInOutFader();
-	screenFader->fadeOut(1);
+	//screenFader->fadeOut(1);
 	
 	koImage = device->getGUIEnvironment()->addImage(koTex, position2di(0,100), true);
 	koImage->setVisible(false);
@@ -225,11 +225,7 @@ void Screen::drawKeys()
 void Screen::update() 
 // Here we check everything about the game that has to be drawn.
 // It's all about HUDs and special effects!
-{
-	for(int i=0; i<NPLAYERS; i++) 
-		if(player[i]->HP==0)
-			koImage->setVisible(true);
-	
+{	
 	drawBars();
 	drawKeys();
 	drawSoloModeState();
@@ -376,4 +372,14 @@ void Screen::setFps( int fps )
 	core::stringw tmp(L"fps: ");
 	tmp += fps;
 	fpsText->setText(tmp.c_str());
+}
+
+void Screen::showKO()
+{
+	koImage->setVisible(true);
+}
+
+void Screen::hideKO()
+{
+	koImage->setVisible(false);
 }

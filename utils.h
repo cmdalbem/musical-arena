@@ -32,6 +32,8 @@
 
 #define SKILLBUTTON_INDEX 10
 
+#define DELAY_AFTER_KO 5
+
 
 
 ///////////////////////////////////

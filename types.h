@@ -38,9 +38,6 @@ const std::string wavFiles[] = { "bolt1", "bolt2", "lightning", "digital1",
 "earthquake", "electric1","electric2","ice1","ice2","big", "firestorm" };
 const std::string missFiles[] = { "miss1", "miss2", "miss3", "miss4", "miss5", "miss6"};
 
-#define NBGSFILES 4
-const irr::io::path bgsBank[] = {"img/bgs/bg1.jpg", "img/bgs/bg20.jpg", "img/bgs/bg3.jpg", "img/bgs/bg12.jpg"};
-
 enum elementType
 {
 	FIRE, THUNDER, WATER, SPIRITUAL, DARK

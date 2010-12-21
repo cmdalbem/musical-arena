@@ -27,13 +27,11 @@ ostream& operator<<(ostream& out, skillTreeNode& node )
 Fretting::Fretting()
 {
 	initialize();
-	generateSkillsTree(NULL);
 }
 
-Fretting::Fretting( vector<Skill> *skills )
+void Fretting::setSkills( vector<Skill> *skills )
 {
-	initialize();
-	
+	skillsTree.clear();
 	generateSkillsTree(skills);
 }
 
@@ -52,12 +50,6 @@ void Fretting::initialize()
 	
 	castedSpell = NULL;
 	//sem_init(&semaphore, 0, 1);
-}
-
-Fretting::Fretting(EKEY_CODE events[NFRETS], EKEY_CODE skillButton)
-{
-	setEvents( &(events[NFRETS]), skillButton);
-	initialize();
 }
 
 //////////////////////////////////////////////////////////////////// DESTRUCTORS

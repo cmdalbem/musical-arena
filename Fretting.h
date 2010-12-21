@@ -23,8 +23,8 @@ enum {
 };
 
 
-class skillTreeNode {
-	
+class skillTreeNode
+{	
 	public:
 		skillTreeNode( buttonType b, Skill* s ) : button(b), skill(s) {}
 		
@@ -39,9 +39,6 @@ class Fretting
 {
 	public:
 		Fretting();
-		Fretting(vector<Skill> *skills);
-		Fretting(EKEY_CODE events[NFRETS] , EKEY_CODE skillButton);
-		//Fretting(int buttons[NUMBER_OF_FRETS], core::array<SJoystickInfo> joystickInfo, int joystickNumber);
 		~Fretting();
 		
 		int type;
@@ -53,11 +50,14 @@ class Fretting
 		int				_hitting[NFRETS];
 		Skill*			castedSpell;
 
+		
+		void			setSkills( vector<Skill> *skills );
+		
 		void 			setEvents(EKEY_CODE events[NFRETS], EKEY_CODE _skillButton);
 		void 			setEvents(int buttons[NFRETS], core::array<SJoystickInfo>  joystickInfo, unsigned int joystickNumber, int skButton);
 
 		int 			verifyEvents(SEvent *event, Stone* firstStones[NFRETS], bool *usingSkill);
-		int			verifyEventsAI(Stone* stones[NFRETS]);
+		int				verifyEventsAI(Stone* stones[NFRETS]);
 		void			printHitFret();
 		void			lostNote();
 		void			setAllNotPressed();

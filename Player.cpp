@@ -6,8 +6,11 @@
 #include <ctime>
 
 /////////////////////////////////////////////////////////////////// CONSTRUCTORS
-Player::Player()
+Player::Player( Track *_track )
 {
+	track = _track;
+	fretting = new Fretting();
+	
 	this->initialize();
 }
 
@@ -21,8 +24,6 @@ Player::~Player()
 ////////////////////////////////////////////////////////////////// OTHER METHODS
 void Player::initialize()
 {
-	srand((unsigned)time(0));
-	
 	damageTaken = 0;
 	isUsingSkill = false;
 	gettimeofday (&lastTimeUpdatedStatus, NULL);
@@ -30,20 +31,22 @@ void Player::initialize()
 	hasMirror = false; 
 	isChaotic = false;
 	isFrozen = false;
+	useAI = false;
 	
 	chaoticCounter = 0;
 	poisonCounter = 0;
-	//timeInStatus = 0;
 	XP = 0;
 	gold = 0;
+	stamina = 0;
 	gotAnEvent = 0;
-	
 	multiplier = 1;
 	streak = 0;
 	
 	level = 1;
 	
 	status.clear();
+	
+	track->initialize();
 }
 
 void Player::update()
@@ -351,12 +354,11 @@ void Player::setInstrument( Instrument *_instrument )
 	maxHP = instrument->sumHP;
 	HP = maxHP;
 	maxStamina = instrument->sumStamina;
-	stamina = maxStamina;///2;
+	//stamina = maxStamina;
 	armor = instrument->armor;
 	castedSpell = NULL;	
 	
-	fretting = new Fretting(&instrument->skills);
-	track->fretting = fretting;	
+	fretting->setSkills( &instrument->skills );
 	
 	track->tolerance = instrument->tolerance;
 	fretting->tolerance = instrument->tolerance;	
