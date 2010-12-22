@@ -10,7 +10,7 @@
 class Player
 {
 	public:
-		Player( Track *track );
+		Player( ITimer *_timer, Track *track );
 		~Player();
 		
 		Fretting		*fretting;
@@ -56,13 +56,14 @@ class Player
 		void			setInstrument( Instrument *instrument );
 		
 	private:
-		int				armor;
-		
-				
-		timeval			lastTimeUpdatedStatus;
+		ITimer 			*timer;
+		int				lastTimeUpdatedStatus;
 		int				lastSpeed;
 		int				poisonCounter;
 		int				chaoticCounter;
+		
+		int				armor;
+				
 		bool			isChaotic;
 		bool			hasMagicBarrier;
 		bool			hasMirror;

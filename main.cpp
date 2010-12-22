@@ -213,17 +213,20 @@ void handleHittingStates()
 
 static void *updater(void *argument) 
 {
-	struct	timeval start, timeMusicEnded;
+	int		start, timeMusicEnded;
 	bool	havetoEndMusic = false,
 			endMusicFirstTime = true;
 	double	endMusicOffset;
+	ITimer	*timer;
+	
+	timer = device->getTimer();
 	
 	// get the time before starting the music (so we can know how much time passed in each note)
-	gettimeofday(&start, NULL);
+	start = timer->getTime();
 	  
 	while(1) {
 		usleep(1);
-		musicTime = time_diff(start);
+		musicTime = timer->getTime() - start;
 		
 		// handle end of the game
 		if (havetoEndMusic || player[0]->HP == 0 || player[1]->HP == 0) {
@@ -231,10 +234,10 @@ static void *updater(void *argument)
 			if (endMusicFirstTime) {
 				screen->showKO();
 				endMusicFirstTime = false;
-				gettimeofday(&timeMusicEnded, NULL);
+				timeMusicEnded = timer->getTime();
 			}
 			
-			endMusicOffset = time_diff(timeMusicEnded);
+			endMusicOffset = timer->getTime() - timeMusicEnded;
 			if (endMusicOffset > DELAY_AFTER_KO) {
 				//cout << "THANKS FOR PLAYING MUSA - TAOLITERODS" << endl;
 				//device->closeDevice();
@@ -382,8 +385,8 @@ void initGame()
 
 void initMusa()
 {
-	player[0] = new Player( new Track(&selMusic,&musicTime,device,23, -18) );
-	player[1] = new Player( new Track(&selMusic,&musicTime,device,23, 18) );
+	player[0] = new Player( device->getTimer(), new Track(&selMusic,&musicTime,device,23, -18) );
+	player[1] = new Player( device->getTimer(), new Track(&selMusic,&musicTime,device,23, 18) );
 	screen = new Screen(device,&musicTime,player[0],player[1]);
 	
 	player[0]->fretting->musicTime = &musicTime;
