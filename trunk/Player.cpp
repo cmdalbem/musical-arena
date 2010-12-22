@@ -6,8 +6,9 @@
 #include <ctime>
 
 /////////////////////////////////////////////////////////////////// CONSTRUCTORS
-Player::Player( Track *_track )
+Player::Player( ITimer *_timer, Track *_track )
 {
+	timer = _timer;
 	track = _track;
 	fretting = new Fretting();
 	
@@ -26,7 +27,7 @@ void Player::initialize()
 {
 	damageTaken = 0;
 	isUsingSkill = false;
-	gettimeofday (&lastTimeUpdatedStatus, NULL);
+	lastTimeUpdatedStatus = timer->getTime();
 	hasMagicBarrier = false;
 	hasMirror = false; 
 	isChaotic = false;
@@ -52,7 +53,7 @@ void Player::initialize()
 void Player::update()
 {
 	//SEvent *anEvent=NULL;
-	double elapsedTime = time_diff (lastTimeUpdatedStatus);
+	double elapsedTime = timer->getTime() - lastTimeUpdatedStatus;
 	
 	track->update();
 	
@@ -77,7 +78,7 @@ void Player::update()
 				changeStamina(STAMINA_GAINED_BY_NOTE * fretting->frettingState * multiplier);
 		}
 		
-		gettimeofday (&lastTimeUpdatedStatus, NULL);
+		lastTimeUpdatedStatus = timer->getTime();
 	}
 	
 	// Handle when the player left behind notes he should have played
