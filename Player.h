@@ -57,7 +57,7 @@ class Player
 		
 	private:
 		ITimer 			*timer;
-		int				lastTimeUpdatedStatus;
+		double			lastTimeUpdatedStatus;
 		int				lastSpeed;
 		int				poisonCounter;
 		int				chaoticCounter;

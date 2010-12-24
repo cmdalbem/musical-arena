@@ -41,12 +41,15 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 					case GUI_ID_LOAD_NOTES_DIALOG:
 						{
 							IGUIFileOpenDialog* dialog = (IGUIFileOpenDialog*)_event.GUIEvent.Caller;
-							if( context->loadNotes( std::string(core::stringc(dialog->getFileName()).c_str())) ) {
-								context->box->setEnabled(true);
+							context->diffBox->clear();
+							bool parsedOk = context->loadNotes( std::string(core::stringc(dialog->getFileName()).c_str()));
+							
+							if( parsedOk ) {
+								context->diffBox->setEnabled(true);
 								loadedNotes = true;
 							}
 							else {
-								context->box->setEnabled(false);
+								context->diffBox->setEnabled(false);
 								loadedNotes = false;
 								env->addMessageBox(L"Error", L"Sorry, I couldn't find any notes on this file. Maybe you picked the wrong one?" );
 							}
@@ -83,7 +86,7 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 
 					case GUI_ID_START_BUTTON:
 					{
-						int difficulty = context->box->getItemData(context->box->getSelected());
+						int difficulty = context->diffBox->getItemData(context->diffBox->getSelected());
 						bool useAi = context->aiCheck->isChecked();
 						
 						context->mainWindow->remove();

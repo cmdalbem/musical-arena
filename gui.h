@@ -41,7 +41,7 @@ struct SAppContext
 	s32				counter;
 	IGUIListBox		*listbox;
 	IGUIButton		*startButton;
-	IGUIComboBox	*box;
+	IGUIComboBox	*diffBox, *playerBox[NPLAYERS];
 	IGUICheckBox	*aiCheck;
 	
 	path			musicPath;
