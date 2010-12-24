@@ -213,7 +213,7 @@ void handleHittingStates()
 
 static void *updater(void *argument) 
 {
-	int		start, timeMusicEnded;
+	double	start, timeMusicEnded;
 	bool	havetoEndMusic = false,
 			endMusicFirstTime = true;
 	double	endMusicOffset;
@@ -222,11 +222,11 @@ static void *updater(void *argument)
 	timer = device->getTimer();
 	
 	// get the time before starting the music (so we can know how much time passed in each note)
-	start = timer->getTime();
+	start = timer->getTime()/1000.;
 	  
 	while(1) {
 		usleep(1);
-		musicTime = timer->getTime() - start;
+		musicTime = timer->getTime()/1000. - start;
 		
 		// handle end of the game
 		if (havetoEndMusic || player[0]->HP == 0 || player[1]->HP == 0) {
@@ -234,13 +234,11 @@ static void *updater(void *argument)
 			if (endMusicFirstTime) {
 				screen->showKO();
 				endMusicFirstTime = false;
-				timeMusicEnded = timer->getTime();
+				timeMusicEnded = timer->getTime()/1000.;
 			}
 			
-			endMusicOffset = timer->getTime() - timeMusicEnded;
+			endMusicOffset = timer->getTime()/1000. - timeMusicEnded;
 			if (endMusicOffset > DELAY_AFTER_KO) {
-				//cout << "THANKS FOR PLAYING MUSA - TAOLITERODS" << endl;
-				//device->closeDevice();
 				initGame();
 				return 0;
 			}
@@ -288,9 +286,7 @@ static void *updater(void *argument)
 }
 
 bool loadNotes( std::string path )
-{
-	musaGui.box->clear();
-	
+{	
 	int foundDifficulties=0;
 	for(int i=0; i<NDIFFICULTIES; i++) {
 		if(theMusic[i])
@@ -303,16 +299,16 @@ bool loadNotes( std::string path )
 			
 			switch(i) {
 				case EXPERT:
-					musaGui.box->addItem(L"Expert", EXPERT);
+					musaGui.diffBox->addItem(L"Expert", EXPERT);
 					break;
 				case HARD:
-					musaGui.box->addItem(L"Hard", HARD);
+					musaGui.diffBox->addItem(L"Hard", HARD);
 					break;
 				case MEDIUM:
-					musaGui.box->addItem(L"Medium", MEDIUM);
+					musaGui.diffBox->addItem(L"Medium", MEDIUM);
 					break;
 				case EASY:
-					musaGui.box->addItem(L"Easy", EASY);
+					musaGui.diffBox->addItem(L"Easy", EASY);
 					break;
 			}
 		}
@@ -339,6 +335,29 @@ void loadSong( std::string path, int which )
 
 void startGame( int difficulty, bool useAI)
 {	
+	if(device->activateJoysticks(joystickInfo)) {
+		cout << "Joystick support is enabled and " << joystickInfo.size() << " joystick(s) are present." << endl;
+		for(u32 joystick = 0; joystick < joystickInfo.size(); ++joystick) {
+			cout << "Joystick " << joystick << ":" << endl;
+			cout << "\tName: '" << joystickInfo[joystick].Name.c_str() << "'" << endl;
+			cout << "\tAxes: " << joystickInfo[joystick].Axes << endl;
+			cout << "\tButtons: " << joystickInfo[joystick].Buttons << endl;
+		}
+	}
+	else
+		cout << "Joystick support is not enabled." << endl;
+
+	EKEY_CODE eventsKeyboard1[NFRETS] = { KEY_KEY_A, KEY_KEY_S, KEY_KEY_J, KEY_KEY_K, KEY_KEY_L };
+	EKEY_CODE eventsKeyboard2[NFRETS] = { KEY_KEY_Q, KEY_KEY_W, KEY_KEY_U, KEY_KEY_I, KEY_KEY_O };
+	//int eventsJoystick1[NFRETS] = {4,6,7,5,2};
+	//int eventsJoystick2[NFRETS] = {4,6,7,5,2};
+
+	player[0]->fretting->setEvents(eventsKeyboard1, KEY_SPACE );
+	//player[0]->fretting->setEvents(eventsJoystick1, joystickInfo, 0, 3);	//comment this line to use keyboard for player 1
+	player[1]->fretting->setEvents(eventsKeyboard2, KEY_KEY_C );
+	//player[1]->fretting->setEvents(eventsJoystick2, joystickInfo, 0, 3);	//comment this line to use keyboard for player 2
+	
+		
 	selMusic = *theMusic[difficulty];
 	screen->musicTotalTime = selMusic.back().time;
 	//decoder.printMusic(selMusic);
@@ -394,30 +413,6 @@ void initMusa()
 	
 	player[0]->fretting->receiver = receiver;
 	player[1]->fretting->receiver = receiver;
-	
-
-	if(device->activateJoysticks(joystickInfo)) {
-		cout << "Joystick support is enabled and " << joystickInfo.size() << " joystick(s) are present." << endl;
-		for(u32 joystick = 0; joystick < joystickInfo.size(); ++joystick) {
-			cout << "Joystick " << joystick << ":" << endl;
-			cout << "\tName: '" << joystickInfo[joystick].Name.c_str() << "'" << endl;
-			cout << "\tAxes: " << joystickInfo[joystick].Axes << endl;
-			cout << "\tButtons: " << joystickInfo[joystick].Buttons << endl;
-		}
-	}
-	else
-		cout << "Joystick support is not enabled." << endl;
-
-
-	EKEY_CODE eventsKeyboard1[NFRETS] = { KEY_KEY_A, KEY_KEY_S, KEY_KEY_J, KEY_KEY_K, KEY_KEY_L };
-	EKEY_CODE eventsKeyboard2[NFRETS] = { KEY_KEY_Q, KEY_KEY_W, KEY_KEY_U, KEY_KEY_I, KEY_KEY_O };
-	//int eventsJoystick1[NFRETS] = {4,6,7,5,2};
-	//int eventsJoystick2[NFRETS] = {4,6,7,5,2};
-
-	player[0]->fretting->setEvents(eventsKeyboard1, KEY_SPACE );
-	//player[0]->fretting->setEvents(eventsJoystick1, joystickInfo, 0, 3);	//comment this line to use keyboard for player 1
-	player[1]->fretting->setEvents(eventsKeyboard2, KEY_KEY_C );
-	//player[1]->fretting->setEvents(eventsJoystick2, joystickInfo, 0, 3);	//comment this line to use keyboard for player 2
 
 	sem_init(&semaphore, 0, 1);
 
@@ -529,7 +524,6 @@ int main(int argc, char *argv[])
 			env->drawAll();
 		driver->endScene();
 		
-
 		// FPS
 		int fps = driver->getFPS();
 		static int lastFPS = 0;
@@ -539,10 +533,6 @@ int main(int argc, char *argv[])
 		}
 	}
 	
-	
-	/*
-	 * End the game gracefully =D
-	 */	
 	return 0;
 }
 

@@ -29,8 +29,8 @@ void makeMainMenu()
 	env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 130-32/2),dimension2di(100,32)), window, GUI_ID_LOAD_MUSIC2, L"Load Song File 2", L"Loads an optional secondary song's audio file (usually the guitar line)");
 	
 	// difficulty combobox
-	musaGui.box = env->addComboBox(rect<s32>(position2di(WINSIZEX/2-100/2, 195-20/2),dimension2di(100,20)), window);
-	musaGui.box->setEnabled(false);
+	musaGui.diffBox = env->addComboBox(rect<s32>(position2di(WINSIZEX/2-100/2, 195-20/2),dimension2di(100,20)), window);
+	musaGui.diffBox->setEnabled(false);
 	// AI checkbox
 	musaGui.aiCheck = env->addCheckBox(true, rect<s32>(position2di(WINSIZEX/2-20/2-40, 220-20/2),dimension2di(20,20)), window);
 	env->addStaticText(L"Play against AI?", rect<s32>(position2di(WINSIZEX/2+25-100/2, 220-20/2),dimension2di(100,20)), false, true, window);

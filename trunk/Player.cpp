@@ -27,7 +27,7 @@ void Player::initialize()
 {
 	damageTaken = 0;
 	isUsingSkill = false;
-	lastTimeUpdatedStatus = timer->getTime();
+	lastTimeUpdatedStatus = timer->getTime()/1000.;
 	hasMagicBarrier = false;
 	hasMirror = false; 
 	isChaotic = false;
@@ -53,7 +53,7 @@ void Player::initialize()
 void Player::update()
 {
 	//SEvent *anEvent=NULL;
-	double elapsedTime = timer->getTime() - lastTimeUpdatedStatus;
+	double elapsedTime = timer->getTime()/1000. - lastTimeUpdatedStatus;
 	
 	track->update();
 	
@@ -78,7 +78,7 @@ void Player::update()
 				changeStamina(STAMINA_GAINED_BY_NOTE * fretting->frettingState * multiplier);
 		}
 		
-		lastTimeUpdatedStatus = timer->getTime();
+		lastTimeUpdatedStatus = timer->getTime()/1000.;
 	}
 	
 	// Handle when the player left behind notes he should have played
