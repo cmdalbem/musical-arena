@@ -41,7 +41,7 @@
 ///////////////////////////////////
 
 #define UPDATE_STATUS_TIME 4
-#define DEFAULT_HP 800
+#define DEFAULT_HP 1500
 #define DEFAULT_STAMINA 300
 #define DEFAULT_ARMOR 10
 #define DEFAULT_TOLERANCE 0.2
