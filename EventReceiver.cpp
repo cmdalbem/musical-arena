@@ -86,14 +86,16 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 
 					case GUI_ID_START_BUTTON:
 					{
-						int difficulty = context->diffBox->getItemData(context->diffBox->getSelected());
-						bool useAi = context->aiCheck->isChecked();
+						int difficulty = context->diffBox->getItemData(context->diffBox->getSelected());					
+						controlType playerControls[NPLAYERS];
+						for(int i=0; i<NPLAYERS; i++)
+							playerControls[i] = (controlType) context->control[i]->getItemData(context->control[i]->getSelected());
 						
 						context->mainWindow->remove();
 						context->mainBg->remove();
 						
 						context->state = GUI_PLAYING;
-						context->startGame(difficulty, useAi);
+						context->startGame(difficulty, playerControls);
 						return true;
 					}
 					

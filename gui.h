@@ -32,7 +32,13 @@ enum guiState
 	GUI_MAIN_MENU,
 	GUI_PLAYING
 };
-	
+
+enum controlType
+{
+	C_KEYBOARD,
+	C_JOYSTICK,
+	C_AI
+};	
 
 struct SAppContext
 {
@@ -41,15 +47,14 @@ struct SAppContext
 	s32				counter;
 	IGUIListBox		*listbox;
 	IGUIButton		*startButton;
-	IGUIComboBox	*diffBox, *playerBox[NPLAYERS];
-	IGUICheckBox	*aiCheck;
+	IGUIComboBox	*diffBox, *control[NPLAYERS];
 	
 	path			musicPath;
 	
 	IGUIImage 		*mainBg;
 	IGUIWindow 		*mainWindow;
 	
-	void (*startGame)(int, bool);
+	void (*startGame)(int, controlType[NPLAYERS]);
 	void (*loadSong)(std::string, int);
 	bool (*loadNotes)(std::string);
 };

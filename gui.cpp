@@ -32,8 +32,18 @@ void makeMainMenu()
 	musaGui.diffBox = env->addComboBox(rect<s32>(position2di(WINSIZEX/2-100/2, 195-20/2),dimension2di(100,20)), window);
 	musaGui.diffBox->setEnabled(false);
 	// AI checkbox
-	musaGui.aiCheck = env->addCheckBox(true, rect<s32>(position2di(WINSIZEX/2-20/2-40, 220-20/2),dimension2di(20,20)), window);
-	env->addStaticText(L"Play against AI?", rect<s32>(position2di(WINSIZEX/2+25-100/2, 220-20/2),dimension2di(100,20)), false, true, window);
+	//musaGui.aiCheck = env->addCheckBox(true, rect<s32>(position2di(WINSIZEX/2-20/2-40, 220-20/2),dimension2di(20,20)), window);
+	//env->addStaticText(L"Play against AI?", rect<s32>(position2di(WINSIZEX/2+25-100/2, 220-20/2),dimension2di(100,20)), false, true, window);
+	
+	musaGui.control[0] = env->addComboBox(rect<s32>(position2di(WINSIZEX/2-75, 220-20/2),dimension2di(75,20)), window);
+	musaGui.control[1] = env->addComboBox(rect<s32>(position2di(WINSIZEX/2, 220-20/2),dimension2di(75,20)), window);
+	for(int i=0; i<NPLAYERS; i++) {
+		musaGui.control[i]->addItem(L"Keyboard", C_KEYBOARD);
+		musaGui.control[i]->addItem(L"Joystick", C_JOYSTICK);
+		musaGui.control[i]->addItem(L"AI", C_AI);
+	}	
+	
+	
 	// start button
 	musaGui.startButton = env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 250-32/2),dimension2di(100,32)), window, GUI_ID_START_BUTTON, L"Start", L"Starts the game");
 	musaGui.startButton->setEnabled(false);
