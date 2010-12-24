@@ -405,6 +405,25 @@ void initGame()
 	player[0]->setInstrument(violin);
 	player[1]->setInstrument(drums);
 	
+	
+	cout<<"\n\n\n"<<endl;
+	cout << "-----------------------------------" << endl;
+	cout << "Skills avaiable for the players:" << endl;
+	for(int i=0; i<SKILLS_TOTAL; i++) {
+		//Skill( buttonType keys[], int nkeys, int nSlots, std::string skillDescription );
+		cout<<"*************************************************" << endl;
+		cout<< skillBank.skills[i].name << endl;
+		cout<<"\"" << skillBank.skills[i].description << "\"" << endl;
+		cout<<"COST: " << skillBank.skills[i].cost << endl;
+		
+		cout<<"KEY COMBINATION: ";
+		for(unsigned int k=0; k<skillBank.skills[i].keysSequence.size()-1; k++)
+			cout << skillBank.skills[i].keysSequence[k]+1 << "-";
+		cout << skillBank.skills[i].keysSequence[skillBank.skills[i].keysSequence.size()-1]+1 << endl;
+	}
+	cout<<"*************************************************" << endl;
+	
+	
 	makeMainMenu();
 }
 

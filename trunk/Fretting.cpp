@@ -32,6 +32,7 @@ Fretting::Fretting()
 void Fretting::setSkills( vector<Skill> *skills )
 {
 	skillsTree.clear();
+	
 	generateSkillsTree(skills);
 }
 

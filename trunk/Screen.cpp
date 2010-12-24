@@ -50,8 +50,8 @@ void Screen::initializeScreenElements()
 	fpsText = device->getGUIEnvironment()->addStaticText(L"", core::recti(0, 0, 100, 20));
 	fpsText->setOverrideColor( SColor(255,255,255,255) );
 	
-	#define HUD_BARS_Y (SCREENY-200)
-	//#define HUD_BARS_Y (SCREENY-80)
+	//#define HUD_BARS_Y (SCREENY-200)
+	#define HUD_BARS_Y (SCREENY-80)
 
 	timeText = device->getGUIEnvironment()->addStaticText(L"", core::recti( position2di(SCREENX/2-50, HUD_BARS_Y-15), dimension2di(100,50) ) , false);
 	timeText->setTextAlignment( EGUIA_CENTER,EGUIA_CENTER );

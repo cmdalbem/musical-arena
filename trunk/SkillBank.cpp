@@ -32,8 +32,8 @@ void SkillBank::makeSkills()
 	{
 		buttonType k[] = {B4,B5,B3,B4,B2,B3,B1,B2,B4,B5,B3,B4,B2,B3,B1,B2};
 		effectStruct e[] = {{T_BURN, 20},{T_BREAK_DEFENSE, 20}};
-		Skill s("Sunbirth", ATTACK, S_BIG, 200, FIRE, e, 2, EFFECT_SUN, k, 16,
-		5, "");
+		Skill s("Starbirth", ATTACK, S_BIG, 200, FIRE, e, 2, EFFECT_SUN, k, 16,
+		5, "Uses the mightiest powers of Fire to give birth to a Star right in the front your enemy, obstructing his vision and leaving him with no defenses at all!");
 		skills[SUNBIRTH] = s;
 	}
 	{
@@ -73,7 +73,7 @@ void SkillBank::makeSkills()
 		buttonType k[] = {B3,B3,B4,B4,B5,B5};
 		effectStruct e[] = {{T_CHAOTIC_SPEED, 8}};
 		Skill s("Ball Lightning", ATTACK, S_ELECTRIC1, 110, THUNDER, e, 1, EFFECT_BALL_LIGHTNING, k, 6,
-		7, "And ancient tecnique, taught by the Zen masters who could also control Thunder. It shummons an electric begin from another dimension, which can eletrify the body and the mind of the opponent.");
+		7, "An ancient tecnique, taught by the Zen masters who could also control Thunder. It shummons an electric begin from another dimension, which can eletrify the body and the mind of the opponent.");
 		skills[BALL_LIGHTNING] = s;
 	}
 	
@@ -106,7 +106,7 @@ void SkillBank::makeSkills()
 		buttonType k[] = {B4,B5,B3,B4,B5,B3};
 		effectStruct e[] = {{T_BLESS, 5},{T_DEFENSE_UP, 3}};
 		Skill s("Aurora", DEFENSE, S_MAGIC1, 270, SPIRITUAL, e, 2, EFFECT_AURORA, k, 6,
-		7, "A beautifull bless.");
+		7, "A beautifull bless. Give you Bless status and raises up the defense.");
 		skills[AURORA] = s;
 	}
 	
@@ -118,7 +118,7 @@ void SkillBank::makeSkills()
 		buttonType k[] = {B4,B4,B5,B5,B3,B3,B2,B2,B1,B1};
 		effectStruct e[] = {{T_CURSE, 10}};
 		Skill s("Soul Corruption", ATTACK, S_HORROR1, 90, DARK, e, 1, EFFECT_BLACKHOLE, k, 10,
-		3, "");
+		3, "Corrupts the soul of your enemy with the creepiest thoughts, making him take damage even with what should save him, which is playing the music!");
 		skills[SOUL_CORRUPTION] = s;
 	}
 	{
@@ -132,7 +132,7 @@ void SkillBank::makeSkills()
 		buttonType k[] = {B5,B4,B3,B3,B4,B5,B5,B4,B3,B2,B1};
 		effectStruct e[] = {{T_VAMPIRIC, 100}};
 		Skill s("Vampiric", ATTACK, S_HORROR2, 90, DARK, e, 1, EFFECT_VAMPIRIC, k, 11,
-		4, "");
+		4, "You will suck the life out of me!");
 		skills[VAMPIRIC] = s;
 	}	
 	{
@@ -171,7 +171,7 @@ void SkillBank::makeSkills()
 		buttonType k[] = {B1,B2,B3,B4,B5,B5,B1,B2,B3,B4,B5,B5};
 		effectStruct e[] = {{T_FREEZE, 8}};
 		Skill s("Siberian", ATTACK, S_ICE1, 120, WATER, e, 1, EFFECT_FREEZE, k, 12,
-		7, "");
+		7, "Thaught by Grand Master Camus of Aquarius, this will freeze your enemies fingers until he cannot play anymore.");
 		skills[SIBERIAN] = s;
 	}	
 	
