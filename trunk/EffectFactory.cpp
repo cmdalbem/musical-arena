@@ -209,7 +209,7 @@ void EffectFactory::handleEffectsQueue()
 				effectIce(target,10000);
 				break;
 			case EFFECT_BLACKHOLE:
-				effectBlackHole(target,10000);
+				effectBlackHole(target,8000);
 				for(int i=0; i<50; i++)
 					queueEffect( 2000 + rand()%10000, EFFECT_BLACKHOLE_BOLT, target );
 				break;

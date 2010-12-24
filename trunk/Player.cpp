@@ -102,39 +102,9 @@ void Player::update()
 				firstStones[i] = NULL;
 		if (useAI && !isFrozen)
 			gotAnEvent = fretting->verifyEventsAI(firstStones);
-		/*else if(anEvent = fretting->receiver->getEvent())
-			{
-				fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
-			for (int i=0; i<fretting->receiver->getEventsSize(); i++)
-				fretting->verifyEvents(fretting->receiver->getEvent(i), firstStones, &isUsingSkill);
-			while((anEvent = (fretting->receiver->getEvent())) && (gotAnEvent != 0))
-			{
-				//sem_wait(fretting->receiver->semaphore);
-				if (!activateAI)
-					gotAnEvent = fretting->verifyEvents( anEvent, firstStones, &usingSkill);
-				//castedSpell = fretting->castedSpell;
-			
-				if (gotAnEvent != 0)
-				{
-					// removes the first event of the events vector (so we can deal with the others =D)
-					fretting->receiver->removeEvent();
-				
-					// check if the player must lose some HP or earn some XP
-					int state = fretting->getFrettingState();
-					if (gotAnEvent != SKILLBUTTON_INDEX)
-					{
-						if (state == -1)
-							takeDamage (1 * IS_STATUS_FIRE);	// IS_STATUS_FIRE is defined in utils.h
-						else if (state > 0)
-							XP += state;
-					}
-				}
-			}
-		}*/
-			//cout << "vai verificar eventos" << endl;
-			//cout << "terminou de verificar eventos" << endl;
 	}
 }
+
 void Player::updateEvents()
 {
 	SEvent *anEvent=NULL;

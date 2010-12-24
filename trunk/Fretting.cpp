@@ -281,143 +281,156 @@ int Fretting::verifyEvents(SEvent *event, Stone* stones[NFRETS], bool *usingSkil
 	 * 
 	 * Total time lost: 6h23 minutes
 	 */
-	lastState = _hitting[usefulButton];	// stores the old value of the actual pressed button
-	if 	((type == KEYBOARD && event->KeyInput.PressedDown) || // key was pressed down
-		(type == JOYSTICK && _trackPressed[usefulButton])) // joystick button was pressed down
-	{
-		switch (_hitting[usefulButton])
-		{
-		case 0: // wasn't pressing
-		{
-			// search skills
-			if (*usingSkill == 1)
-			{
-				castedSpell = findSkill( (buttonType)usefulButton );
 				
-				if(castedSpell) {
-					//casted!
-					*usingSkill = 0;
-				}
-				
-				else if( actualSkillNode == skillsTree.begin() ) 
-					//missed! aborting Solo
-					*usingSkill = 0;
-				else
-					;//still has chances to cast something
-			}
-			
-			if (*musicTime > noteCreationTime - tolerance &&
-				*musicTime < noteCreationTime + tolerance)
-				// hit strike
-				_hitting[usefulButton] = 1;
-			else
-				// missed strike
-				_hitting[usefulButton] = -1;
-			break;
-		}	
-		case 1: // hitting
-			if (*musicTime < noteDestructionTime &&
-				*musicTime > noteCreationTime)
-				// holding the button
-				_hitting[usefulButton] = 1;
-			else
-				// didnt press in the strike
-				_hitting[usefulButton] = 2;
-			break;
-		case 2: // holding "do nothing" state
-			if (*musicTime > noteCreationTime &&
-				*musicTime < noteCreationTime + tolerance)
-				_hitting[usefulButton] = -1;
-			else
-				_hitting[usefulButton] = 2;
-			break;
-		case -1: // missed
-			if (*musicTime > noteCreationTime &&
-				*musicTime < noteCreationTime + tolerance)
-				_hitting[usefulButton] = -1;
-			else
-				_hitting[usefulButton] = 2;
-			break;
-		}
-	}
-	else // key was released
+	// if using skill... takes care of skills
+	if (*usingSkill == 1)
 	{
-		_hitting[usefulButton] = 0; // it's not being pressed
-		//cout << "setou pra 0\t" << endl;
-	}
-	//cout << "2" << endl;
-	
-	// tests if I am pressing a chord in this moment
-	if (lastState == 0 && _hitting[usefulButton] == 1)	// i.e., I hit a note NOW
-	// find out if the note belongs to a chord
-	{
-		int 	notesOnChord = 0;
-		int 	hitNotes;
-		double	stonesCreationTime[NFRETS];
-		bool	wrongNote = false;
+		lastState = _hitting[usefulButton];	// stores the old value of the actual pressed button
+		if ((type == KEYBOARD && event->KeyInput.PressedDown) || // key was pressed down
+			(type == JOYSTICK && _trackPressed[usefulButton]))// joystick button was pressed down
+		{
+			if (lastState == 0)
+				_hitting[usefulButton] = 2;
 		
-		for (int i = 0; i < NFRETS; i++)
-			if (_hitting[i] == 2 || _hitting[i] == -1)
-				wrongNote = true;
-
-		if ((!wrongNote) && (stones[usefulButton]->pressed == false))
-		{		
-			stones[usefulButton]->pressed = true;
-			
-			// CHORD DETECTION
-			// takes the times of the chord
-			for (int i = 0; i < NFRETS; i++)
-				if (stones[i] != NULL)
-					stonesCreationTime[i] = stones[i]->event.time;
-				else
-					stonesCreationTime[i] = INT_MAX;
-			// finds out how many notes we have on the chord
-			for (int i = 0; i < NFRETS; i++)
-				if (stonesCreationTime[usefulButton] == stonesCreationTime[i])
-					notesOnChord++;
-
-			hitNotes = notesOnChord;
-			// counts how many pressed notes we have on the chord
-			for (int i = 0; i < NFRETS; i++)
-				if (_hitting[i] == 1)
-					hitNotes--;
-
-			if (hitNotes == 0)
-				nextFrettingState = notesOnChord;	// nextFrettingState <- how many notes are right
+			castedSpell = findSkill( (buttonType)usefulButton );
+			//cout << "apertou" << endl;
+			if(castedSpell) {
+				//casted!
+				*usingSkill = 0;
+			}
+			else if( actualSkillNode == skillsTree.begin() ) 
+				//missed! aborting Solo
+				*usingSkill = 0;
 			else
-				nextFrettingState = -2;	// waiting for the next notes to be pressed
+				;//still has chances to cast something
 		}
 		else
-		{
-			lostNote();
-			nextFrettingState = -1;
-		}
-	}
-	//cout << "3" << endl;	
-	if (nextFrettingState == -3)
-	{
-		switch( _hitting[usefulButton] )
-		{
-		case 0:
-			nextFrettingState = 0;
-			break;
-		case 1:
-			nextFrettingState = frettingState;	// continues hitting
-			break;
-		case 2:
-			nextFrettingState = 0;
-			//cout << "frettingState????" << endl;
-			break;
-		case -1:
-			nextFrettingState = -1;
-			lostNote();
-			break;
-		}
-	}
-	
-	if (nextFrettingState != -3)
-		frettingState = nextFrettingState;
+			_hitting[usefulButton] = 0;
 		
+	}
+	else
+	// if is not using skill... takes care of buttons u.u
+	{	
+		lastState = _hitting[usefulButton];	// stores the old value of the actual pressed button
+		if 	((type == KEYBOARD && event->KeyInput.PressedDown) || // key was pressed down
+			(type == JOYSTICK && _trackPressed[usefulButton])) // joystick button was pressed down
+		{
+			switch (_hitting[usefulButton])
+			{
+			case 0: // wasn't pressing
+			{			
+				if (*musicTime > noteCreationTime - tolerance &&
+					*musicTime < noteCreationTime + tolerance)
+					// hit strike
+					_hitting[usefulButton] = 1;
+				else
+					// missed strike
+					_hitting[usefulButton] = -1;
+				break;
+			}	
+			case 1: // hitting
+				if (*musicTime < noteDestructionTime &&
+					*musicTime > noteCreationTime)
+					// holding the button
+					_hitting[usefulButton] = 1;
+				else
+					// didnt press in the strike
+					_hitting[usefulButton] = 2;
+				break;
+			case 2: // holding "do nothing" state
+				if (*musicTime > noteCreationTime &&
+					*musicTime < noteCreationTime + tolerance)
+					_hitting[usefulButton] = -1;
+				else
+					_hitting[usefulButton] = 2;
+				break;
+			case -1: // missed
+				if (*musicTime > noteCreationTime &&
+					*musicTime < noteCreationTime + tolerance)
+					_hitting[usefulButton] = -1;
+				else
+					_hitting[usefulButton] = 2;
+				break;
+			}
+		}
+		else // key was released
+		{
+			_hitting[usefulButton] = 0; // it's not being pressed
+			//cout << "setou pra 0\t" << endl;
+		}
+		//cout << "2" << endl;
+	
+		// tests if I am pressing a chord in this moment
+		if (lastState == 0 && _hitting[usefulButton] == 1)	// i.e., I hit a note NOW
+		// find out if the note belongs to a chord
+		{
+			int 	notesOnChord = 0;
+			int 	hitNotes;
+			double	stonesCreationTime[NFRETS];
+			bool	wrongNote = false;
+		
+			for (int i = 0; i < NFRETS; i++)
+				if (_hitting[i] == 2 || _hitting[i] == -1)
+					wrongNote = true;
+
+			if ((!wrongNote) && (stones[usefulButton]->pressed == false))
+			{		
+				stones[usefulButton]->pressed = true;
+			
+				// CHORD DETECTION
+				// takes the times of the chord
+				for (int i = 0; i < NFRETS; i++)
+					if (stones[i] != NULL)
+						stonesCreationTime[i] = stones[i]->event.time;
+					else
+						stonesCreationTime[i] = INT_MAX;
+				// finds out how many notes we have on the chord
+				for (int i = 0; i < NFRETS; i++)
+					if (stonesCreationTime[usefulButton] == stonesCreationTime[i])
+						notesOnChord++;
+
+				hitNotes = notesOnChord;
+				// counts how many pressed notes we have on the chord
+				for (int i = 0; i < NFRETS; i++)
+					if (_hitting[i] == 1)
+						hitNotes--;
+
+				if (hitNotes == 0)
+					nextFrettingState = notesOnChord;	// nextFrettingState <- how many notes are right
+				else
+					nextFrettingState = -2;	// waiting for the next notes to be pressed
+			}
+			else
+			{
+				lostNote();
+				nextFrettingState = -1;
+			}
+		}
+		//cout << "3" << endl;	
+		if (nextFrettingState == -3)
+		{
+			switch( _hitting[usefulButton] )
+			{
+			case 0:
+				nextFrettingState = 0;
+				break;
+			case 1:
+				nextFrettingState = frettingState;	// continues hitting
+				break;
+			case 2:
+				nextFrettingState = 0;
+				//cout << "frettingState????" << endl;
+				break;
+			case -1:
+				nextFrettingState = -1;
+				lostNote();
+				break;
+			}
+		}
+	
+		if (nextFrettingState != -3)
+			frettingState = nextFrettingState;
+	}
 	//cout << "frettingState on verifyEvents: " << frettingState << endl;
 	return 1;
 	}
