@@ -59,6 +59,7 @@ double 					musicTime;
 sem_t semaphore;
 sem_t receiverSemaphore;
 
+
 void 			handleSpells();
 void 			handleHittingStates();
 static void 	*updater(void *argument);
@@ -68,6 +69,8 @@ void 			startGame( int difficulty, bool useAI);
 void 			initGame();
 void 			initIrrlicht();
 static void 	*debugger (void *argument);
+
+
 
 void handleSpells()
 {
@@ -258,15 +261,14 @@ static void *updater(void *argument)
 		
 		sem_wait(&semaphore);
 			// AI spell casting
-			if (player[1]->useAI == true && !player[1]->isFrozen)
-			{
-				double chance = rand() % 30000;
-				if (chance == 0)
-				{
-					int random = rand() % (player[1]->instrument->skills.size());
-					player[1]->fretting->castedSpell = &(player[1]->instrument->skills[random]);	
+			for(int i=0; i<NPLAYERS; i++)
+				if (player[i]->useAI == true && !player[i]->isFrozen) {
+					double chance = rand() % 30000;
+					if (chance == 0) {
+						int random = rand() % (player[i]->instrument->skills.size());
+						player[i]->fretting->castedSpell = &(player[i]->instrument->skills[random]);	
+					}
 				}
-			}
 			
 			handleSpells();
 			
@@ -333,7 +335,7 @@ void loadSong( std::string path, int which )
 	}
 }
 
-void startGame( int difficulty, bool useAI)
+void startGame( int difficulty, controlType controls[NPLAYERS] )
 {	
 	if(device->activateJoysticks(joystickInfo)) {
 		cout << "Joystick support is enabled and " << joystickInfo.size() << " joystick(s) are present." << endl;
@@ -347,24 +349,28 @@ void startGame( int difficulty, bool useAI)
 	else
 		cout << "Joystick support is not enabled." << endl;
 
-	EKEY_CODE eventsKeyboard1[NFRETS] = { KEY_KEY_A, KEY_KEY_S, KEY_KEY_J, KEY_KEY_K, KEY_KEY_L };
-	EKEY_CODE eventsKeyboard2[NFRETS] = { KEY_KEY_Q, KEY_KEY_W, KEY_KEY_U, KEY_KEY_I, KEY_KEY_O };
-	//int eventsJoystick1[NFRETS] = {4,6,7,5,2};
-	//int eventsJoystick2[NFRETS] = {4,6,7,5,2};
+	EKEY_CODE eventsKeyboard[NFRETS] = { KEY_KEY_A, KEY_KEY_S, KEY_KEY_J, KEY_KEY_K, KEY_KEY_L };
+	//EKEY_CODE eventsKeyboard2[NFRETS] = { KEY_KEY_Q, KEY_KEY_W, KEY_KEY_U, KEY_KEY_I, KEY_KEY_O };
+	int eventsJoystick[NFRETS] = {4,6,7,5,2};
 
-	player[0]->fretting->setEvents(eventsKeyboard1, KEY_SPACE );
-	//player[0]->fretting->setEvents(eventsJoystick1, joystickInfo, 0, 3);	//comment this line to use keyboard for player 1
-	player[1]->fretting->setEvents(eventsKeyboard2, KEY_KEY_C );
-	//player[1]->fretting->setEvents(eventsJoystick2, joystickInfo, 0, 3);	//comment this line to use keyboard for player 2
-	
+	for(int i=0; i<NPLAYERS; i++)
+		switch(controls[i]) {
+			case C_KEYBOARD:
+				player[i]->fretting->setEvents(eventsKeyboard, KEY_SPACE );
+				break;
+			case C_JOYSTICK:
+				player[i]->fretting->setEvents(eventsJoystick, joystickInfo, 0, 3);
+				break;
+			case C_AI:
+				player[i]->useAI = true;
+				break;
+		}	
 		
 	selMusic = *theMusic[difficulty];
 	screen->musicTotalTime = selMusic.back().time;
 	//decoder.printMusic(selMusic);
 	
 	soundBank->stop();
-	
-	player[1]->useAI = useAI;
 	
 	/*
 	 * initializing threads
@@ -439,7 +445,7 @@ void initIrrlicht()
 	
 	// GUI
 	IGUISkin* skin = env->getSkin();
-	IGUIFont* font = env->getFont("irrlicht-1.7.2/media/fonthaettenschweiler.bmp");
+	IGUIFont* font = env->getFont("img/fonthaettenschweiler.bmp");
 	skin->setFont(font);
 	skin->setFont(env->getBuiltInFont(), EGDF_TOOLTIP);
 	/*for (s32 i=0; i<irr::gui::EGDC_COUNT ; ++i) {
