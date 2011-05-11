@@ -27,3 +27,24 @@ Skill::~Skill()
 {
  
 }
+
+void Skill::print()
+{
+	// Header
+	cout<<"*************************************************" << endl;
+	
+	// Name
+	cout<< "\t" << name << endl;
+	
+	// Description
+	cout<<"\"" << description << "\"" << endl;
+	
+	// Cost
+	cout<<"COST: " << cost << endl;
+	
+	// Key combination
+	cout<<"KEY COMBINATION: ";
+	for(unsigned int k=0; k<keysSequence.size()-1; k++)
+		cout << keysSequence[k]+1 << "-";
+	cout << keysSequence[keysSequence.size()-1]+1 << endl;
+}

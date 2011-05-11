@@ -9,7 +9,7 @@ extern ITexture	*mainMenuBg;
 void makeMainMenu()
 {
 	#define WINSIZEX SCREENX/6.
-	#define WINSIZEY SCREENY/2.7
+	#define WINSIZEY SCREENY/2.5
 	
 	// background image
 	musaGui.mainBg = env->addImage( rect<s32>(position2di(0, 0),dimension2di(SCREENX,SCREENY)) );
@@ -43,8 +43,16 @@ void makeMainMenu()
 		musaGui.control[i]->addItem(L"AI", C_AI);
 	}	
 	
+	musaGui.instrument[0] = env->addComboBox(rect<s32>(position2di(WINSIZEX/2-75, 245-20/2),dimension2di(75,20)), window);
+	musaGui.instrument[1] = env->addComboBox(rect<s32>(position2di(WINSIZEX/2, 245-20/2),dimension2di(75,20)), window);
+	for(int i=0; i<NPLAYERS; i++) {
+		musaGui.instrument[i]->addItem(L"Fire Drums", I_FIRE);
+		musaGui.instrument[i]->addItem(L"Thunder Guitar", I_THUNDER);
+		musaGui.instrument[i]->addItem(L"Zen Keyboards", I_SPIRITUAL);
+		musaGui.instrument[i]->addItem(L"Custom", I_CUSTOM);
+	}	
 	
 	// start button
-	musaGui.startButton = env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 250-32/2),dimension2di(100,32)), window, GUI_ID_START_BUTTON, L"Start", L"Starts the game");
+	musaGui.startButton = env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 280-32/2),dimension2di(100,32)), window, GUI_ID_START_BUTTON, L"Start", L"Starts the game");
 	musaGui.startButton->setEnabled(false);
 }

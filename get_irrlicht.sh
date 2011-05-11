@@ -16,4 +16,4 @@ make
 cd ../../..
 rm $FILE -I
 
-echo "Done."
+echo "Done with Irrlicht."

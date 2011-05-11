@@ -20,4 +20,4 @@ cd ..
 rm -f $FILE
 rm -r -f $FOLDER
 
-echo "Done."
+echo "Done with smf."

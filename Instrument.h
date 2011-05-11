@@ -9,6 +9,7 @@
 #include "types.h"
 #include "Skill.h"
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -16,20 +17,22 @@ class Instrument
 {
 	public:
 		Instrument();
-		Instrument( statusType newStatus);
+		Instrument( std::string name );
 		void init();
 		
-		int			sumHP;
-		int			sumStamina;
-		int			armor;
-		double		tolerance;
-		vector< Skill > 	skills;
+		std::string		name;
+		int				sumHP;
+		int				sumStamina;
+		int				armor;
+		double			tolerance;
+		vector<Skill>	skills;
 
 		statusType 	getStatus();
 		
 		void 		setStatus (statusType newStatus);
 		void 		addSkill (Skill newSkill);
 //		void 		removeSkill (...)  // pensar melhor
+		void		printSkills();
 		
 	private:
 		statusType			status;

@@ -68,7 +68,7 @@ void 			loadSong( std::string path, int which );
 void 			startGame( int difficulty, bool useAI);
 void 			initGame();
 void 			initIrrlicht();
-static void 	*debugger (void *argument);
+//static void 	*debugger (void *argument);
 
 
 
@@ -236,12 +236,14 @@ static void *updater(void *argument)
 			havetoEndMusic = true;
 			if (endMusicFirstTime) {
 				screen->showKO();
+				soundBank->playEffect(S_WIN);
 				endMusicFirstTime = false;
 				timeMusicEnded = timer->getTime()/1000.;
 			}
 			
 			endMusicOffset = timer->getTime()/1000. - timeMusicEnded;
 			if (endMusicOffset > DELAY_AFTER_KO) {
+				soundBank->stop();
 				initGame();
 				return 0;
 			}
@@ -388,41 +390,47 @@ void startGame( int difficulty, controlType controls[NPLAYERS] )
 	//screen->screenFader->fadeIn(1000);
 }
 
+void setInstruments()
+{
+	Instrument *fire = new Instrument("Fire Drums"),
+				*thunder = new Instrument("Thunder Guitar"),
+				*spiritual = new Instrument("Zen Keyboards"),
+				*dark = new Instrument("Evil Vocals"),
+				*water = new Instrument("Water Violin");
+	
+	for(int i=0; i<SKILLS_TOTAL; i++)
+		switch(skillBank.skills[i].element) {
+			case FIRE:
+				fire->addSkill( skillBank.skills[i] );
+				break;
+			case THUNDER:
+				thunder->addSkill( skillBank.skills[i] );
+				break;
+			case SPIRITUAL:
+				spiritual->addSkill( skillBank.skills[i] );
+				break;
+			case DARK:
+				dark->addSkill( skillBank.skills[i] );
+				break;
+			case WATER:
+				water->addSkill( skillBank.skills[i] );
+				break;
+			}
+		
+	player[0]->setInstrument(fire);
+	player[1]->setInstrument(thunder);
+	
+	player[0]->instrument->printSkills();
+	player[1]->instrument->printSkills();
+	//skillBank.print();
+}
+
 void initGame()
 {		
 	player[0]->initialize();
 	player[1]->initialize();
 	
-	// TEMPORARY
-	Instrument* violin = new Instrument();
-	Instrument* drums = new Instrument();
-	
-	for(int i=0; i<SKILLS_TOTAL; i++) {
-		drums->addSkill( skillBank.skills[i] );
-		violin->addSkill( skillBank.skills[i] );
-	}
-		
-	player[0]->setInstrument(violin);
-	player[1]->setInstrument(drums);
-	
-	
-	cout<<"\n\n\n"<<endl;
-	cout << "-----------------------------------" << endl;
-	cout << "Skills avaiable for the players:" << endl;
-	for(int i=0; i<SKILLS_TOTAL; i++) {
-		//Skill( buttonType keys[], int nkeys, int nSlots, std::string skillDescription );
-		cout<<"*************************************************" << endl;
-		cout<< skillBank.skills[i].name << endl;
-		cout<<"\"" << skillBank.skills[i].description << "\"" << endl;
-		cout<<"COST: " << skillBank.skills[i].cost << endl;
-		
-		cout<<"KEY COMBINATION: ";
-		for(unsigned int k=0; k<skillBank.skills[i].keysSequence.size()-1; k++)
-			cout << skillBank.skills[i].keysSequence[k]+1 << "-";
-		cout << skillBank.skills[i].keysSequence[skillBank.skills[i].keysSequence.size()-1]+1 << endl;
-	}
-	cout<<"*************************************************" << endl;
-	
+	setInstruments();	
 	
 	makeMainMenu();
 }
@@ -493,7 +501,7 @@ void initIrrlicht()
 	mainMenuBg = driver->getTexture("img/bgs/main.jpg");
 }
 
-static void *debugger (void *argument)
+/*static void *debugger (void *argument)
 {
 	while(1)
 	{
@@ -503,7 +511,7 @@ static void *debugger (void *argument)
 	}
 
 	return 0;
-}
+}*/
 
 int main(int argc, char *argv[])
 {
@@ -527,8 +535,6 @@ int main(int argc, char *argv[])
 	initMusa();
 	initGame();
 		
-	#define NBGSFILES 4
-	const path bgsBank[] = {"img/bgs/bg4.jpg", "img/bgs/bg20.jpg", "img/bgs/bg3.jpg", "img/bgs/bg5.jpg"};
 	ITexture *bgPic = driver->getTexture( bgsBank[rand()%NBGSFILES] );
 	/* 
 	 * Irrlicht Main Loop
@@ -560,77 +566,3 @@ int main(int argc, char *argv[])
 	
 	return 0;
 }
-
-////////////////////////////////////////////////////////////////////////
-// Debuging function. Saved because may be useful later.
-/*
-static void* drawer(void *argument) 
-{
-	struct	timeval start;
-	
-	// this is needed because, while we are using drawer() and updater()
-	// 	at the same time, both are editing selMusic vector.
-	// we solve the problem simply creating a copy because there's no
-	//  apparent reason need for them to be synchronized.
-	vector<musicEvent> selMusicCopied = selMusic;
-
-
-	//initializes the matrix
-	for(int lin=0; lin<SCREEN_Y; lin++)
-		for(int col=0; col<5; col++)
-			theScreen[lin][col] = NOTHING;
-
-	// get the time before starting the music (so we can know how much time passed in each note)
-	gettimeofday(&start, NULL);
-	
-	while( !endOfMusic )
-	{
-		usleep(80000);
-		system("clear");
-		
-		cout << "music time: "	   << musicTime		 << endl
-			 << "upcoming event: " << selMusicCopied[0].time << endl;
- 
-		// propagates the lines of the matrix	
-		for(int lin=SCREEN_Y-1; lin>0; lin--)
-			for(int col=0; col<NFRETS; col++)
-				theScreen[lin][col] = theScreen[lin-1][col];
-
-		while( ((musicTime + STONE_DELAY) > selMusicCopied[0].time) && !endOfMusic) {
-			// updates the first line of the matrix with the actual configuration
-			switch(selMusicCopied[0].type) {
-				case ON:
-					theScreen[0][selMusicCopied[0].button] = STRIKE;
-					break;
-				case OFF:	
-					theScreen[0][selMusicCopied[0].button] = NOTHING;		
-					break;
-				default: break;
-			}
-			
-			// avoiding segmentation faults =D
-			if(selMusicCopied.size() > 0)
-				selMusicCopied.erase(selMusicCopied.begin());
-			else
-				endOfMusic = true;
-		}
-		
-		//prints the matrix	
-		for(int lin=0; lin<SCREEN_Y; lin++)
-		{
-			for(int col=0; col<NFRETS; col++)
-			{
-				switch(theScreen[lin][col])
-				{
-					case NOTHING: cout<<" "; break;
-					case STRIKE: cout<<"O"; break;						
-					case HOLD: cout<<"|"; break;
-				}
-				cout<<"  ";
-			}
-			cout<<endl;
-		}
-	}
-	
-	return NULL;	
-}*/
