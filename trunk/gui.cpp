@@ -45,10 +45,12 @@ void makeMainMenu()
 	
 	musaGui.instrument[0] = env->addComboBox(rect<s32>(position2di(WINSIZEX/2-75, 245-20/2),dimension2di(75,20)), window);
 	musaGui.instrument[1] = env->addComboBox(rect<s32>(position2di(WINSIZEX/2, 245-20/2),dimension2di(75,20)), window);
-	for(int i=0; i<NPLAYERS; i++) {
+	for(int i=0; i<NPLAYERS; i++) {	
 		musaGui.instrument[i]->addItem(L"Fire Drums", I_FIRE);
 		musaGui.instrument[i]->addItem(L"Thunder Guitar", I_THUNDER);
 		musaGui.instrument[i]->addItem(L"Zen Keyboards", I_SPIRITUAL);
+		musaGui.instrument[i]->addItem(L"Evil Vocals", I_DARK);
+		musaGui.instrument[i]->addItem(L"Water Violin", I_WATER);
 		musaGui.instrument[i]->addItem(L"Custom", I_CUSTOM);
 	}	
 	

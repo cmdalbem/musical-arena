@@ -64,7 +64,7 @@ struct SAppContext
 	IGUIImage 		*mainBg;
 	IGUIWindow 		*mainWindow;
 	
-	void (*startGame)(int, controlType[NPLAYERS]);
+	void (*startGame)(int, controlType[NPLAYERS], instrumentType[NPLAYERS]);
 	void (*loadSong)(std::string, int);
 	bool (*loadNotes)(std::string);
 };

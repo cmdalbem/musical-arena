@@ -51,6 +51,7 @@ Player 					*player[2];
 SkillBank				skillBank;
 SoundBank				*soundBank;
 SAppContext 			musaGui;
+vector<Instrument>		instruments;
 
 bool 					isMusicPlaying =false;
 double 					musicTime;
@@ -337,8 +338,18 @@ void loadSong( std::string path, int which )
 	}
 }
 
-void startGame( int difficulty, controlType controls[NPLAYERS] )
+void startGame( int difficulty, controlType controls[NPLAYERS], instrumentType selInstrument[NPLAYERS] )
 {	
+	player[0]->setInstrument( &instruments[selInstrument[0]] );
+	player[1]->setInstrument( &instruments[selInstrument[1]] );
+	
+	cout << selInstrument[0] << endl;
+	cout << selInstrument[1] << endl;
+	cout << player[0]->instrument->name << " VS " << player[1]->instrument->name << endl;
+	
+	player[0]->instrument->printSkills();
+	player[1]->instrument->printSkills();
+	
 	if(device->activateJoysticks(joystickInfo)) {
 		cout << "Joystick support is enabled and " << joystickInfo.size() << " joystick(s) are present." << endl;
 		for(u32 joystick = 0; joystick < joystickInfo.size(); ++joystick) {
@@ -390,38 +401,36 @@ void startGame( int difficulty, controlType controls[NPLAYERS] )
 	//screen->screenFader->fadeIn(1000);
 }
 
-void setInstruments()
+void initInstruments()
 {
-	Instrument *fire = new Instrument("Fire Drums"),
-				*thunder = new Instrument("Thunder Guitar"),
-				*spiritual = new Instrument("Zen Keyboards"),
-				*dark = new Instrument("Evil Vocals"),
-				*water = new Instrument("Water Violin");
+	instruments.push_back( Instrument("Fire Drums") );
+	instruments.push_back( Instrument("Thunder Guitar") );
+	instruments.push_back( Instrument("Zen Keyboards") );
+	instruments.push_back( Instrument("Evil Vocals") );
+	instruments.push_back( Instrument("Water Violin") );
 	
 	for(int i=0; i<SKILLS_TOTAL; i++)
 		switch(skillBank.skills[i].element) {
 			case FIRE:
-				fire->addSkill( skillBank.skills[i] );
+				instruments[0].addSkill( skillBank.skills[i] );
 				break;
 			case THUNDER:
-				thunder->addSkill( skillBank.skills[i] );
+				instruments[1].addSkill( skillBank.skills[i] );
 				break;
 			case SPIRITUAL:
-				spiritual->addSkill( skillBank.skills[i] );
+				instruments[2].addSkill( skillBank.skills[i] );
 				break;
 			case DARK:
-				dark->addSkill( skillBank.skills[i] );
+				instruments[3].addSkill( skillBank.skills[i] );
 				break;
 			case WATER:
-				water->addSkill( skillBank.skills[i] );
+				instruments[4].addSkill( skillBank.skills[i] );
 				break;
 			}
 		
-	player[0]->setInstrument(fire);
-	player[1]->setInstrument(thunder);
+	player[0]->setInstrument( &instruments[0] ); //dull
+	player[1]->setInstrument( &instruments[0] ); //dull	
 	
-	player[0]->instrument->printSkills();
-	player[1]->instrument->printSkills();
 	//skillBank.print();
 }
 
@@ -430,7 +439,7 @@ void initGame()
 	player[0]->initialize();
 	player[1]->initialize();
 	
-	setInstruments();	
+	initInstruments();	
 	
 	makeMainMenu();
 }

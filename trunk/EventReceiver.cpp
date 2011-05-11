@@ -86,16 +86,24 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 
 					case GUI_ID_START_BUTTON:
 					{
+						// get selected difficulty
 						int difficulty = context->diffBox->getItemData(context->diffBox->getSelected());					
+						
+						// get selected control modes
 						controlType playerControls[NPLAYERS];
 						for(int i=0; i<NPLAYERS; i++)
 							playerControls[i] = (controlType) context->control[i]->getItemData(context->control[i]->getSelected());
+						
+						// get selected instruments
+						instrumentType playerInstruments[NPLAYERS];
+						for(int i=0; i<NPLAYERS; i++)
+							playerInstruments[i] = (instrumentType) context->instrument[i]->getItemData(context->instrument[i]->getSelected());
 						
 						context->mainWindow->remove();
 						context->mainBg->remove();
 						
 						context->state = GUI_PLAYING;
-						context->startGame(difficulty, playerControls);
+						context->startGame(difficulty, playerControls, playerInstruments);
 						return true;
 					}
 					
