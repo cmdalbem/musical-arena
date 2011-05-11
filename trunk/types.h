@@ -7,8 +7,15 @@
 using namespace std;
 
 #include "irrlicht.h"
+using namespace irr;
 
 typedef unsigned char u_char;
+
+#define NBGSFILES 4
+const irr::io::path bgsBank[] = {"img/bgs/bg4.jpg",
+						"img/bgs/bg20.jpg",
+						"img/bgs/bg3.jpg",
+						"img/bgs/bg5.jpg"};
 
 enum visualEffectFunction
 {
@@ -29,13 +36,14 @@ enum soundEffectType
 	S_MAGIC1, S_MAGIC2, S_STORM, S_UNDERWATER1, S_UNDERWATER2, S_STREAM1, 
 	S_STREAM2, S_STREAM3, S_WATERFALL, S_FIRERUMBLE, S_HORROR1, S_HORROR2, 
 	S_EARTHQUAKE, S_ELECTRIC1, S_ELECTRIC2, S_ICE1, S_ICE2, S_BIG, S_FIRESTORM,
+	S_WIN,
 	
 	S_TOTAL
 };
 const std::string wavFiles[] = { "bolt1", "bolt2", "lightning", "digital1", 
 "explosion1", "fire1", "fire2", "magic1", "magic2", "storm", "underwater", "underwater2", 
 "stream1", "stream2","stream3", "waterfall","firerumble","horror1","horror2",
-"earthquake", "electric1","electric2","ice1","ice2","big", "firestorm" };
+"earthquake", "electric1","electric2","ice1","ice2","big", "firestorm", "win" };
 const std::string missFiles[] = { "miss1", "miss2", "miss3", "miss4", "miss5", "miss6"};
 
 enum elementType

@@ -176,3 +176,15 @@ void SkillBank::makeSkills()
 	}	
 	
 }
+
+void SkillBank::print()
+{
+	cout << "\n\n\n";
+	cout << "-----------------------------------" << endl;
+	cout << "Bank of Skills:" << endl;
+	
+	for(int i=0; i<SKILLS_TOTAL; i++)		
+		skills[i].print();
+	
+	cout<<"*************************************************" << endl;	
+}

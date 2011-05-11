@@ -38,7 +38,17 @@ enum controlType
 	C_KEYBOARD,
 	C_JOYSTICK,
 	C_AI
-};	
+};
+
+enum instrumentType
+{
+	I_FIRE,
+	I_THUNDER,
+	I_SPIRITUAL,
+	I_DARK,
+	I_WATER,
+	I_CUSTOM
+};
 
 struct SAppContext
 {
@@ -47,7 +57,7 @@ struct SAppContext
 	s32				counter;
 	IGUIListBox		*listbox;
 	IGUIButton		*startButton;
-	IGUIComboBox	*diffBox, *control[NPLAYERS];
+	IGUIComboBox	*diffBox, *control[NPLAYERS], *instrument[NPLAYERS];
 	
 	path			musicPath;
 	

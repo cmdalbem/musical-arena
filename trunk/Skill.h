@@ -25,6 +25,8 @@ class Skill
 		std::string				description;
 		int						skillSlots;
 		
+		void					print();
+		
 	private:
 		
 

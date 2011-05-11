@@ -9,6 +9,7 @@ class SkillBank
 
 		Skill 		skills[SKILLS_TOTAL];
 		
+		void		print();
 		
 	private:
 		void		makeSkills();

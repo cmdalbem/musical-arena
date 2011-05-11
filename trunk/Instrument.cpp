@@ -3,14 +3,17 @@
 
 #include "Instrument.h"
 
+using std::string;
+
+
 Instrument::Instrument()
 {
 	init();
 }
 
-Instrument::Instrument( statusType newStatus)
+Instrument::Instrument( string _name )
 {
-	status = newStatus;
+	name = _name;
 	
 	init();
 }
@@ -39,3 +42,12 @@ void Instrument::addSkill(Skill newSkill)
 	skills.push_back(newSkill);
 }
 
+void Instrument::printSkills()
+{	
+	cout << "\n\n\n";
+	cout << "-----------------------------------" << endl;
+	cout << name << "'s Skills:" << endl;
+	
+	for(unsigned int i=0; i<skills.size(); i++)
+		skills[i].print();	
+}

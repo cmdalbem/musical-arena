@@ -18,4 +18,4 @@ gzip -dc $FILE | tar xf -
 mv $FOLDER fmod
 rm $FILE
 
-echo "Done."
+echo "Done with FMOD."
