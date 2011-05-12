@@ -43,12 +43,15 @@ enum controlType
 
 enum instrumentType
 {
+	I_RANDOM,
 	I_FIRE,
 	I_THUNDER,
 	I_SPIRITUAL,
 	I_DARK,
 	I_WATER,
-	I_CUSTOM
+	//I_CUSTOM,
+	
+	I_TOTAL
 };
 
 // CONTEXT STRUCTURES //////////////////////////////////////////////////
