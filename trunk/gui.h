@@ -13,18 +13,19 @@ using namespace io;
 using namespace gui;
 
 
-// GUI Controls
-enum
-{
-        GUI_ID_QUIT_BUTTON = 101,
-        GUI_ID_START_BUTTON,
-        GUI_ID_LOAD_NOTES,
-        GUI_ID_LOAD_MUSIC1,
-        GUI_ID_LOAD_MUSIC2,
-        GUI_ID_LOAD_NOTES_DIALOG,
-        GUI_ID_LOAD_MUSIC1_DIALOG,
-        GUI_ID_LOAD_MUSIC2_DIALOG,
-        GUI_INITIAL_MENU
+// GUI TYPES ///////////////////////////////////////////////////////////
+
+enum {
+	// GUI Controls
+	GUI_ID_QUIT_BUTTON = 101,
+	GUI_ID_START_BUTTON,
+	GUI_ID_LOAD_NOTES,
+	GUI_ID_LOAD_MUSIC1,
+	GUI_ID_LOAD_MUSIC2,
+	GUI_ID_LOAD_NOTES_DIALOG,
+	GUI_ID_LOAD_MUSIC1_DIALOG,
+	GUI_ID_LOAD_MUSIC2_DIALOG,
+	GUI_INITIAL_MENU
 };
 
 enum guiState
@@ -50,6 +51,8 @@ enum instrumentType
 	I_CUSTOM
 };
 
+// CONTEXT STRUCTURES //////////////////////////////////////////////////
+
 struct SAppContext
 {
 	guiState		state;
@@ -63,11 +66,16 @@ struct SAppContext
 	
 	IGUIImage 		*mainBg;
 	IGUIWindow 		*mainWindow;
+	//IGUIWindow		*gameMenu;
 	
 	void (*startGame)(int, controlType[NPLAYERS], instrumentType[NPLAYERS]);
 	void (*loadSong)(std::string, int);
 	bool (*loadNotes)(std::string);
+	void (*showHelp)();
 };
 
+// PROTOTYPES //////////////////////////////////////////////////////////
 
-void makeMainMenu();
+void initGui();
+void initMainMenu();
+void initGameMenu();

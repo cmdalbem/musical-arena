@@ -67,6 +67,7 @@ static void 	*updater(void *argument);
 bool 			loadNotes( std::string path );
 void 			loadSong( std::string path, int which );
 void 			startGame( int difficulty, bool useAI);
+void			showHelp();
 void 			initGame();
 void 			initIrrlicht();
 //static void 	*debugger (void *argument);
@@ -338,6 +339,17 @@ void loadSong( std::string path, int which )
 	}
 }
 
+void showHelp()
+{
+	wchar_t name[1024];
+	swprintf(name, 1024,L"%s", player[0]->instrument->name.c_str());
+
+	env->addMessageBox( name,
+						L"text",
+						true,
+						EMBF_OK );
+}
+
 void startGame( int difficulty, controlType controls[NPLAYERS], instrumentType selInstrument[NPLAYERS] )
 {	
 	player[0]->setInstrument( &instruments[selInstrument[0]] );
@@ -441,7 +453,7 @@ void initGame()
 	
 	initInstruments();	
 	
-	makeMainMenu();
+	initGui();
 }
 
 void initMusa()
@@ -462,6 +474,7 @@ void initMusa()
 	musaGui.startGame = &startGame;
 	musaGui.loadSong = &loadSong;
 	musaGui.loadNotes = &loadNotes;
+	musaGui.showHelp = &showHelp;
 }
 
 void initIrrlicht()

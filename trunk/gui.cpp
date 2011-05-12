@@ -6,7 +6,8 @@ extern IrrlichtDevice *device;
 extern SAppContext musaGui;
 extern ITexture	*mainMenuBg;
 
-void makeMainMenu()
+
+void initMainMenu()
 {
 	#define WINSIZEX SCREENX/6.
 	#define WINSIZEY SCREENY/2.5
@@ -57,4 +58,10 @@ void makeMainMenu()
 	// start button
 	musaGui.startButton = env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 280-32/2),dimension2di(100,32)), window, GUI_ID_START_BUTTON, L"Start", L"Starts the game");
 	musaGui.startButton->setEnabled(false);
+}
+
+void initGui()
+{
+	initMainMenu();
+	
 }
