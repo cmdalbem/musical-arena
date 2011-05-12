@@ -131,23 +131,28 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 		// MusA Events
 		/////////////////
 		
-		events.push_back(_event);
-		refreshArray(_event);
+		if (_event.EventType == irr::EET_KEY_INPUT_EVENT) { //is a keyboard event? 
+			
+			//cout << "keyboard envet: " << _event.KeyInput.Key << "\t pressed: " << _event.KeyInput.PressedDown << endl;
+			
+			if( _event.KeyInput.Key == KEY_ESCAPE )
+				;//exit(0);
+			else if( _event.KeyInput.Key==KEY_F1 && _event.KeyInput.PressedDown==0 )
+					context->showHelp();
+			else {
+				events.push_back(_event);
+				refreshArray(_event);
+			}
+		}
+		
+		return false;
 	}
 }
 
-bool EventReceiver::refreshArray(const SEvent& _event)
+void EventReceiver::refreshArray(const SEvent& _event)
 {
-	if (_event.EventType == irr::EET_KEY_INPUT_EVENT)
-	{
-		// Remember whether each key is down or up
-		KeyIsDown[_event.KeyInput.Key] = _event.KeyInput.PressedDown;
-		//cout << "recebeu evento: " << _event.KeyInput.Key << "\tpressionou: " << _event.KeyInput.PressedDown << endl;
-	}
-	else
-		return false;
-	
-	return true;
+	// Remember whether each key is down or up
+	KeyIsDown[_event.KeyInput.Key] = _event.KeyInput.PressedDown;
 }
 
 int EventReceiver::getEventsSize()
