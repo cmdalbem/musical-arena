@@ -75,7 +75,7 @@ void SkillBank::makeSkills()
 		buttonType k[] = {B3,B3,B4,B4,B5,B5};
 		effectStruct e[] = {{T_CHAOTIC_SPEED, 8}};
 		Skill s("Ball Lightning", ATTACK, S_ELECTRIC1, 110, THUNDER, e, 1, EFFECT_BALL_LIGHTNING, k, 6,
-		7, "An ancient tecnique, taught by the Zen masters who could also control Thunder. It shummons an electric begin from another dimension, which can eletrify the body and the mind of the opponent.");
+		7, "An ancient tecnique, taught by the Zen masters who could also control Thunder. It shummons an electric being from another dimension, which can eletrify the body and the mind of the opponent.");
 		skills[BALL_LIGHTNING] = s;
 	}
 	
@@ -92,7 +92,7 @@ void SkillBank::makeSkills()
 	}
 	{
 		buttonType k[] = {B1,B2,B3,B4,B5,B5,B4,B3,B2,B1};
-		effectStruct e[] = {{T_MIRROR, 4},{T_DEFENSE_UP, 2}};
+		effectStruct e[] = {{T_MIRROR, 8},{T_DEFENSE_UP, 2}};
 		Skill s("Mirror", DEFENSE, S_DIGITAL, 65, SPIRITUAL, e, 2, EFFECT_SHIELD, k, 10,
 		4, "Still, be like a mirror. Respond like an echo.");
 		skills[MIRROR] = s;

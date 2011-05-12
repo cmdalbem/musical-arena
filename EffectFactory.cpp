@@ -160,8 +160,8 @@ void EffectFactory::handleEffectsQueue()
 				effectFeedback(target);
 				break;
 			case EFFECT_SHIELD:
-				for(int i=0; i<5; i++)
-					queueEffect( i*140, EFFECT_SHIELD_SINGLE, target );
+				for(int i=0; i<8; i++)
+					queueEffect( i*1000, EFFECT_SHIELD_SINGLE, target );
 				break;
 			case EFFECT_SHIELD_SINGLE:
 				effectShield(target);

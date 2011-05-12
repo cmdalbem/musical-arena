@@ -233,9 +233,6 @@ void Screen::update()
 	drawStatus();
 	drawMultiplier();
 	
-	//effectFactory->splitBlood(0, EGL_MILD);
-	//effectFactory->splitBlood(1, EGL_MILD);
-	
 	// animate background
 	//sky->getMaterial(0).getTextureMatrix(0).setTextureTranslate( 0, -*musicTime/3 );
 	

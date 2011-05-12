@@ -26,8 +26,8 @@ void initMainMenu()
 	
 	// load file buttons
 	env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 50-32/2),dimension2di(100,32)), window, GUI_ID_LOAD_NOTES, L"Load MIDI", L"Loads a Fret's on Fire music file");
-	env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 90-32/2),dimension2di(100,32)), window, GUI_ID_LOAD_MUSIC1, L"Load Song File 1", L"Loads the main song's audio file (usually all lines except guitar)");
-	env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 130-32/2),dimension2di(100,32)), window, GUI_ID_LOAD_MUSIC2, L"Load Song File 2", L"Loads an optional secondary song's audio file (usually the guitar line)");
+	env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 90-32/2),dimension2di(100,32)), window, GUI_ID_LOAD_MUSIC1, L"Load Song File", L"Loads the main song's audio file (usually all lines except guitar)");
+	env->addButton(rect<s32>(position2di(WINSIZEX/2-100/2, 130-32/2),dimension2di(100,32)), window, GUI_ID_LOAD_MUSIC2, L"Load Guitar File", L"Loads an optional secondary song's audio file (usually the guitar line)");
 	
 	// difficulty combobox
 	musaGui.diffBox = env->addComboBox(rect<s32>(position2di(WINSIZEX/2-100/2, 195-20/2),dimension2di(100,20)), window);
@@ -47,12 +47,13 @@ void initMainMenu()
 	musaGui.instrument[0] = env->addComboBox(rect<s32>(position2di(WINSIZEX/2-75, 245-20/2),dimension2di(75,20)), window);
 	musaGui.instrument[1] = env->addComboBox(rect<s32>(position2di(WINSIZEX/2, 245-20/2),dimension2di(75,20)), window);
 	for(int i=0; i<NPLAYERS; i++) {	
+		musaGui.instrument[i]->addItem(L"Random", I_RANDOM);
 		musaGui.instrument[i]->addItem(L"Fire Drums", I_FIRE);
 		musaGui.instrument[i]->addItem(L"Thunder Guitar", I_THUNDER);
 		musaGui.instrument[i]->addItem(L"Zen Keyboards", I_SPIRITUAL);
 		musaGui.instrument[i]->addItem(L"Evil Vocals", I_DARK);
 		musaGui.instrument[i]->addItem(L"Water Violin", I_WATER);
-		musaGui.instrument[i]->addItem(L"Custom", I_CUSTOM);
+		//musaGui.instrument[i]->addItem(L"Custom", I_CUSTOM);
 	}	
 	
 	// start button

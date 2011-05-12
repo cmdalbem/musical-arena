@@ -341,26 +341,51 @@ void loadSong( std::string path, int which )
 
 void showHelp()
 {
-	wchar_t name[1024];
-	swprintf(name, 1024,L"%s", player[0]->instrument->name.c_str());
+	for(int p=0; p<NPLAYERS; p++) {
+		wchar_t title[64], skills[2048];
+		char skillstemp[2048];
+		char sequence[256];
+		
+		swprintf(title, 64,L"%s",  player[p]->instrument->name.c_str());
 
-	env->addMessageBox( name,
-						L"text",
-						true,
-						EMBF_OK );
+		sprintf(skillstemp, " ");
+		for(unsigned int i=0; i<player[p]->instrument->skills.size(); i++) {
+			Skill *s = &player[p]->instrument->skills[i];
+			
+			sprintf(sequence, " ");
+			for(unsigned int k=0; k<s->keysSequence.size()-1; k++)
+				sprintf(sequence, "%sB%i-", sequence, s->keysSequence[k]+1);
+			sprintf(sequence, "%sB%i", sequence, s->keysSequence[s->keysSequence.size()-1]+1);
+			
+			sprintf(skillstemp, "%s\n\n     %s\n\"%s\"\nCOST: %.0lf\nKEYS COMBINATION: %s", skillstemp,
+																s->name.c_str(),
+																s->description.c_str(),
+																s->cost,
+																sequence );
+		}
+		swprintf(skills, 2048, L"%s", skillstemp );
+
+		env->addMessageBox( title,
+							skills,
+							false,
+							EMBF_OK );
+	}
 }
 
 void startGame( int difficulty, controlType controls[NPLAYERS], instrumentType selInstrument[NPLAYERS] )
 {	
-	player[0]->setInstrument( &instruments[selInstrument[0]] );
-	player[1]->setInstrument( &instruments[selInstrument[1]] );
+	for(int i=0; i<NPLAYERS; i++)		
+		if(selInstrument[i]==I_RANDOM)
+			player[i]->setInstrument( &instruments[rand()%(I_TOTAL-2)] );
+		else
+			player[i]->setInstrument( &instruments[selInstrument[i]] );
 	
 	cout << selInstrument[0] << endl;
 	cout << selInstrument[1] << endl;
 	cout << player[0]->instrument->name << " VS " << player[1]->instrument->name << endl;
 	
-	player[0]->instrument->printSkills();
-	player[1]->instrument->printSkills();
+	//player[0]->instrument->printSkills();
+	//player[1]->instrument->printSkills();
 	
 	if(device->activateJoysticks(joystickInfo)) {
 		cout << "Joystick support is enabled and " << joystickInfo.size() << " joystick(s) are present." << endl;
@@ -389,7 +414,7 @@ void startGame( int difficulty, controlType controls[NPLAYERS], instrumentType s
 			case C_AI:
 				player[i]->useAI = true;
 				break;
-		}	
+		}
 		
 	selMusic = *theMusic[difficulty];
 	screen->musicTotalTime = selMusic.back().time;
