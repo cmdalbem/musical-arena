@@ -28,6 +28,8 @@ class SoundBank
 	public:
 		SoundBank( IrrlichtDevice *device );
 		~SoundBank();
+		
+		bool			isMusicPlaying1, isMusicPlaying2;
 	
 		void		 	openSongFile( const char path[] );
 		void 			openGuitarFile( const char path[] );
@@ -36,11 +38,15 @@ class SoundBank
 		void			playMissEffect();
 		void			playTheme();
 		void			stop();
+		void			pause();
+		void			unpause();
+		bool			isPlaying();
+		void			clearSongs();
 		
 	private:
 		IrrlichtDevice	*device;
 		FMOD::System 	*system;
-		FMOD::Channel 	*ch;
+		FMOD::Channel 	*ch1, *ch2, *ch3;
 		
 		// music
 		FMOD::Sound 	*song, *guitar, *theme;

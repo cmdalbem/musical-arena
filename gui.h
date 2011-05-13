@@ -25,7 +25,10 @@ enum {
 	GUI_ID_LOAD_NOTES_DIALOG,
 	GUI_ID_LOAD_MUSIC1_DIALOG,
 	GUI_ID_LOAD_MUSIC2_DIALOG,
-	GUI_INITIAL_MENU
+	
+	GUI_ID_P1SKILLS,
+	GUI_ID_P2SKILLS,
+	GUI_ID_EXIT_TO_MAIN
 };
 
 enum guiState
@@ -65,20 +68,27 @@ struct SAppContext
 	IGUIButton		*startButton;
 	IGUIComboBox	*diffBox, *control[NPLAYERS], *instrument[NPLAYERS];
 	
+	bool			loadedNotes, loadedSong1, loadedSong2;
+	
 	path			musicPath;
 	
 	IGUIImage 		*mainBg;
 	IGUIWindow 		*mainWindow;
-	//IGUIWindow		*gameMenu;
+	IGUIWindow		*gameMenu;
 	
 	void (*startGame)(int, controlType[NPLAYERS], instrumentType[NPLAYERS]);
 	void (*loadSong)(std::string, int);
 	bool (*loadNotes)(std::string);
-	void (*showHelp)();
+	void (*showHelp)(int);
+	void (*pauseGame)();
+	void (*initGame)();
 };
 
 // PROTOTYPES //////////////////////////////////////////////////////////
 
-void initGui();
-void initMainMenu();
-void initGameMenu();
+void	initGui();
+void	initGameMenu();
+
+void	showMainMenu();
+void	showGameMenu();
+void	hideGameMenu();

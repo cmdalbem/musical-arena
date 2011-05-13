@@ -13,6 +13,8 @@ SoundBank::SoundBank( IrrlichtDevice *_device )
 	result = system->init(100, FMOD_INIT_NORMAL, 0);	// Initialize FMOD.
 	ERRCHECK(result)
 
+
+	
 	song = NULL;
 	guitar = NULL;
 	
@@ -54,31 +56,58 @@ void SoundBank::playSelectedMusic()
 { 
 	if(!MUTE) {
 		if(song)
-			system->playSound(FMOD_CHANNEL_FREE, song, false, &ch);
+			system->playSound(FMOD_CHANNEL_FREE, song, false, &ch1);
 		if(guitar)
-			system->playSound(FMOD_CHANNEL_FREE, guitar, false, &ch);
+			system->playSound(FMOD_CHANNEL_FREE, guitar, false, &ch2);
 	}
 }
 
 void SoundBank::playEffect( soundEffectType which )
 {
 	if(!MUTE)
-		system->playSound(FMOD_CHANNEL_FREE, effects[which], false, &ch);
+		system->playSound(FMOD_CHANNEL_FREE, effects[which], false, &ch3);
 }
 
 void SoundBank::playMissEffect()
 {
 	if(!MUTE)
-		system->playSound(FMOD_CHANNEL_FREE, missEffects[ rand()%6 ], false, &ch);
+		system->playSound(FMOD_CHANNEL_FREE, missEffects[ rand()%6 ], false, &ch3);
 }
 
 void SoundBank::playTheme()
 {
 	if(!MUTE)
-		system->playSound(FMOD_CHANNEL_FREE, theme, false, &ch);
+		system->playSound(FMOD_CHANNEL_FREE, theme, false, &ch1);
 }
 
 void SoundBank::stop()
 {
-	ch->stop();
+	ch1->stop();
+	ch2->stop();
+}
+
+void SoundBank::pause()
+{
+	ch1->setPaused(true);
+	ch2->setPaused(true);
+}
+
+void SoundBank::unpause()
+{
+	ch1->setPaused(false);
+	ch2->setPaused(false);
+}
+
+bool SoundBank::isPlaying()
+{
+	ch1->isPlaying(&isMusicPlaying1);
+	ch2->isPlaying(&isMusicPlaying2);
+	
+	return isMusicPlaying1 || isMusicPlaying2;
+}
+
+void SoundBank::clearSongs()
+{
+	guitar = NULL;
+	song = NULL;
 }

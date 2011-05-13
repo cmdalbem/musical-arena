@@ -16,7 +16,7 @@ Track::Track( music* _theMusic, double *_musicTime, IrrlichtDevice *_device, dou
 {
 	theMusic = _theMusic;
 	musicTime = _musicTime; 
-	speed = _speed;
+	initSpeed = _speed;
 	
 	device = _device;
 	smgr = device->getSceneManager();
@@ -35,8 +35,11 @@ Track::~Track() {}
 
 void Track::initialize()
 {
+	speed = initSpeed;
 	musicPos = 0;
 	spawnDelay = sizey/speed;
+	
+	destroyAllStones();
 }
 
 void Track::update()

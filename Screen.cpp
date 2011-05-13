@@ -181,17 +181,17 @@ void Screen::drawKeys()
 			int zdisplace = 0;
 			
 			if(player[i]->isUsingSkill) {
-				glow[i][k]->setVisible(player[i]->fretting->_hitting[k]==2);				
+				glow[i][k]->setVisible(player[i]->fretting._hitting[k]==2);				
 				
 				color = fretColors[k];
 				color.setAlpha(255);
 			}
 			else
 			{	
-				glow[i][k]->setVisible(player[i]->fretting->_hitting[k]==1);
+				glow[i][k]->setVisible(player[i]->fretting._hitting[k]==1);
 				
 				// what's the state of the fret?
-				switch( player[i]->fretting->_hitting[k] )
+				switch( player[i]->fretting._hitting[k] )
 				{
 					case 0:
 						// idle
@@ -226,7 +226,7 @@ void Screen::update()
 // Here we check everything about the game that has to be drawn.
 // It's all about HUDs and special effects!
 {	
-	drawBars();
+	drawOSD();
 	drawKeys();
 	drawSoloModeState();
 	drawSplitBlood();
@@ -238,6 +238,14 @@ void Screen::update()
 	
 	effectFactory->handleEffectsQueue();
 	effectFactory->shieldmanager->drawAll();
+	
+	// FPS
+	int fps = driver->getFPS();
+	static int lastFPS = 0;
+	if (lastFPS != fps) {
+		setFps(fps);
+		lastFPS = fps;
+	}
 }
 
 void Screen::drawMultiplier()
@@ -320,8 +328,9 @@ void Screen::drawSoloModeState()
 			effectFactory->soloEffect(i,glowTex,10);		
 }
 
-void Screen::drawBars()
+void Screen::drawOSD()
 {
+	//music time counter
 	char str[30];
 	int seconds = (int)(musicTotalTime-*musicTime) % 60;
 	int minutes = (musicTotalTime-*musicTime) / 60.;
@@ -331,6 +340,7 @@ void Screen::drawBars()
 		sprintf(str,"%i:%i",minutes,seconds);
 	timeText->setText( stringw(str).c_str() );
 	
+	// health and stamina bars
 	for(int i=0; i<NPLAYERS; i++) {
 		healthBar[i]->setProgress( player[i]->HP*100/player[i]->maxHP );		
 		armorBar[i]->setProgress( (player[i]->HP+player[i]->getArmor())*100/player[i]->maxHP );
