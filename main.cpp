@@ -119,6 +119,7 @@ static void *updater(void *argument)
 				else {
 					endMusicOffset = timer->getTime()/1000. - timeMusicEnded;
 					if (endMusicOffset > DELAY_AFTER_KO) {
+						screen->hideKO();
 						initGame();
 						return 0;
 					}
