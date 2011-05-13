@@ -10,12 +10,13 @@
 class Player
 {
 	public:
-		Player( ITimer *_timer, Track *track );
+		Player( ITimer *_timer, double *_musicTime, EventReceiver *_receiver, Track *_track );
 		~Player();
-		
-		Fretting		*fretting;
+		void reset();
+				
 		Track			*track;
-		Instrument*		instrument;
+		Instrument		*instrument;
+		Fretting		fretting;
 		
 		Skill*			castedSpell;
 		int				gotAnEvent;
@@ -37,8 +38,6 @@ class Player
 		vector<statusType>		status;
 		//double			timeInStatus;
 		bool			useAI;
-
-		void 			initialize();
 		
 		int 			getArmor();
 		void 			changeStamina(int howMuch);

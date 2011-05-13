@@ -32,55 +32,184 @@ core::array<SJoystickInfo> joystickInfo;
 
 
 // Irrlicht globals
-IrrlichtDevice 			*device=0;
-IVideoDriver 			*driver=0;
-ISceneManager 			*smgr=0;
-IGUIEnvironment			*env=0;
-ICameraSceneNode 		*camera=0;
+IrrlichtDevice 			*device=NULL;
+IVideoDriver 			*driver=NULL;
+ISceneManager 			*smgr=NULL;
+IGUIEnvironment			*env=NULL;
+ICameraSceneNode 		*camera=NULL;
 EventReceiver 			*receiver;
 ITexture				*mainMenuBg;
+ITimer					*timer;
 
 ITexture				*glowTex;
 
 // MusA globals
 Decoder 				decoder;
-Screen					*screen;
 music			 		*theMusic[NDIFFICULTIES], selMusic;
 difficultyType			difficulty;
-Player 					*player[2];
 SkillBank				skillBank;
-SoundBank				*soundBank;
+SoundBank				*soundBank=NULL;
+Screen					*screen=NULL;
+Player 					*player[2]={NULL};
 SAppContext 			musaGui;
 vector<Instrument>		instruments;
 
-bool 					isMusicPlaying =false;
-double 					musicTime;
+bool 					isGameStopped=true, isGamePaused=false;
+double 					musicTime, gamePausedTime=0;
 
 // Other global
 sem_t semaphore;
 sem_t receiverSemaphore;
 
 
-void 			handleSpells();
+void 			handleCastedSpells();
 void 			handleHittingStates();
 static void 	*updater(void *argument);
+bool			testGameOver();
 bool 			loadNotes( std::string path );
 void 			loadSong( std::string path, int which );
 void 			startGame( int difficulty, bool useAI);
 void			showHelp();
+void			pauseGame();
 void 			initGame();
 void 			initIrrlicht();
 //static void 	*debugger (void *argument);
 
 
+#define START_DELAY 3
 
-void handleSpells()
+static void *updater(void *argument) 
+{
+	double start, gamePausedCompensation=0;
+	bool waiting=true;
+	
+	//game over vars
+	double timeMusicEnded, endMusicOffset;
+	bool endMusicFirstTime=true;
+	
+	// get the time before starting the music (so we can know how much time passed at each iteration)
+	start = timer->getTime()/1000.;
+	
+	while(!isGameStopped) {
+		usleep(1);
+		
+		if(isGamePaused) {
+			// On Game Paused we compensate the base time with the elapsed paused time
+			gamePausedCompensation = timer->getTime()/1000. - musicTime - start - START_DELAY;
+			start += gamePausedCompensation;
+		}
+		else {
+		
+			musicTime = timer->getTime()/1000. - start - START_DELAY;
+			
+			if( waiting && musicTime>0 ) {
+				waiting = false;
+				soundBank->playSelectedMusic();
+			}
+			
+			// Game over?
+			if ( !isGameStopped && !waiting && (!soundBank->isPlaying() || player[0]->HP == 0 || player[1]->HP == 0) ) {
+
+				if (endMusicFirstTime) {
+					screen->showKO();
+					soundBank->playEffect(S_WIN);
+					endMusicFirstTime = false;
+					timeMusicEnded = timer->getTime()/1000.;
+				}
+				else {
+					endMusicOffset = timer->getTime()/1000. - timeMusicEnded;
+					if (endMusicOffset > DELAY_AFTER_KO) {
+						initGame();
+						return 0;
+					}
+				}
+			}
+	 
+			// stones spawning
+			for(int i=0; i<NPLAYERS; i++) {
+				while( (unsigned int)player[i]->track->musicPos < selMusic.size() &&
+					   (musicTime + player[i]->track->spawnDelay) > selMusic[player[i]->track->musicPos].time ) {
+					
+					player[i]->track->processEvent(selMusic[player[i]->track->musicPos]);
+				}
+			}
+			
+			// hitting state sounds
+			handleHittingStates();
+			
+			sem_wait(&semaphore);
+				// AI spell casting
+				for(int i=0; i<NPLAYERS; i++)
+					if (player[i]->useAI == true && !player[i]->isFrozen) {
+						double chance = rand() % 30000;
+						if (chance == 0) {
+							int random = rand() % (player[i]->instrument->skills.size());
+							player[i]->fretting.castedSpell = &(player[i]->instrument->skills[random]);	
+						}
+					}
+				
+				handleCastedSpells();
+				
+				while (receiver->getEventsSize() != 0) {
+					player[0]->updateEvents();
+					player[1]->updateEvents();
+					receiver->removeEvent();
+				}
+				
+				player[0]->update();
+				player[1]->update();
+			sem_post(&semaphore);
+		}
+	}
+	
+	return NULL;
+}
+
+
+bool loadNotes( std::string path )
+{	
+	for(int i=0; i<NDIFFICULTIES; i++)
+		if(theMusic[i])
+			theMusic[i]->clear();
+		
+	int foundDifficulties=0;
+	for(int i=0; i<NDIFFICULTIES; i++) {
+
+		theMusic[i] = decoder.decodeMidi(path, (difficultyType)i);
+
+		if(theMusic[i]) {
+			++foundDifficulties;
+			
+			switch(i) {
+				case EXPERT:
+					musaGui.diffBox->addItem(L"Expert", EXPERT);
+					break;
+				case HARD:
+					musaGui.diffBox->addItem(L"Hard", HARD);
+					break;
+				case MEDIUM:
+					musaGui.diffBox->addItem(L"Medium", MEDIUM);
+					break;
+				case EASY:
+					musaGui.diffBox->addItem(L"Easy", EASY);
+					break;
+			}
+		}
+	}
+	
+	if(foundDifficulties==0)
+		return false;
+	else
+		return true;
+}
+
+void handleCastedSpells()
 {
 	for (int i = 0; i < 2; i++)
 	{
-		if (((player[i]->fretting->castedSpell) != NULL))
+		if (((player[i]->fretting.castedSpell) != NULL))
 		{
-			Skill *casted = player[i]->fretting->castedSpell;
+			Skill *casted = player[i]->fretting.castedSpell;
 
 			if (player[i]->stamina > casted->cost)
 			{			
@@ -95,7 +224,7 @@ void handleSpells()
 						isEnemyMirrored = true;
 						
                 if( isEnemyMirrored ) {
-                    player[i]->fretting->castedSpell = NULL;
+                    player[i]->fretting.castedSpell = NULL;
                     i = !i;
                 }
 
@@ -149,7 +278,7 @@ void handleSpells()
 						player[!i]->stamina = 0;
 						break;
 					case T_TOLERANCE_DOWN:
-						player[!i]->fretting->tolerance -= casted->effects[j].param;
+						player[!i]->fretting.tolerance -= casted->effects[j].param;
 						break;
 					case T_ELETRIFY:
 						player[!i]->addStatus( statusType(ST_ELETRIFIED, casted->effects[j].param) );
@@ -193,7 +322,7 @@ void handleSpells()
 				}
 			}
 		}
-		player[i]->fretting->castedSpell = NULL;
+		player[i]->fretting.castedSpell = NULL;
 	}
 }
 
@@ -201,13 +330,13 @@ void handleHittingStates()
 {
 	for(int i=0; i<NPLAYERS; i++) 
 	{
-		switch( player[i]->fretting->frettingState )
+		switch( player[i]->fretting.frettingState )
 		{
 			case 1:
 				break;
 			case -1:
 				//soundBank->playMissEffect();
-				//player[i]->fretting->frettingState = 0;
+				//player[i]->fretting.frettingState = 0;
 				break;
 			case 0:
 			case -2:
@@ -215,116 +344,6 @@ void handleHittingStates()
 		}
 	}
 }	
-
-static void *updater(void *argument) 
-{
-	double	start, timeMusicEnded;
-	bool	havetoEndMusic = false,
-			endMusicFirstTime = true;
-	double	endMusicOffset;
-	ITimer	*timer;
-	
-	timer = device->getTimer();
-	
-	// get the time before starting the music (so we can know how much time passed in each note)
-	start = timer->getTime()/1000.;
-	  
-	while(1) {
-		usleep(1);
-		musicTime = timer->getTime()/1000. - start;
-		
-		// handle end of the game
-		if (havetoEndMusic || player[0]->HP == 0 || player[1]->HP == 0) {
-			havetoEndMusic = true;
-			if (endMusicFirstTime) {
-				screen->showKO();
-				soundBank->playEffect(S_WIN);
-				endMusicFirstTime = false;
-				timeMusicEnded = timer->getTime()/1000.;
-			}
-			
-			endMusicOffset = timer->getTime()/1000. - timeMusicEnded;
-			if (endMusicOffset > DELAY_AFTER_KO) {
-				soundBank->stop();
-				initGame();
-				return 0;
-			}
-		}
- 
-		// stones spawning
-		for(int i=0; i<NPLAYERS; i++) {
-			while( (unsigned int)player[i]->track->musicPos < selMusic.size() &&
-				   (musicTime + player[i]->track->spawnDelay) > selMusic[player[i]->track->musicPos].time ) {
-				
-				player[i]->track->processEvent(selMusic[player[i]->track->musicPos]);
-			}
-		}
-		
-		// hitting state sounds
-		handleHittingStates();
-		
-		sem_wait(&semaphore);
-			// AI spell casting
-			for(int i=0; i<NPLAYERS; i++)
-				if (player[i]->useAI == true && !player[i]->isFrozen) {
-					double chance = rand() % 30000;
-					if (chance == 0) {
-						int random = rand() % (player[i]->instrument->skills.size());
-						player[i]->fretting->castedSpell = &(player[i]->instrument->skills[random]);	
-					}
-				}
-			
-			handleSpells();
-			
-			while (receiver->getEventsSize() != 0) {
-				player[0]->updateEvents();
-				player[1]->updateEvents();
-				receiver->removeEvent();
-			}
-			
-			player[0]->update();
-			player[1]->update();
-		sem_post(&semaphore);
-		
-	}
-	
-	return NULL;
-}
-
-bool loadNotes( std::string path )
-{	
-	int foundDifficulties=0;
-	for(int i=0; i<NDIFFICULTIES; i++) {
-		if(theMusic[i])
-			theMusic[i]->clear();
-
-		theMusic[i] = decoder.decodeMidi(path, (difficultyType)i);
-
-		if(theMusic[i]) {
-			++foundDifficulties;
-			
-			switch(i) {
-				case EXPERT:
-					musaGui.diffBox->addItem(L"Expert", EXPERT);
-					break;
-				case HARD:
-					musaGui.diffBox->addItem(L"Hard", HARD);
-					break;
-				case MEDIUM:
-					musaGui.diffBox->addItem(L"Medium", MEDIUM);
-					break;
-				case EASY:
-					musaGui.diffBox->addItem(L"Easy", EASY);
-					break;
-			}
-		}
-	}
-	
-	if(foundDifficulties==0)
-		return false;
-	else
-		return true;
-}
 
 void loadSong( std::string path, int which )
 {
@@ -339,54 +358,61 @@ void loadSong( std::string path, int which )
 	}
 }
 
-void showHelp()
+void showHelp( int p )
 {
-	for(int p=0; p<NPLAYERS; p++) {
-		wchar_t title[64], skills[2048];
-		char skillstemp[2048];
-		char sequence[256];
+	wchar_t title[64], skills[2048];
+	char skillstemp[2048];
+	char sequence[256];
+	
+	swprintf(title, 64,L"Skills list of: %s",  player[p]->instrument->name.c_str());
+
+	sprintf(skillstemp, " ");
+	for(unsigned int i=0; i<player[p]->instrument->skills.size(); i++) {
+		Skill *s = &player[p]->instrument->skills[i];
 		
-		swprintf(title, 64,L"%s",  player[p]->instrument->name.c_str());
+		sprintf(sequence, " ");
+		for(unsigned int k=0; k<s->keysSequence.size()-1; k++)
+			sprintf(sequence, "%sB%i-", sequence, s->keysSequence[k]+1);
+		sprintf(sequence, "%sB%i", sequence, s->keysSequence[s->keysSequence.size()-1]+1);
+		
+		sprintf(skillstemp, "%s\n\n     %s\n\"%s\"\nCOST: %.0lf\nKEYS COMBINATION: %s", skillstemp,
+															s->name.c_str(),
+															s->description.c_str(),
+															s->cost,
+															sequence );
+	}
+	swprintf(skills, 2048, L"%s", skillstemp );
 
-		sprintf(skillstemp, " ");
-		for(unsigned int i=0; i<player[p]->instrument->skills.size(); i++) {
-			Skill *s = &player[p]->instrument->skills[i];
-			
-			sprintf(sequence, " ");
-			for(unsigned int k=0; k<s->keysSequence.size()-1; k++)
-				sprintf(sequence, "%sB%i-", sequence, s->keysSequence[k]+1);
-			sprintf(sequence, "%sB%i", sequence, s->keysSequence[s->keysSequence.size()-1]+1);
-			
-			sprintf(skillstemp, "%s\n\n     %s\n\"%s\"\nCOST: %.0lf\nKEYS COMBINATION: %s", skillstemp,
-																s->name.c_str(),
-																s->description.c_str(),
-																s->cost,
-																sequence );
+	env->addMessageBox( title,
+						skills,
+						false,
+						EMBF_OK );
+}
+
+void pauseGame()
+{
+	if(!isGameStopped) {
+		
+		if(isGamePaused) {
+			hideGameMenu();
+			soundBank->unpause();
 		}
-		swprintf(skills, 2048, L"%s", skillstemp );
-
-		env->addMessageBox( title,
-							skills,
-							false,
-							EMBF_OK );
+		else {
+			showGameMenu();
+			soundBank->pause();
+		}
+			
+		isGamePaused = !(isGamePaused);
 	}
 }
 
 void startGame( int difficulty, controlType controls[NPLAYERS], instrumentType selInstrument[NPLAYERS] )
-{	
-	for(int i=0; i<NPLAYERS; i++)		
-		if(selInstrument[i]==I_RANDOM)
-			player[i]->setInstrument( &instruments[rand()%(I_TOTAL-2)] );
-		else
-			player[i]->setInstrument( &instruments[selInstrument[i]] );
+{		
+	player[0]->reset();
+	player[1]->reset();
 	
-	cout << selInstrument[0] << endl;
-	cout << selInstrument[1] << endl;
-	cout << player[0]->instrument->name << " VS " << player[1]->instrument->name << endl;
-	
-	//player[0]->instrument->printSkills();
-	//player[1]->instrument->printSkills();
-	
+	// Set up controls /////////////////////////////////////////////////
+		
 	if(device->activateJoysticks(joystickInfo)) {
 		cout << "Joystick support is enabled and " << joystickInfo.size() << " joystick(s) are present." << endl;
 		for(u32 joystick = 0; joystick < joystickInfo.size(); ++joystick) {
@@ -406,36 +432,55 @@ void startGame( int difficulty, controlType controls[NPLAYERS], instrumentType s
 	for(int i=0; i<NPLAYERS; i++)
 		switch(controls[i]) {
 			case C_KEYBOARD:
-				player[i]->fretting->setEvents(eventsKeyboard, KEY_SPACE );
+				player[i]->fretting.setEvents(eventsKeyboard, KEY_SPACE );
 				break;
 			case C_JOYSTICK:
-				player[i]->fretting->setEvents(eventsJoystick, joystickInfo, 0, 3);
+				player[i]->fretting.setEvents(eventsJoystick, joystickInfo, 0, 3);
 				break;
 			case C_AI:
 				player[i]->useAI = true;
 				break;
 		}
 		
+		
+	// Set up instruments //////////////////////////////////////////////
+	for(int i=0; i<NPLAYERS; i++)	
+		
+		if(selInstrument[i]==I_RANDOM)
+			player[i]->setInstrument( &instruments[rand()%(I_TOTAL-2)] );
+		else
+			player[i]->setInstrument( &instruments[selInstrument[i]] );
+	
+	cout << selInstrument[0] << endl;
+	cout << selInstrument[1] << endl;
+	
+	//player[0]->instrument->printSkills();
+	//player[1]->instrument->printSkills();
+	
+	
+	
+	// Set up music related variables //////////////////////////////////
+	
 	selMusic = *theMusic[difficulty];
 	screen->musicTotalTime = selMusic.back().time;
 	//decoder.printMusic(selMusic);
 	
-	soundBank->stop();
+	soundBank->stop(); //stop theme music
 	
-	/*
-	 * initializing threads
-	 */
-	pthread_t thread[3];
+	isGameStopped = false;	
+	
+	
+	// Initialize updater thread ///////////////////////////////////////
+	////////////////////////////////////////////////////////////////////
+	pthread_t thread[2];
 	int arg = 1;
-	cout << "launching Updater thread...";
+	//cout << "launching Updater thread...";
 	pthread_create(&thread[0], NULL, updater, (void *) arg);
-	cout << "done." << endl;
+	//cout << "done." << endl;
 	//pthread_create(&thread[1], NULL, debugger, (void *) arg);
-	//pthread_create(&thread[2], NULL, drawer, (void *) arg);
 	
-	soundBank->playSelectedMusic();
 	
-	//screen->screenFader->fadeIn(1000);
+	screen->screenFader->fadeIn(1500);
 }
 
 void initInstruments()
@@ -464,35 +509,27 @@ void initInstruments()
 				instruments[4].addSkill( skillBank.skills[i] );
 				break;
 			}
-		
-	player[0]->setInstrument( &instruments[0] ); //dull
-	player[1]->setInstrument( &instruments[0] ); //dull	
 	
 	//skillBank.print();
 }
 
 void initGame()
-{		
-	player[0]->initialize();
-	player[1]->initialize();
+{	
+	isGameStopped = true;
+	soundBank->stop();
+	soundBank->clearSongs();
 	
-	initInstruments();	
-	
-	initGui();
+	showMainMenu();
+	soundBank->playTheme();
 }
 
 void initMusa()
 {
-	player[0] = new Player( device->getTimer(), new Track(&selMusic,&musicTime,device,23, -18) );
-	player[1] = new Player( device->getTimer(), new Track(&selMusic,&musicTime,device,23, 18) );
+	player[0] = new Player( device->getTimer(), &musicTime, receiver, new Track(&selMusic,&musicTime,device,23, -18) );
+	player[1] = new Player( device->getTimer(), &musicTime, receiver, new Track(&selMusic,&musicTime,device,23, 18) );
+
 	screen = new Screen(device,&musicTime,player[0],player[1]);
 	
-	player[0]->fretting->musicTime = &musicTime;
-	player[1]->fretting->musicTime = &musicTime;
-	
-	player[0]->fretting->receiver = receiver;
-	player[1]->fretting->receiver = receiver;
-
 	sem_init(&semaphore, 0, 1);
 
 	// game functions to be accessed by the GUI
@@ -500,6 +537,12 @@ void initMusa()
 	musaGui.loadSong = &loadSong;
 	musaGui.loadNotes = &loadNotes;
 	musaGui.showHelp = &showHelp;
+	musaGui.pauseGame = &pauseGame;
+	musaGui.initGame = &initGame;
+		
+	initInstruments();	
+	
+	initGui();
 }
 
 void initIrrlicht()
@@ -516,6 +559,8 @@ void initIrrlicht()
 	driver = device->getVideoDriver();
 	smgr = device->getSceneManager();
 	env = device->getGUIEnvironment();
+	
+	timer = device->getTimer();
 	
 	// GUI
 	IGUISkin* skin = env->getSkin();
@@ -552,7 +597,7 @@ void initIrrlicht()
 {
 	while(1)
 	{
-		player[0]->fretting->printHitFret();
+		player[0]->fretting.printHitFret();
 		cout << "vetor.size(): " << receiver->getEventsSize() << endl;
 		usleep(80000);
 	}
@@ -568,7 +613,6 @@ int main(int argc, char *argv[])
 	 * initializing the sound engine
 	 */
 	soundBank = new SoundBank(device);
-	soundBank->playTheme();
 	
 	/*
 	 * initializing the graphics engine
@@ -581,34 +625,31 @@ int main(int argc, char *argv[])
 	 */
 	initMusa();
 	initGame();
-		
+	
 	ITexture *bgPic = driver->getTexture( bgsBank[rand()%NBGSFILES] );
+	
 	/* 
 	 * Irrlicht Main Loop
 	 */	
-	while(device->run()) {		
-		driver->beginScene(true, true);
-			// draw background
-			driver->draw2DImage( bgPic, recti(position2di(0,0), position2di(SCREENX,SCREENY)), recti(position2di(0,0),bgPic->getOriginalSize()) );
-
-			sem_wait(&semaphore);
-				driver->setRenderTarget(0, false, true);
-				player[0]->track->draw();
-				player[1]->track->draw();
-				smgr->drawAll();		
-				screen->update();
-			sem_post(&semaphore);
-			
-			env->drawAll();
-		driver->endScene();
+	while(device->run()) {	
 		
-		// FPS
-		int fps = driver->getFPS();
-		static int lastFPS = 0;
-		if (lastFPS != fps) {
-			screen->setFps(fps);
-			lastFPS = fps;
-		}
+		if(!isGamePaused)
+			driver->beginScene(true, true);
+				// draw background
+				driver->draw2DImage( bgPic, recti(position2di(0,0), position2di(SCREENX,SCREENY)), recti(position2di(0,0),bgPic->getOriginalSize()) );
+
+				sem_wait(&semaphore);
+					driver->setRenderTarget(0, false, true);
+					smgr->drawAll();		
+					if(!isGameStopped) {
+						player[0]->track->draw();
+						player[1]->track->draw();
+						screen->update();
+					}
+				sem_post(&semaphore);
+				
+				env->drawAll();
+			driver->endScene();
 	}
 	
 	return 0;

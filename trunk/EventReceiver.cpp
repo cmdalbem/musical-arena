@@ -12,11 +12,6 @@ using namespace io;
 using namespace gui;
 
 
-bool loadedNotes=false, 
-	 loadedSong1=false,
-	 loadedSong2=false;
-
-
 EventReceiver::EventReceiver( SAppContext * context )  : context(context)
 {
 	for (u32 i=0; i<KEY_KEY_CODES_COUNT; ++i)
@@ -46,15 +41,15 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 							
 							if( parsedOk ) {
 								context->diffBox->setEnabled(true);
-								loadedNotes = true;
+								context->loadedNotes = true;
 							}
 							else {
 								context->diffBox->setEnabled(false);
-								loadedNotes = false;
+								context->loadedNotes = false;
 								env->addMessageBox(L"Error", L"Sorry, I couldn't find any notes on this file. Maybe you picked the wrong one?" );
 							}
 							
-							context->startButton->setEnabled(loadedNotes && loadedSong1);
+							context->startButton->setEnabled(context->loadedNotes && context->loadedSong1);
 						}
 						break;
 					
@@ -62,9 +57,9 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 						{
 							IGUIFileOpenDialog* dialog = (IGUIFileOpenDialog*)_event.GUIEvent.Caller;
 							context->loadSong( std::string(core::stringc(dialog->getFileName()).c_str()), 0);
-							loadedSong1 = true;
+							context->loadedSong1 = true;
 														
-							context->startButton->setEnabled(loadedNotes && loadedSong1);
+							context->startButton->setEnabled(context->loadedNotes && context->loadedSong1);
 						}					
 						break;
 						
@@ -72,7 +67,7 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 						{
 							IGUIFileOpenDialog* dialog = (IGUIFileOpenDialog*)_event.GUIEvent.Caller;
 							context->loadSong( std::string(core::stringc(dialog->getFileName()).c_str()), 1);
-							loadedSong2 = true;
+							context->loadedSong2 = true;
 						}					
 						break;						
 				}
@@ -119,6 +114,19 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 						env->addFileOpenDialog(0,true,0,GUI_ID_LOAD_MUSIC2_DIALOG);
 						break;
 						
+					case GUI_ID_P1SKILLS:
+						context->showHelp(0);
+						break;
+						
+					case GUI_ID_P2SKILLS:
+						context->showHelp(1);
+						break;
+					
+					case GUI_ID_EXIT_TO_MAIN:
+						context->pauseGame();
+						context->initGame();
+						break;	
+						
 					default:
 						return false;
 				}
@@ -135,10 +143,8 @@ bool EventReceiver::OnEvent(const SEvent& _event)
 			
 			//cout << "keyboard envet: " << _event.KeyInput.Key << "\t pressed: " << _event.KeyInput.PressedDown << endl;
 			
-			if( _event.KeyInput.Key == KEY_ESCAPE )
-				;//exit(0);
-			else if( _event.KeyInput.Key==KEY_F1 && _event.KeyInput.PressedDown==0 )
-					context->showHelp();
+			if( _event.KeyInput.Key == KEY_ESCAPE && _event.KeyInput.PressedDown==0 )
+				context->pauseGame();
 			else {
 				events.push_back(_event);
 				refreshArray(_event);

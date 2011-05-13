@@ -65,6 +65,7 @@ class Track
 		IVideoDriver	*driver;
 		ITexture		*glowTex;
 		
+		double 			initSpeed;
 		double 			speed;
 		
 		void			insertStone( musicEvent event );

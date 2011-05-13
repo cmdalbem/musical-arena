@@ -6,13 +6,17 @@
 #include <ctime>
 
 /////////////////////////////////////////////////////////////////// CONSTRUCTORS
-Player::Player( ITimer *_timer, Track *_track )
+Player::Player( ITimer *_timer, double *_musicTime, EventReceiver *_receiver, Track *_track )
 {
 	timer = _timer;
 	track = _track;
-	fretting = new Fretting();
 	
-	this->initialize();
+	fretting.musicTime = _musicTime;
+	fretting.receiver = _receiver;
+	
+	instrument = NULL;
+	
+	this->reset();
 }
 
 //////////////////////////////////////////////////////////////////// DESTRUCTORS
@@ -23,7 +27,7 @@ Player::~Player()
 
 
 ////////////////////////////////////////////////////////////////// OTHER METHODS
-void Player::initialize()
+void Player::reset()
 {
 	damageTaken = 0;
 	isUsingSkill = false;
@@ -55,7 +59,8 @@ void Player::update()
 	//SEvent *anEvent=NULL;
 	double elapsedTime = timer->getTime()/1000. - lastTimeUpdatedStatus;
 	
-	track->update();
+	if(track)
+		track->update();
 	
 	// This part is executed only 4 times per second
 	if (elapsedTime >= ( 1.0 / UPDATE_STATUS_TIME ))
@@ -66,7 +71,7 @@ void Player::update()
 		if( isUsingSkill )
 			changeStamina(-STAMINA_LOST_ON_SOLO);
 		
-		if( fretting->frettingState > 0 ) {
+		if( fretting.frettingState > 0 ) {
 			bool cursed = false;
 			for (unsigned int i = 0; i < status.size(); i++)
 				if (status[i].status == ST_CURSED)
@@ -75,7 +80,7 @@ void Player::update()
 			if( cursed )
 				takeDamage(DAMAGE_PER_NOTE_MISSED);
 			else
-				changeStamina(STAMINA_GAINED_BY_NOTE * fretting->frettingState * multiplier);
+				changeStamina(STAMINA_GAINED_BY_NOTE * fretting.frettingState * multiplier);
 		}
 		
 		lastTimeUpdatedStatus = timer->getTime()/1000.;
@@ -84,7 +89,7 @@ void Player::update()
 	// Handle when the player left behind notes he should have played
 	if ( track->nonPressedChord )
 	{
-		fretting->lostNote();
+		fretting.lostNote();
 		takeDamage(track->notesOnChord * DAMAGE_PER_NOTE_MISSED); //multiplier of doom!
 		streak = 0;
 		multiplier = 1;
@@ -101,7 +106,7 @@ void Player::update()
 			else
 				firstStones[i] = NULL;
 		if (useAI && !isFrozen)
-			gotAnEvent = fretting->verifyEventsAI(firstStones);
+			gotAnEvent = fretting.verifyEventsAI(firstStones);
 	}
 }
 
@@ -110,8 +115,8 @@ void Player::updateEvents()
 	SEvent *anEvent=NULL;
 	Stone* firstStones[NFRETS];
 	gotAnEvent = -3;
-	int		lastFrettingState = fretting->frettingState;
-	if ( !isFrozen && !useAI && (anEvent = fretting->receiver->getEvent()) )
+	int		lastFrettingState = fretting.frettingState;
+	if ( !isFrozen && !useAI && (anEvent = fretting.receiver->getEvent()) )
 	{
 		for(unsigned int i=0; i<NFRETS; i++)
 			if(track->stones[i].size() > 0)
@@ -119,10 +124,10 @@ void Player::updateEvents()
 			else
 				firstStones[i] = NULL;
 
-		gotAnEvent = fretting->verifyEvents(anEvent, firstStones, &isUsingSkill);
+		gotAnEvent = fretting.verifyEvents(anEvent, firstStones, &isUsingSkill);
 		
-		//cout << "frettingState: " << fretting->frettingState << "  lastFrettingState: " << lastFrettingState << endl;
-		if ((fretting->frettingState == -1) && (lastFrettingState != -1))
+		//cout << "frettingState: " << fretting.frettingState << "  lastFrettingState: " << lastFrettingState << endl;
+		if ((fretting.frettingState == -1) && (lastFrettingState != -1))
 		{
 			streak = 0;
 			multiplier = 1;
@@ -130,9 +135,9 @@ void Player::updateEvents()
 			takeDamage (DAMAGE_PER_NOTE_MISSED);
 		}
 		
-		if ((fretting->frettingState > 0) && ((lastFrettingState == 0) || (lastFrettingState == -2)))
+		if ((fretting.frettingState > 0) && ((lastFrettingState == 0) || (lastFrettingState == -2)))
 		{
-			streak += fretting->frettingState;
+			streak += fretting.frettingState;
 			//cout << "streak: " << streak << endl;
 			if (multiplier != 4)
 			{
@@ -271,7 +276,7 @@ void Player::updateStatus()
 				break;
 			case ST_FROZEN:
 				isUsingSkill = false;
-				fretting->setAllNotPressed();
+				fretting.setAllNotPressed();
 				isFrozen = true;
 				break;
 			case ST_CURSED:
@@ -286,8 +291,8 @@ void Player::updateStatus()
 			removeStatus(status[i], i);
 	}
 	
-	if (fretting->frettingState > 0)
-		XP += fretting->frettingState;
+	if (fretting.frettingState > 0)
+		XP += fretting.frettingState;
 }
 
 void Player::setStatusNormal()
@@ -295,7 +300,7 @@ void Player::setStatusNormal()
 	status.clear();
 	
 	//resets atributes that may have been modified by the status
-	fretting->tolerance = instrument->tolerance;
+	fretting.tolerance = instrument->tolerance;
 	armor = instrument->armor;
 	
 	setStatusAttNormal();
@@ -329,10 +334,10 @@ void Player::setInstrument( Instrument *_instrument )
 	armor = instrument->armor;
 	castedSpell = NULL;	
 	
-	fretting->setSkills( &instrument->skills );
+	fretting.setSkills( &instrument->skills );
 	
 	track->tolerance = instrument->tolerance;
-	fretting->tolerance = instrument->tolerance;	
+	fretting.tolerance = instrument->tolerance;	
 }
 
 void Player::addStatus(statusType newStatus)

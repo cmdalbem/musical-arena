@@ -56,7 +56,7 @@ class Screen
 		// HUD drawing
 		void 						drawSoloModeState();
 		void						drawKeys();
-		void 						drawBars();
+		void 						drawOSD();
 		void						drawSplitBlood();
 		void 						drawStatus();
 		void						drawMultiplier();
